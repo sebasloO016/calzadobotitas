@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agregar Cliente - Botitas</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #6a5acd;
+      --secondary-color: #7b68ee;
+      --background-color: #f4f6f9;
+      --text-color: #333;
+      --white: #ffffff;
+      --danger-color: #dc3545;
+      --success-color: #28a745;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Arial', sans-serif;
+    }
+
+    body {
+      background-color: var(--background-color);
+      color: var(--text-color);
+      display: flex;
+      min-height: 100vh;
+      margin: 0.5cm;
+      position: relative;
+    }
+
+    .container-fluid {
+      display: flex;
+      flex-grow: 1;
+      gap: 20px;
+      width: 100%;
+    }
+
+    /* ===== BOTÓN MÓVIL ===== */
+    .mobile-menu-toggle {
+      display: none;
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      z-index: 1000;
+      background: var(--primary-color);
+      border: none;
+      color: var(--white);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 998;
+    }
+
+    /* ===== NAVBAR ===== */
+    .navbar-vertical {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      width: 230px;
+      padding: 20px;
+      color: var(--white);
+      display: flex;
+      flex-direction: column;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      z-index: 999;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .nav-header {
+      text-align: center;
+      font-size: 1.4em;
+      margin-bottom: 15px;
+      font-weight: bold;
+    }
+
+    .nav-menu {
+      list-style: none;
+      flex-grow: 1;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      color: var(--white);
+      text-decoration: none;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      border-radius: 6px;
+      background-color: rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+      font-size: 0.95em;
+    }
+
+    .nav-link i {
+      margin-right: 12px;
+      width: 22px;
+      text-align: center;
+      font-size: 1.1em;
+    }
+
+    .nav-link:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+      transform: translateX(8px);
+    }
+
+    .nav-link.active {
+      background-color: rgba(255, 255, 255, 0.3);
+      font-weight: 500;
+    }
+
+    /* ===== MAIN CONTENT ===== */
+    .main-content {
+      flex-grow: 1;
+      background-color: var(--white);
+      border-radius: 15px;
+      padding: 25px;
+      width: 100%;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    .logo {
+      max-width: 180px;
+      margin: 10px auto 20px;
+      display: block;
+    }
+
+    h1 {
+      color: var(--primary-color);
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    /* ===== FORM ===== */
+    .form-section {
+      background: var(--background-color);
+      border-radius: 10px;
+      padding: 20px;
+      max-width: 900px;
+      margin: 0 auto;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    .form-section h3 {
+      font-size: 1.2em;
+      margin-bottom: 20px;
+      color: var(--primary-color);
+      text-align: center;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 15px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    label {
+      font-weight: 500;
+      margin-bottom: 5px;
+    }
+
+    .form-control, .form-select {
+      padding: 10px;
+      border: 1px solid rgba(0,0,0,0.1);
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+
+    .form-control:focus, .form-select:focus {
+      border-color: var(--primary-color);
+      outline: none;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: var(--white);
+    }
+
+    .btn-secondary {
+      background: #777;
+      color: var(--white);
+    }
+
+    .alert {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+
+    @media (max-width: 768px) {
+      body { margin: 0.2cm; }
+      .container-fluid { flex-direction: column; }
+      .mobile-menu-toggle { display: block; }
+      .navbar-vertical {
+        position: fixed;
+        left: -260px;
+        top: 0;
+        bottom: 0;
+        margin: 10px;
+        height: calc(100vh - 20px);
+        overflow-y: auto;
+      }
+      .navbar-vertical.active { left: 0; }
+      .overlay.active { display: block; }
+      .main-content { width: 100%; margin-top: 60px; padding: 15px; }
+      .form-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 480px) {
+      .navbar-vertical { width: 200px; }
+      .nav-link { font-size: 0.9em; padding: 8px 10px; }
+      .nav-link i { margin-right: 10px; font-size: 1em; }
+    }
+  </style>
+</head>
+<body>
+  <button class="mobile-menu-toggle"><i class="fas fa-bars"></i></button>
+  <div class="overlay"></div>
+
+  <div class="container-fluid">
+    <!-- NAVBAR -->
+    <nav class="navbar-vertical">
+      <div class="nav-header">Panel Botitas</div>
+      <ul class="nav-menu">
+        <li><a href="/admin-dashboard" class="nav-link"><i class="fas fa-home"></i> Dashboard</a></li>
+        <li><a href="/inventario" class="nav-link"><i class="fas fa-boxes"></i> Inventario</a></li>
+        <li><a href="/stock" class="nav-link"><i class="fas fa-barcode"></i> Stock</a></li>
+        <li><a href="/usuarios" class="nav-link"><i class="fas fa-users"></i> Usuarios</a></li>
+        <li><a href="/proveedores" class="nav-link"><i class="fas fa-truck"></i> Proveedores</a></li>
+        <li><a href="/clientes" class="nav-link active"><i class="fas fa-user-plus"></i> Clientes</a></li>
+        <li><a href="/logout" class="nav-link"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</a></li>
+      </ul>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      <img src="/imagenes/logo botitas.png" alt="Logo Botitas" class="logo">
+      <h1>Agregar Nuevo Cliente</h1>
+
+      <% if (error) { %>
+        <div class="alert"><%= error %></div>
+      <% } %>
+
+      <div class="form-section">
+        <form action="/clientes/agregar" method="POST" onsubmit="return validarFormulario(event)">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="nombre">Nombre completo *</label>
+              <input type="text" id="nombre" name="nombre" class="form-control" required>
+            </div>
+
+            <div class="form-group">
+              <label for="celular">Celular</label>
+              <input type="text" id="celular" name="celular" class="form-control" placeholder="0999999999">
+            </div>
+
+            <div class="form-group">
+              <label for="email">Correo electrónico</label>
+              <input type="email" id="email" name="email" class="form-control" placeholder="cliente@correo.com">
+            </div>
+
+            <div class="form-group">
+              <label for="tipoIdentificacion">Tipo Identificación</label>
+              <select id="tipoIdentificacion" name="tipoIdentificacion" class="form-select" required>
+                <option value="">Seleccione...</option>
+                <option value="Cédula">Cédula</option>
+                <option value="RUC">RUC</option>
+                <option value="Pasaporte">Pasaporte</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="identificacion">Identificación</label>
+              <input type="text" id="identificacion" name="identificacion" class="form-control" placeholder="Número de identificación" required>
+            </div>
+
+            <div class="form-group" style="grid-column: span 2;">
+              <label for="direccion">Dirección</label>
+              <input type="text" id="direccion" name="direccion" class="form-control" placeholder="Calle Principal, Ciudad">
+            </div>
+          </div>
+
+          <div style="display:flex; gap:10px; justify-content:center; margin-top:20px;">
+            <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Guardar Cliente</button>
+            <a href="/clientes" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Cancelar</a>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const toggle = document.querySelector('.mobile-menu-toggle');
+    const navbar = document.querySelector('.navbar-vertical');
+    const overlay = document.querySelector('.overlay');
+
+    toggle.addEventListener('click', () => {
+      navbar.classList.toggle('active');
+      overlay.classList.toggle('active');
+    });
+
+    overlay.addEventListener('click', () => {
+      navbar.classList.remove('active');
+      overlay.classList.remove('active');
+    });
+
+    // Validación simple
+    function validarFormulario(event) {
+      const nombre = document.getElementById('nombre').value.trim();
+      const tipo = document.getElementById('tipoIdentificacion').value;
+      const id = document.getElementById('identificacion').value.trim();
+
+      if (!nombre || !tipo || !id) {
+        event.preventDefault();
+        alert('Por favor, completa todos los campos obligatorios.');
+        return false;
+      }
+
+      if (id.length < 8) {
+        event.preventDefault();
+        alert('La identificación debe tener al menos 8 caracteres.');
+        return false;
+      }
+
+      return true;
+    }
+  </script>
+</body>
+</html>
+

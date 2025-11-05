@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Historial de Ventas - Botitas</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <style>
+    :root {
+      --primary: #6a5acd;
+      --secondary: #7b68ee;
+      --bg: #f4f6f9;
+      --white: #fff;
+      --text: #333;
+      --danger: #dc3545;
+      --success: #28a745;
+      --shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      min-height: 100vh;
+      margin: .5cm;
+    }
+
+    .container-fluid { display: flex; flex-grow: 1; gap: 20px; width: 100%; }
+
+    /* ===== NAVBAR ===== */
+    .navbar-vertical {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      width: 230px;
+      padding: 20px;
+      color: var(--white);
+      border-radius: 15px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .nav-header {
+      text-align: center;
+      font-weight: 700;
+      font-size: 1.4em;
+      margin-bottom: 15px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      padding: 10px 12px;
+      color: var(--white);
+      text-decoration: none;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.1);
+      transition: 0.3s;
+    }
+
+    .nav-link i { margin-right: 10px; }
+
+    .nav-link:hover { background: rgba(255,255,255,0.2); transform: translateX(8px); }
+    .nav-link.active { background: rgba(255,255,255,0.3); font-weight: 600; }
+
+    /* ===== MAIN ===== */
+    .main-content {
+      flex-grow: 1;
+      background: var(--white);
+      border-radius: 15px;
+      padding: 30px;
+      box-shadow: var(--shadow);
+    }
+
+    h1 {
+      color: var(--primary);
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    /* ===== TARJETAS ===== */
+    .stats-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stats-card {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: var(--white);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: var(--shadow);
+    }
+
+    .stats-card h4 { font-size: 1.1em; margin-bottom: 8px; }
+    .stats-card p { font-size: 1.6em; font-weight: 600; }
+
+    /* ===== FILTROS ===== */
+    .filters {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .filters input, .filters select {
+      border: 1px solid rgba(0,0,0,0.1);
+      border-radius: 8px;
+      padding: 8px;
+      font-size: 14px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+
+    .filters .btn {
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: var(--white);
+    }
+
+    .btn-secondary { background: #777; color: var(--white); }
+    .btn-outline-primary { border: 1px solid var(--primary); color: var(--primary); background: transparent; }
+    .btn-outline-primary:hover { background: var(--primary); color: var(--white); }
+
+    /* ===== TABLA ===== */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    th {
+      background: var(--primary);
+      color: var(--white);
+      text-transform: uppercase;
+      font-size: 0.9em;
+      padding: 12px;
+    }
+
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #eee;
+    }
+
+    tr:hover { background: #f8f8f8; }
+
+    /* ===== MODAL ===== */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: var(--white);
+      padding: 20px;
+      border-radius: 10px;
+      width: 80%;
+      max-width: 800px;
+      box-shadow: var(--shadow);
+      animation: fadeIn 0.3s ease;
+    }
+
+    .modal-header {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      color: var(--white);
+      padding: 10px 15px;
+      border-radius: 8px 8px 0 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .close-modal {
+      cursor: pointer;
+      background: none;
+      border: none;
+      color: var(--white);
+      font-size: 1.2em;
+    }
+
+    @keyframes fadeIn { from {opacity:0; transform:scale(0.95);} to {opacity:1; transform:scale(1);} }
+
+    @media (max-width: 768px) {
+      .container-fluid { flex-direction: column; }
+      .navbar-vertical { width: 100%; border-radius: 10px; }
+      .main-content { padding: 20px; }
+      table { font-size: 0.9em; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container-fluid">
+    <!-- NAVBAR -->
+    <nav class="navbar-vertical">
+      <div class="nav-header">Panel Botitas</div>
+      <ul class="nav-menu">
+        <li><a href="/admin-dashboard" class="nav-link"><i class="fas fa-home"></i> Dashboard</a></li>
+        <li><a href="/inventario" class="nav-link"><i class="fas fa-boxes"></i> Inventario</a></li>
+        <li><a href="/clientes" class="nav-link"><i class="fas fa-users"></i> Clientes</a></li>
+        <li><a href="/proveedores" class="nav-link"><i class="fas fa-truck"></i> Proveedores</a></li>
+        <li><a href="/ventas/nueva" class="nav-link"><i class="fas fa-cash-register"></i> Nueva Venta</a></li>
+        <li><a href="/ventas/historial" class="nav-link active"><i class="fas fa-list"></i> Historial</a></li>
+        <li><a href="/logout" class="nav-link"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</a></li>
+      </ul>
+    </nav>
+
+    <!-- MAIN -->
+    <main class="main-content">
+      <h1>📊 Historial de Ventas</h1>
+
+      <!-- TARJETAS -->
+      <div class="stats-container">
+        <div class="stats-card"><h4>Total Vendido</h4><p id="totalVendido">$0.00</p></div>
+        <div class="stats-card"><h4>N° Ventas</h4><p id="totalVentas">0</p></div>
+        <div class="stats-card"><h4>Promedio Venta</h4><p id="promedioVenta">$0.00</p></div>
+      </div>
+
+      <!-- FILTROS -->
+      <div class="filters">
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <input type="text" id="buscarVenta" placeholder="Buscar por cliente o pago...">
+          <select id="filtroFecha">
+            <option value="todo">Todo</option>
+            <option value="hoy">Hoy</option>
+            <option value="semana">Esta Semana</option>
+            <option value="mes">Este Mes</option>
+          </select>
+          <input type="date" id="fechaInicio">
+          <input type="date" id="fechaFin">
+          <button id="filtrarRango" class="btn-outline-primary">Filtrar</button>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <a href="/ventas/nueva" class="btn btn-primary"><i class="fas fa-plus"></i> Nueva Venta</a>
+          <a href="/admin-dashboard" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Regresar</a>
+        </div>
+      </div>
+
+      <!-- TABLA -->
+      <% if (ventas && ventas.length > 0) { %>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Cliente</th>
+                <th>Cédula</th>
+                <th>Fecha</th>
+                <th>Forma de Pago</th>
+                <th>Total ($)</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tablaVentas">
+              <% ventas.forEach((v, i) => { %>
+                <tr data-fecha="<%= v.Fecha %>">
+                  <td><%= i + 1 %></td>
+                  <td><%= v.Cliente || 'N/A' %></td>
+                  <td><%= v.Identificacion || '' %></td>
+                  <td><%= new Date(v.Fecha).toLocaleString('es-EC', { timeZone: 'America/Guayaquil' }) %></td>
+                  <td><%= v.FormaDePago %></td>
+                  <td><%= v.ValorTotal ? v.ValorTotal.toFixed(2) : '0.00' %></td>
+                  <td>
+                    <button class="btn btn-outline-primary btn-sm verDetalle" data-id="<%= v.VentaID %>">
+                      <i class="fas fa-eye"></i> Ver
+                    </button>
+                    <button class="btn btn-danger btn-sm anularVenta" data-id="<%= v.VentaID %>">
+                      <i class="fas fa-times"></i> Anular
+                    </button>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      <% } else { %>
+        <div class="alert alert-info" style="text-align:center; margin-top:20px;">No hay ventas registradas aún.</div>
+      <% } %>
+
+      <!-- MODAL DETALLE -->
+      <div class="modal" id="detalleModal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>Detalle de Venta</h3>
+            <button class="close-modal">&times;</button>
+          </div>
+          <div class="modal-body">
+            <table style="width:100%; margin-top:10px;">
+              <thead>
+                <tr>
+                  <th>Producto</th><th>Cantidad</th><th>Precio</th><th>Descuento</th><th>Total</th>
+                </tr>
+              </thead>
+              <tbody id="detalleVentaBody"></tbody>
+            </table>
+            <div id="detalleResumen" style="text-align:right; margin-top:10px; font-weight:600;"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    $(function(){
+      const modal = $('#detalleModal');
+
+      // Buscar
+      $('#buscarVenta').on('input', function(){
+        const val = $(this).val().toLowerCase();
+        $('#tablaVentas tr').each(function(){
+          $(this).toggle($(this).text().toLowerCase().includes(val));
+        });
+        actualizarStats();
+      });
+
+      // Filtros
+      $('#filtroFecha').on('change', function(){
+        const val = $(this).val();
+        const hoy = new Date();
+        $('#tablaVentas tr').each(function(){
+          const fecha = new Date($(this).data('fecha'));
+          let mostrar = true;
+          if(val==='hoy') mostrar = fecha.toDateString() === hoy.toDateString();
+          else if(val==='semana'){const inicio=new Date();inicio.setDate(hoy.getDate()-7);mostrar=fecha>=inicio;}
+          else if(val==='mes') mostrar=fecha.getMonth()===hoy.getMonth();
+          $(this).toggle(mostrar);
+        });
+        actualizarStats();
+      });
+
+      $('#filtrarRango').click(()=>{
+        const i=new Date($('#fechaInicio').val()), f=new Date($('#fechaFin').val());
+        if(!i||!f)return alert('Selecciona fechas válidas');
+        $('#tablaVentas tr').each(function(){
+          const fecha=new Date($(this).data('fecha'));
+          $(this).toggle(fecha>=i&&fecha<=f);
+        });
+        actualizarStats();
+      });
+
+      // Detalle
+      $(document).on('click','.verDetalle',function(){
+        const id=$(this).data('id');
+        $.get(`/ventas/detalle/${id}`).done(d=>{
+          $('#detalleVentaBody').empty();
+          let sub=0;
+          (d.detalles||[]).forEach(x=>{
+            const t=(x.Precio-x.Descuento)*x.Cantidad; sub+=t;
+            $('#detalleVentaBody').append(`<tr>
+              <td>${x.Producto}</td><td>${x.Cantidad}</td><td>${x.Precio.toFixed(2)}</td>
+              <td>${x.Descuento.toFixed(2)}</td><td>${t.toFixed(2)}</td></tr>`);
+          });
+          const iva=sub*0.15,total=sub+iva;
+          $('#detalleResumen').html(`<p>Subtotal: $${sub.toFixed(2)}</p><p>IVA: $${iva.toFixed(2)}</p><p>Total: $${total.toFixed(2)}</p>`);
+          modal.fadeIn(200);
+        });
+      });
+
+      $('.close-modal').click(()=>modal.fadeOut(200));
+      $(window).on('click',e=>{if($(e.target).is('#detalleModal'))modal.fadeOut(200);});
+
+      // Anular
+      $(document).on('click','.anularVenta',function(){
+        const id=$(this).data('id');
+        if(!confirm('¿Deseas anular esta venta?'))return;
+        $.post(`/ventas/anular/${id}`).done(()=>{alert('✅ Venta anulada');location.reload();});
+      });
+
+      function actualizarStats(){
+        let total=0,c=0;
+        $('#tablaVentas tr:visible').each(function(){
+          const val=parseFloat($(this).find('td:nth-child(6)').text())||0;
+          total+=val;c++;
+        });
+        $('#totalVendido').text(`$${total.toFixed(2)}`);
+        $('#totalVentas').text(c);
+        $('#promedioVenta').text(c?`$${(total/c).toFixed(2)}`:'$0.00');
+      }
+      actualizarStats();
+    });
+  </script>
+</body>
+</html>

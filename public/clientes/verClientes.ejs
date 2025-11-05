@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clientes - Botitas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6a5acd;
+            --secondary-color: #7b68ee;
+            --background-color: #f4f6f9;
+            --text-color: #333;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+            margin: 0.5cm;
+            position: relative;
+        }
+
+        .container-fluid {
+            display: flex;
+            flex-grow: 1;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 1000;
+            background: var(--primary-color);
+            border: none;
+            color: var(--white);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 998;
+        }
+
+        .navbar-vertical {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            width: 230px;
+            padding: 20px;
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            z-index: 999;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-header {
+            text-align: center;
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-menu {
+            list-style: none;
+            flex-grow: 1;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            color: var(--white);
+            text-decoration: none;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+        }
+
+        .nav-link i {
+            margin-right: 12px;
+            width: 22px;
+            text-align: center;
+            font-size: 1.1em;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateX(8px);
+        }
+
+        .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.3);
+            font-weight: 500;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            background-color: var(--white);
+            border-radius: 15px;
+            padding: 20px;
+            width: 100%;
+        }
+
+        .logo {
+            max-width: 200px;
+            margin: 20px auto 30px;
+            display: block;
+            height: auto;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .search-form {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .search-form input {
+            padding: 10px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            font-size: 14px;
+            width: 250px;
+        }
+
+        .search-button {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: opacity 0.3s, transform 0.3s;
+            font-size: 14px;
+        }
+
+        .search-button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            margin-top: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            white-space: nowrap;
+        }
+
+        th {
+            background-color: var(--background-color);
+            font-weight: 600;
+            color: var(--text-color);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        tbody tr:hover {
+            background-color: rgba(106, 90, 205, 0.05);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .pagination button {
+            padding: 8px 12px;
+            border-radius: 6px;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            border: none;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .pagination button:hover {
+            background-color: var(--primary-color);
+            color: var(--white);
+            transform: translateY(-2px);
+        }
+
+        .pagination button.active {
+            background-color: var(--primary-color);
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        .pagination button.disabled {
+            background-color: #ddd;
+            color: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                margin: 0.2cm;
+            }
+
+            .container-fluid {
+                flex-direction: column;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .navbar-vertical {
+                position: fixed;
+                left: -260px;
+                top: 0;
+                bottom: 0;
+                margin: 10px;
+                height: calc(100vh - 20px);
+                overflow-y: auto;
+            }
+
+            .navbar-vertical.active {
+                left: 0;
+            }
+
+            .overlay.active {
+                display: block;
+            }
+
+            .main-content {
+                width: 100%;
+                margin-top: 60px;
+                padding: 15px;
+            }
+
+            .logo {
+                max-width: 150px;
+                margin: 10px auto 20px;
+            }
+
+            .header-container {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .search-form {
+                width: 100%;
+            }
+
+            .search-form input {
+                width: 100%;
+            }
+
+            th, td {
+                padding: 8px 10px;
+                font-size: 14px;
+            }
+
+            .pagination button {
+                padding: 6px 10px;
+                font-size: 0.85em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navbar-vertical {
+                width: 200px;
+            }
+
+            .nav-link {
+                font-size: 0.9em;
+                padding: 8px 10px;
+            }
+
+            .nav-link i {
+                margin-right: 10px;
+                font-size: 1em;
+            }
+        }
+
+        .table-responsive::-webkit-scrollbar {
+            height: 8px;
+        }
+
+        .table-responsive::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        .table-responsive::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        .table-responsive::-webkit-scrollbar-thumb:hover {
+            background: var(--secondary-color);
+        }
+    </style>
+</head>
+<body>
+    <button class="mobile-menu-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="overlay"></div>
+
+    <div class="container-fluid">
+        <nav class="navbar-vertical">
+            <div class="nav-header">Clientes Botitas</div>
+            <ul class="nav-menu">
+                <li><a href="/clientes" class="nav-link active"><i class="fas fa-users"></i> Lista de Clientes</a></li>
+                <li><a href="/clientes/agregar" class="nav-link"><i class="fas fa-user-plus"></i> Agregar Cliente</a></li>
+                <li><a href="/admin-dashboard" class="nav-link"><i class="fas fa-arrow-left"></i> Regresar</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <img src="/imagenes/logo botitas.png" alt="Logo Botitas" class="logo">
+            <div class="header-container">
+                <h1>Clientes</h1>
+                <form class="search-form" action="/clientes/buscar" method="get">
+                    <input type="search" name="termino" placeholder="Buscar cliente" aria-label="Buscar" value="<%= typeof termino !== 'undefined' ? termino : '' %>">
+                    <button type="submit" class="search-button">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                </form>
+            </div>
+
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID Cliente</th>
+                            <th>Nombre</th>
+                            <th>Celular</th>
+                            <th>Email</th>
+                            <th>Tipo Identificación</th>
+                            <th>Identificación</th>
+                            <th>Dirección</th>
+                        </tr>
+                    </thead>
+                    <tbody id="client-table-body">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="pagination" id="pagination-controls">
+                <!-- Populated by JavaScript -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Define clients in a separate script tag to avoid EJS rendering issues -->
+    <script id="clients-data" type="application/json">
+        <%- JSON.stringify(clientes || []) %>
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Mobile menu toggle functionality
+            const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+            const navbar = document.querySelector('.navbar-vertical');
+            const overlay = document.querySelector('.overlay');
+            const menuItems = document.querySelectorAll('.nav-link');
+
+            function toggleMobileMenu() {
+                navbar.classList.toggle('active');
+                overlay.classList.toggle('active');
+                document.body.style.overflow = navbar.classList.contains('active') ? 'hidden' : '';
+            }
+
+            mobileMenuToggle.addEventListener('click', toggleMobileMenu);
+            overlay.addEventListener('click', toggleMobileMenu);
+
+            menuItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    if (window.innerWidth <= 768) {
+                        toggleMobileMenu();
+                    }
+                });
+            });
+
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 768) {
+                    navbar.classList.remove('active');
+                    overlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+
+            // Highlight active nav link
+            const currentLocation = location.href;
+            menuItems.forEach(item => {
+                if (item.href === currentLocation) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+
+            // Client-side pagination
+            let clients;
+            try {
+                const clientsData = document.getElementById('clients-data').textContent;
+                clients = JSON.parse(clientsData);
+                console.log('Clients:', clients); // Debug: Check clients array
+            } catch (e) {
+                console.error('Error parsing clients:', e);
+                clients = [];
+            }
+
+            const perPage = 7;
+            let currentPage = 1;
+            const totalPages = clients.length > 0 ? Math.ceil(clients.length / perPage) : 1;
+
+            function renderTable(page) {
+                const start = (page - 1) * perPage;
+                const end = start + perPage;
+                const pageClients = clients.slice(start, end);
+
+                const tbody = document.getElementById('client-table-body');
+                tbody.innerHTML = ''; // Clear existing rows
+
+                if (!pageClients || pageClients.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" class="text-center">No se encontraron clientes.</td></tr>';
+                    return;
+                }
+
+                pageClients.forEach(cliente => {
+                    const row = document.createElement('tr');
+                    // Safe property access with fallbacks
+                    const clienteID = cliente.ClienteID || '';
+                    const nombre = cliente.Nombre || '';
+                    const celular = cliente.Celular || 'N/A';
+                    const email = cliente.Email || 'N/A';
+                    const tipoIdentificacion = cliente.TipoIdentificacion || '';
+                    const identificacion = cliente.Identificacion || '';
+                    const direccion = cliente.Direccion || 'N/A';
+
+                    row.innerHTML = `
+                        <td>${clienteID}</td>
+                        <td>${nombre}</td>
+                        <td>${celular}</td>
+                        <td>${email}</td>
+                        <td>${tipoIdentificacion}</td>
+                        <td>${identificacion}</td>
+                        <td>${direccion}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            function renderPagination() {
+                const pagination = document.getElementById('pagination-controls');
+                pagination.innerHTML = '';
+
+                // Previous button
+                const prevButton = document.createElement('button');
+                prevButton.textContent = 'Anterior';
+                prevButton.className = currentPage === 1 ? 'disabled' : '';
+                prevButton.disabled = currentPage === 1;
+                prevButton.addEventListener('click', () => {
+                    if (currentPage > 1) {
+                        currentPage--;
+                        renderTable(currentPage);
+                        renderPagination();
+                    }
+                });
+                pagination.appendChild(prevButton);
+
+                // Page numbers
+                for (let i = 1; i <= totalPages; i++) {
+                    const pageButton = document.createElement('button');
+                    pageButton.textContent = i;
+                    pageButton.className = currentPage === i ? 'active' : '';
+                    pageButton.addEventListener('click', () => {
+                        currentPage = i;
+                        renderTable(currentPage);
+                        renderPagination();
+                    });
+                    pagination.appendChild(pageButton);
+                }
+
+                // Next button
+                const nextButton = document.createElement('button');
+                nextButton.textContent = 'Siguiente';
+                nextButton.className = currentPage === totalPages ? 'disabled' : '';
+                nextButton.disabled = currentPage === totalPages;
+                nextButton.addEventListener('click', () => {
+                    if (currentPage < totalPages) {
+                        currentPage++;
+                        renderTable(currentPage);
+                        renderPagination();
+                    }
+                });
+                pagination.appendChild(nextButton);
+            }
+
+            // Initial render
+            renderTable(currentPage);
+            renderPagination();
+        });
+    </script>
+</body>
+</html>

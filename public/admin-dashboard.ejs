@@ -1,0 +1,496 @@
+<!--
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        body { display: flex; min-height: 100vh; flex-direction: column; margin: 0.5cm; background-color: #ffffff; }
+        .container-fluid { flex: 1; display: flex; flex-wrap: wrap; }
+        .navbar-vertical { background-color: #c476d8; height: auto; border-radius: 15px; margin-right: 15px; padding: 15px; flex: 1; max-width: 250px; }
+        .navbar-vertical .nav-link { background-color: #532c83; color: #ffffff; transition: background-color 0.3s, color 0.3s; margin-bottom: 2mm; border-radius: 8px; padding: 10px 15px; text-align: center; }
+        .navbar-vertical .nav-link:hover { background-color: #14737c; color: #ffffff; }
+        .navbar-vertical .nav-link.active { background-color: #14737c; color: #ffffff; }
+        .main-content { border-radius: 15px; background: #f8f9fa; padding: 15px; flex: 3; display: flex; flex-direction: column; align-items: center; }
+        .navbar-vertical .nav-header { color: #ffffff; font-size: 1.5em; margin-bottom: 20px; text-align: center; }
+        .user-name { color: #ffffff; font-size: 1em; margin-bottom: 20px; text-align: center; }
+        .logoBotitas { width: 100%; max-width: 250px; margin-bottom: 20px; }
+        .button-container { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; align-items: center; width: 100%; }
+        .menu-button { display: flex; flex-direction: column; align-items: center; width: 140px; height: 140px; background-color: #fff; border: 2px solid #ddd; border-radius: 10px; box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); text-align: center; text-decoration: none; color: #333; font-family: Arial, sans-serif; transition: background-color 0.3s ease; }
+        .menu-button:hover { background-color: #f0f0f0; }
+        .menu-button img { width: 60px; height: 60px; margin-top: 10px; }
+        .menu-button span { margin-top: 10px; font-size: 14px; }
+        .button-row { display: flex; justify-content: center; width: 100%; flex-wrap: wrap; }
+        .button-row .menu-button { margin: 10px; }
+        @media (max-width: 768px) { .navbar-vertical { margin-bottom: 15px; max-width: 100%; } .main-content { padding: 10px; flex: 1 1 100%; } .navbar-vertical .nav-link { padding: 8px 10px; font-size: 0.9em; } .navbar-vertical .nav-header { font-size: 1.2em; } }
+        @media (max-width: 576px) { .navbar-vertical { padding: 10px; } .navbar-vertical .nav-link { font-size: 0.8em; } .navbar-vertical .nav-header { font-size: 1em; } .menu-button { width: 100px; height: 100px; } .menu-button img { width: 50px; height: 50px; } .menu-button span { font-size: 12px; } }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <nav class="navbar-vertical p-3">
+            <div class="position-sticky">
+                <div class="nav-header">Dashboard Administrador</div>
+                <div id="user-name" class="user-name"><%= userName %></div>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/reportes/">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/stock">Buscar por codigo</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/ventas/nueva">Nueva Venta</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/inventario/agregar">Agregar Producto</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/crearProducto/crear">Crear Productos</a>
+                    </li>
+                    
+                    <li class="nav-item">
+                        <a class="nav-link" href="proveedores/crear">Crear Proveedor</a>
+                    </li>
+                </ul>
+                <div class="nav-item">
+                    <a class="nav-link" href="/auth/logout">Salir</a>
+                </div>
+            </div>
+        </nav>
+        <main role="main" class="main-content">
+            <img src="imagenes/logo botitas.png" alt="Logo Botitas" class="logoBotitas">
+            <div class="button-container">
+                <div class="button-row">
+                    <a href="/inventario" class="menu-button">
+                        <img src="imagenes/inventario.png" alt="Inventario">
+                        <span>Inventario</span>
+                    </a>
+                    <a href="/ventas/nueva" class="menu-button">
+                        <img src="imagenes/ventas.png" alt="Ventas">
+                        <span>Ventas</span>
+                    </a>
+                    <a href="/clientes" class="menu-button">
+                        <img src="imagenes/compras.png" alt="Clientes">
+                        <span>Clientes</span>
+                    </a>
+                    <a href="/proveedores" class="menu-button">
+                        <img src="imagenes/enviado.png" alt="Proveedores">
+                        <span>Proveedores</span>
+                    </a>
+                </div>
+                <div class="button-row">
+                    <a href="/reportes" class="menu-button">
+                        <img src="imagenes/informe.png" alt="Crear Proveedor">
+                        <span>Reportes</span>
+                    </a>
+                    <a href="/usuarios" class="menu-button">
+                        <img src="imagenes/configuraciones.png" alt="Editar Proveedor">
+                        <span>Control Usuarios</span>
+                    </a>
+                    <a href="/crearProducto/crear" class="menu-button">
+                        <img src="imagenes/agregar.png" alt="Crear Producto">
+                        <span>Crear Producto</span>
+                    </a>
+                    <a href="/stock" class="menu-button">
+                        <img src="imagenes/gps.png" alt="Stock y Ubicación">
+                        <span>Stock y Ubicación</span>
+                    </a>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script>
+        // Activar el enlace nav activo basado en la URL actual
+        const currentLocation = location.href;
+        const menuItem = document.querySelectorAll('.nav-link');
+        const menuLength = menuItem.length;
+        for (let i = 0; i < menuLength; i++) {
+            if (menuItem[i].href === currentLocation) {
+                menuItem[i].className += " active";
+            }
+        }
+    </script>
+</body>
+</html>
+-->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Botitas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6a5acd;
+            --secondary-color: #7b68ee;
+            --background-color: #f4f6f9;
+            --text-color: #333;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+            margin: 0.5cm;
+            position: relative;
+        }
+
+        .container-fluid {
+            display: flex;
+            flex-grow: 1;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 1000;
+            background: var(--primary-color);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 998;
+        }
+
+        .navbar-vertical {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            width: 250px;
+            padding: 20px;
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+            z-index: 999;
+        }
+
+        .nav-header {
+            text-align: center;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .user-name {
+            text-align: center;
+            margin-bottom: 20px;
+            opacity: 0.8;
+        }
+
+        .nav-menu {
+            list-style: none;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            color: var(--white);
+            text-decoration: none;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+        }
+
+        .nav-link i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateX(10px);
+        }
+
+        .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .main-content {
+            flex-grow: 1;
+            background-color: var(--white);
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: calc(100vh - 1cm);
+            width: 100%;
+            overflow-x: hidden;
+        }
+
+        .logo {
+            max-width: 200px;
+            margin: 20px auto 30px;
+            display: block;
+            height: auto;
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+            padding: 10px;
+            margin: 0 auto;
+        }
+
+        .menu-button {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            height: 140px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .menu-button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .menu-button i {
+            font-size: 2em;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .menu-button span {
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 1024px) {
+            .button-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                margin: 0.2cm;
+            }
+
+            .container-fluid {
+                flex-direction: column;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .navbar-vertical {
+                position: fixed;
+                left: -280px;
+                top: 0;
+                bottom: 0;
+                margin: 10px;
+                height: calc(100vh - 20px);
+                overflow-y: auto;
+            }
+
+            .navbar-vertical.active {
+                left: 0;
+            }
+
+            .overlay.active {
+                display: block;
+            }
+
+            .main-content {
+                width: 100%;
+                margin-top: 60px;
+                padding: 15px;
+            }
+
+            .logo {
+                max-width: 150px;
+                margin: 10px auto 20px;
+            }
+
+            .button-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+                padding: 5px;
+            }
+
+            .menu-button {
+                height: 120px;
+                padding: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .button-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .menu-button {
+                height: 100px;
+                padding: 10px;
+            }
+
+            .menu-button i {
+                font-size: 1.8em;
+            }
+
+            .menu-button span {
+                font-size: 0.9em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mobile Menu Toggle -->
+    <button class="mobile-menu-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Overlay for mobile menu -->
+    <div class="overlay"></div>
+
+    <div class="container-fluid">
+        <nav class="navbar-vertical">
+            <div class="nav-header">Dashboard Administrador</div>
+            <div id="user-name" class="user-name"><%= userName %></div>
+            <ul class="nav-menu">
+                <li><a href="/reportes/dashboard" class="nav-link"><i class="fas fa-chart-line"></i> Dashboard</a></li>
+                <li><a href="/stock" class="nav-link"><i class="fas fa-barcode"></i> Buscar por código</a></li>
+                <li><a href="/ventas/nueva" class="nav-link"><i class="fas fa-cash-register"></i> Nueva Venta</a></li>
+                <li><a href="/inventario/agregar" class="nav-link"><i class="fas fa-box-open"></i> Agregar Producto</a></li>
+                <li><a href="/crearProducto/crear" class="nav-link"><i class="fas fa-plus-circle"></i> Crear Productos</a></li>
+                <li><a href="proveedores/crear" class="nav-link"><i class="fas fa-truck"></i> Crear Proveedor</a></li>
+                <li class="logout"><a href="/auth/logout" class="nav-link"><i class="fas fa-sign-out-alt"></i> Salir</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <img src="imagenes/logo botitas.png" alt="Logo Botitas" class="logo">
+            <div class="button-grid">
+                <a href="/inventario" class="menu-button">
+                    <i class="fas fa-warehouse"></i>
+                    <span>Inventario</span>
+                </a>
+                <a href="/ventas/nueva" class="menu-button">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Ventas</span>
+                </a>
+                <a href="/clientes" class="menu-button">
+                    <i class="fas fa-users"></i>
+                    <span>Clientes</span>
+                </a>
+                <a href="/proveedores" class="menu-button">
+                    <i class="fas fa-truck-loading"></i>
+                    <span>Proveedores</span>
+                </a>
+                <a href="/reportes/dashboard" class="menu-button">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>Reportes</span>
+                </a>
+                <a href="/usuarios" class="menu-button">
+                    <i class="fas fa-user-cog"></i>
+                    <span>Control Usuarios</span>
+                </a>
+                <a href="/crearProducto/crear" class="menu-button">
+                    <i class="fas fa-plus-square"></i>
+                    <span>Crear Producto</span>
+                </a>
+                <a href="/stock" class="menu-button">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <span>Stock y Ubicación</span>
+                </a>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Active link functionality
+            const currentLocation = location.href;
+            const menuItems = document.querySelectorAll('.nav-link');
+            const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+            const navbar = document.querySelector('.navbar-vertical');
+            const overlay = document.querySelector('.overlay');
+
+            menuItems.forEach(item => {
+                if (item.href === currentLocation) {
+                    item.classList.add('active');
+                }
+            });
+
+            // Mobile menu toggle functionality
+            function toggleMobileMenu() {
+                navbar.classList.toggle('active');
+                overlay.classList.toggle('active');
+                document.body.style.overflow = navbar.classList.contains('active') ? 'hidden' : '';
+            }
+
+            mobileMenuToggle.addEventListener('click', toggleMobileMenu);
+            overlay.addEventListener('click', toggleMobileMenu);
+
+            // Close mobile menu when clicking a link
+            menuItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    if (window.innerWidth <= 768) {
+                        toggleMobileMenu();
+                    }
+                });
+            });
+
+            // Handle window resize
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 768) {
+                    navbar.classList.remove('active');
+                    overlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

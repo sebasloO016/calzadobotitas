@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Producto - Botitas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6a5acd;
+            --secondary-color: #7b68ee;
+            --background-color: #f4f6f9;
+            --text-color: #333;
+            --white: #ffffff;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+            margin: 0.5cm;
+            position: relative;
+        }
+
+        .container-fluid {
+            display: flex;
+            flex-grow: 1;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 1000;
+            background: var(--primary-color);
+            border: none;
+            color: var(--white);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 998;
+        }
+
+        .navbar-vertical {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            width: 230px;
+            padding: 20px;
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            z-index: 999;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-header {
+            text-align: center;
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-menu {
+            list-style: none;
+            flex-grow: 1;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            color: var(--white);
+            text-decoration: none;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+        }
+
+        .nav-link i {
+            margin-right: 12px;
+            width: 22px;
+            text-align: center;
+            font-size: 1.1em;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateX(8px);
+        }
+
+        .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.3);
+            font-weight: 500;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            background-color: var(--white);
+            border-radius: 15px;
+            padding: 20px;
+            width: 100%;
+        }
+
+        .logo {
+            max-width: 200px;
+            margin: 20px auto 30px;
+            display: block;
+            height: auto;
+        }
+
+        .alert {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            font-weight: 500;
+            color: var(--text-color);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .form-group input,
+        .form-group select {
+            padding: 10px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            font-size: 14px;
+            width: 100%;
+        }
+
+        .form-group input[readonly] {
+            background-color: #f8f9fa;
+            cursor: not-allowed;
+        }
+
+        .form-group .radio-group {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .form-group .radio-group label {
+            margin-bottom: 0;
+        }
+
+        .tallas-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 15px;
+        }
+
+        .submit-button {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: opacity 0.3s, transform 0.3s;
+            font-size: 14px;
+        }
+
+        .submit-button:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                margin: 0.2cm;
+            }
+
+            .container-fluid {
+                flex-direction: column;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .navbar-vertical {
+                position: fixed;
+                left: -260px;
+                top: 0;
+                bottom: 0;
+                margin: 10px;
+                height: calc(100vh - 20px);
+                overflow-y: auto;
+            }
+
+            .navbar-vertical.active {
+                left: 0;
+            }
+
+            .overlay.active {
+                display: block;
+            }
+
+            .main-content {
+                width: 100%;
+                margin-top: 60px;
+                padding: 15px;
+            }
+
+            .logo {
+                max-width: 150px;
+                margin: 10px auto 20px;
+            }
+
+            .tallas-container {
+                grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navbar-vertical.nativeElement {
+                width: 200px;
+            }
+
+            .nav-link {
+                font-size: 0.9em;
+                padding: 8px 10px;
+            }
+
+            .nav-link i {
+                margin-right: 10px;
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <button class="mobile-menu-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="overlay"></div>
+
+    <div class="container-fluid">
+        <nav class="navbar-vertical">
+            <div class="nav-header">Inventario Botitas</div>
+            <ul class="nav-menu">
+                <li><a href="/inventario/agregar" class="nav-link"><i class="fas fa-box-open"></i> Agregar Producto</a></li>
+                <li><a href="/stock" class="nav-link"><i class="fas fa-barcode"></i> Buscar por Código</a></li>
+                <li><a href="/admin-dashboard" class="nav-link"><i class="fas fa-arrow-left"></i> Regresar</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <img src="/imagenes/logo botitas.png" alt="Logo Botitas" class="logo">
+            <h1 style="margin-bottom: 20px;">Editar Producto</h1>
+
+            <div class="alert">
+                Editar este producto puede afectar el control del inventario, a menos que se haya ingresado algún valor incorrecto.
+            </div>
+
+            <form action="/inventario/editar/<%= producto.ProductoID %>" method="post">
+                <div class="form-group">
+                    <label for="codigo">Código</label>
+                    <input type="text" id="codigo" name="codigo" value="<%= producto.codigo %>" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="QueVende">Que Vende</label>
+                    <input type="text" id="QueVende" name="QueVende" value="<%= producto.QueVende %>" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="Color">Color</label>
+                    <input type="text" id="Color" name="Color" value="<%= producto.Color %>" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="Detalle">Detalle</label>
+                    <input type="text" id="Detalle" name="Detalle" value="<%= producto.Detalle %>" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="Material">Material</label>
+                    <input type="text" id="Material" name="Material" value="<%= producto.Material %>" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="IDFactura">ID Factura</label>
+                    <input type="text" id="IDFactura" name="IDFactura" value="<%= producto.IDFactura %>" required>
+                </div>
+                <div class="form-group">
+                    <label for="Ubicacion">Ubicación</label>
+                    <input type="text" id="Ubicacion" name="Ubicacion" value="<%= producto.Ubicacion %>">
+                </div>
+                <div class="form-group">
+                    <label>Tipo de Tallas</label>
+                    <div class="radio-group">
+                        <input type="radio" id="ninos" name="tipoTallas" value="ninos" onchange="toggleTallas()" <%= producto.tipoTallas === 'ninos' ? 'checked' : '' %>>
+                        <label for="ninos">Niños</label>
+                        <input type="radio" id="adultos" name="tipoTallas" value="adultos" onchange="toggleTallas()" <%= producto.tipoTallas === 'adultos' ? 'checked' : '' %>>
+                        <label for="adultos">Adultos</label>
+                    </div>
+                </div>
+                <div id="tallasNinos" style="display: <%= producto.tipoTallas === 'ninos' ? 'block' : 'none' %>;">
+                    <div class="form-group">
+                        <label>Tallas y Cantidades (Niños)</label>
+                        <div class="tallas-container">
+                            <% for (let i = 21; i <= 32; i++) { %>
+                                <div>
+                                    <label for="talla<%= i %>">Talla <%= i %></label>
+                                    <input type="number" id="talla<%= i %>" name="tallas[Talla<%= i %>]" min="0" value="<%= producto['Talla' + i] || 0 %>" oninput="calculateInversionTotal()">
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+                <div id="tallasAdultos" style="display: <%= producto.tipoTallas === 'adultos' ? 'block' : 'none' %>;">
+                    <div class="form-group">
+                        <label>Tallas y Cantidades (Adultos)</label>
+                        <div class="tallas-container">
+                            <% for (let i = 33; i <= 43; i++) { %>
+                                <div>
+                                    <label for="talla<%= i %>">Talla <%= i %></label>
+                                    <input type="number" id="talla<%= i %>" name="tallas[Talla<%= i %>]" min="0" value="<%= producto['Talla' + i] || 0 %>" oninput="calculateInversionTotal()">
+                                </div>
+                            <% } %>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="PrecioCosto">Precio Costo</label>
+                    <input type="number" id="PrecioCosto" name="PrecioCosto" step="0.01" value="<%= producto.PrecioCosto %>" oninput="calculateInversionTotal()" required>
+                </div>
+                <div class="form-group">
+                    <label for="InversionTotal">Inversión Total</label>
+                    <input type="number" id="InversionTotal" name="InversionTotal" value="<%= producto.InversionTotal %>" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="cantidad">Cantidad</label>
+                    <input type="number" id="cantidad" name="cantidad" value="<%= producto.cantidad %>" readonly>
+                </div>
+                <button type="submit" class="submit-button">
+                    <i class="fas fa-save"></i> Guardar Cambios
+                </button>
+            </form>
+        </main>
+    </div>
+
+    <script>
+        function calculateInversionTotal() {
+            const precioCosto = parseFloat(document.getElementById('PrecioCosto').value) || 0;
+            const totalUnidades = [...document.querySelectorAll('input[name^="tallas["]')].reduce((acc, input) => acc + (parseInt(input.value) || 0), 0);
+            const inversionTotal = (precioCosto * 1.15 * totalUnidades).toFixed(2);
+            document.getElementById('InversionTotal').value = inversionTotal;
+            document.getElementById('cantidad').value = totalUnidades;
+        }
+
+        function toggleTallas() {
+            const tallasNinos = document.getElementById('tallasNinos');
+            const tallasAdultos = document.getElementById('tallasAdultos');
+            if (document.getElementById('ninos').checked) {
+                tallasNinos.style.display = 'block';
+                tallasAdultos.style.display = 'none';
+            } else {
+                tallasNinos.style.display = 'none';
+                tallasAdultos.style.display = 'block';
+            }
+            calculateInversionTotal();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+            const navbar = document.querySelector('.navbar-vertical');
+            const overlay = document.querySelector('.overlay');
+            const menuItems = document.querySelectorAll('.nav-link');
+
+            function toggleMobileMenu() {
+                navbar.classList.toggle('active');
+                overlay.classList.toggle('active');
+                document.body.style.overflow = navbar.classList.contains('active') ? 'hidden' : '';
+            }
+
+            mobileMenuToggle.addEventListener('click', toggleMobileMenu);
+            overlay.addEventListener('click', toggleMobileMenu);
+
+            menuItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    if (window.innerWidth <= 768) {
+                        toggleMobileMenu();
+                    }
+                });
+            });
+
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 768) {
+                    navbar.classList.remove('active');
+                    overlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+
+            // Highlight active nav link
+            const currentLocation = location.href;
+            menuItems.forEach(item => {
+                if (item.href === currentLocation) {
+                    item.classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

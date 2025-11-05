@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Productos - Botitas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6a5acd;
+            --secondary-color: #7b68ee;
+            --background-color: #f4f6f9;
+            --text-color: #333;
+            --white: #ffffff;
+            --danger-color: #dc3545;
+            --success-color: #28a745;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+            margin: 0.5cm;
+            position: relative;
+        }
+
+        .container-fluid {
+            display: flex;
+            flex-grow: 1;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 1000;
+            background: var(--primary-color);
+            border: none;
+            color: var(--white);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 998;
+        }
+
+        .navbar-vertical {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            width: 230px;
+            padding: 20px;
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            z-index: 999;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-header {
+            text-align: center;
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-menu {
+            list-style: none;
+            flex-grow: 1;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            color: var(--white);
+            text-decoration: none;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+        }
+
+        .nav-link i {
+            margin-right: 12px;
+            width: 22px;
+            text-align: center;
+            font-size: 1.1em;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateX(8px);
+        }
+
+        .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.3);
+            font-weight: 500;
+        }
+
+        .nav-search {
+            margin: 15px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .nav-search input {
+            padding: 8px;
+            border: 1px solid var(--white);
+            border-radius: 8px;
+            font-size: 14px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: var(--white);
+        }
+
+        .nav-search input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .nav-search button {
+            padding: 8px;
+            border: none;
+            border-radius: 8px;
+            background: var(--white);
+            color: var(--primary-color);
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .nav-search button:hover {
+            background: var(--secondary-color);
+            color: var(--white);
+        }
+
+        .main-content {
+            flex-grow: 1;
+            background-color: var(--white);
+            border-radius: 15px;
+            padding: 20px;
+            overflow-x: auto;
+            width: 100%;
+        }
+
+        .logo {
+            max-width: 200px;
+            margin: 20px auto 30px;
+            display: block;
+            height: auto;
+        }
+
+        .table-container {
+            margin-top: 20px;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            background: var(--white);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .table th, .table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .table th {
+            background: var(--primary-color);
+            color: var(--white);
+            font-weight: 500;
+        }
+
+        .table td {
+            font-size: 14px;
+        }
+
+        .table-list {
+            display: none;
+        }
+
+        .table-item {
+            background: var(--white);
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .table-item div {
+            margin-bottom: 8px;
+        }
+
+        .btn {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            text-decoration: none;
+            display: inline-block;
+            margin-right: 5px;
+        }
+
+        .btn-edit {
+            background: var(--primary-color);
+            color: var(--white);
+        }
+
+        .btn-toggle {
+            background: var(--success-color);
+            color: var(--white);
+        }
+
+        .btn-toggle.inactivo {
+            background: var(--danger-color);
+        }
+
+        .pagination {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .pagination button, .pagination span {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background: var(--primary-color);
+            color: var(--white);
+        }
+
+        .pagination span.active {
+            background: var(--secondary-color);
+            font-weight: bold;
+        }
+
+        .pagination button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .no-results {
+            text-align: center;
+            color: var(--danger-color);
+            font-size: 16px;
+            margin-top: 20px;
+        }
+
+        .sizes-list {
+            display: inline-block;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                margin: 0.2cm;
+            }
+
+            .container-fluid {
+                flex-direction: column;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .navbar-vertical {
+                position: fixed;
+                left: -260px;
+                top: 0;
+                bottom: 0;
+                margin: 10px;
+                height: calc(100vh - 20px);
+                overflow-y: auto;
+            }
+
+            .navbar-vertical.active {
+                left: 0;
+            }
+
+            .overlay.active {
+                display: block;
+            }
+
+            .main-content {
+                width: 100%;
+                margin-top: 60px;
+                padding: 15px;
+            }
+
+            .logo {
+                max-width: 150px;
+                margin: 10px auto 20px;
+            }
+
+            .table {
+                display: none;
+            }
+
+            .table-list {
+                display: block;
+            }
+
+            .pagination button, .pagination span {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navbar-vertical {
+                width: 200px;
+            }
+
+            .nav-link {
+                font-size: 0.9em;
+                padding: 8px 10px;
+            }
+
+            .nav-link i {
+                margin-right: 10px;
+                font-size: 1em;
+            }
+
+            .btn {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+</head>
+<body>
+  <button class="mobile-menu-toggle"><i class="fas fa-bars"></i></button>
+  <div class="overlay"></div>
+
+  <div class="container-fluid">
+    <nav class="navbar-vertical">
+      <div class="nav-header">Inventario Botitas</div>
+      <ul class="nav-menu">
+        <li><a href="/inventario/agregar" class="nav-link"><i class="fas fa-box-open"></i> Re-stock Producto</a></li>
+        <li><a href="/crearProducto/verTodos" class="nav-link active"><i class="fas fa-list"></i> Ver Productos</a></li>
+        <li><a href="/crearProducto/crear" class="nav-link"><i class="fas fa-box-open"></i> Crear nuevo Producto</a></li>
+        <li><a href="/stock" class="nav-link"><i class="fas fa-barcode"></i> Buscar por Código</a></li>
+        <li><a href="/inventario" class="nav-link"><i class="fas fa-box-open"></i> Ver Inventario</a></li>
+        <li><a href="/admin-dashboard" class="nav-link"><i class="fas fa-arrow-left"></i> Regresar</a></li>
+      </ul>
+      <form class="nav-search" action="/crearProducto/buscar" method="GET">
+        <input type="search" placeholder="Buscar producto" name="query" />
+        <button type="submit"><i class="fas fa-search"></i> Buscar</button>
+      </form>
+    </nav>
+
+    <main class="main-content">
+      <img src="/imagenes/logo botitas.png" alt="Logo Botitas" class="logo" />
+      <h1>Productos</h1>
+
+      <div class="table-container">
+        <table class="table" id="productosTable">
+          <thead>
+            <tr>
+              <th>Foto</th>
+              <th>Código</th>
+              <th>Nombre</th>
+              <th>Tipo</th>
+              <th>Material</th>
+              <th>Género</th>
+              <th>Color</th>
+              <th>Talla</th>
+              <th>Cantidad</th>
+              <th>Precio Venta</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="productosBody"></tbody>
+        </table>
+
+        <div class="table-list" id="productosList"></div>
+        <div id="noResults" class="no-results" style="display:none;">No se encontraron productos.</div>
+      </div>
+
+      <div class="pagination" id="pagination"></div>
+    </main>
+  </div>
+
+  <script>
+    let productos = <%- JSON.stringify(productos) %>;
+    const itemsPerPage = 7;
+    let currentPage = 1;
+
+    async function toggleEstado(codigo, currentEstado) {
+      const newEstado = currentEstado === 'activo' ? 'inactivo' : 'activo';
+      try {
+        const response = await fetch(`/crearProducto/cambiarEstado/${codigo}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ Estado: newEstado }),
+        });
+
+        if (!response.ok) throw new Error('Error al cambiar el estado');
+
+        const producto = productos.find(p => p.Codigo === codigo);
+        if (producto) producto.Estado = newEstado;
+        renderTable(currentPage);
+      } catch (error) {
+        alert('No se pudo cambiar el estado: ' + error.message);
+      }
+    }
+
+    function renderTable(page) {
+      const start = (page - 1) * itemsPerPage;
+      const end = start + itemsPerPage;
+      const paginatedProductos = productos.slice(start, end);
+
+      const tbody = document.getElementById('productosBody');
+      const list = document.getElementById('productosList');
+      const noResults = document.getElementById('noResults');
+
+      tbody.innerHTML = '';
+      list.innerHTML = '';
+
+      if (productos.length === 0) {
+        noResults.style.display = 'block';
+        return;
+      } else {
+        noResults.style.display = 'none';
+      }
+
+      paginatedProductos.forEach(p => {
+        const img = p.Foto ? `<img src="${p.Foto}" alt="foto" style="width:70px;height:auto;border-radius:5px;">` : '—';
+        const generoTxt = p.Genero || '—';
+        const estadoClase = p.Estado === 'activo' ? '' : 'inactivo';
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${img}</td>
+          <td>${p.Codigo}</td>
+          <td>${p.Nombre}</td>
+          <td>${p.Tipo || ''}</td>
+          <td>${p.Material || ''}</td>
+          <td>${generoTxt}</td>
+          <td>${p.Color || ''}</td>
+          <td>${p.Talla || ''}</td>
+          <td>${p.Cantidad || 0}</td>
+          <td>$${p.PrecioVenta?.toFixed ? p.PrecioVenta.toFixed(2) : p.PrecioVenta}</td>
+          <td>${p.Estado}</td>
+          <td>
+            <a href="/crearProducto/editar/${p.Codigo}" class="btn btn-edit">Editar</a>
+            <button class="btn btn-toggle ${estadoClase}" onclick="toggleEstado('${p.Codigo}','${p.Estado}')">
+              ${p.Estado === 'activo' ? 'Desactivar' : 'Activar'}
+            </button>
+          </td>
+        `;
+        tbody.appendChild(row);
+
+        const item = document.createElement('div');
+        item.className = 'table-item';
+        item.innerHTML = `
+          <div><strong>Foto:</strong><br>${img}</div>
+          <div><strong>Código:</strong> ${p.Codigo}</div>
+          <div><strong>Nombre:</strong> ${p.Nombre}</div>
+          <div><strong>Tipo:</strong> ${p.Tipo}</div>
+          <div><strong>Material:</strong> ${p.Material}</div>
+          <div><strong>Género:</strong> ${p.Genero}</div>
+          <div><strong>Color:</strong> ${p.Color}</div>
+          <div><strong>Talla:</strong> ${p.Talla}</div>
+          <div><strong>Cantidad:</strong> ${p.Cantidad}</div>
+          <div><strong>Precio Venta:</strong> $${p.PrecioVenta}</div>
+          <div><strong>Estado:</strong> ${p.Estado}</div>
+          <div>
+            <a href="/crearProducto/editar/${p.Codigo}" class="btn btn-edit">Editar</a>
+            <button class="btn btn-toggle ${estadoClase}" onclick="toggleEstado('${p.Codigo}','${p.Estado}')">
+              ${p.Estado === 'activo' ? 'Desactivar' : 'Activar'}
+            </button>
+          </div>
+        `;
+        list.appendChild(item);
+      });
+
+      renderPagination();
+    }
+
+    function renderPagination() {
+      const totalPages = Math.ceil(productos.length / itemsPerPage);
+      const pagination = document.getElementById('pagination');
+      pagination.innerHTML = '';
+
+      const prev = document.createElement('button');
+      prev.textContent = 'Anterior';
+      prev.disabled = currentPage === 1;
+      prev.onclick = () => {
+        if (currentPage > 1) {
+          currentPage--;
+          renderTable(currentPage);
+        }
+      };
+      pagination.appendChild(prev);
+
+      for (let i = 1; i <= totalPages; i++) {
+        const span = document.createElement(i === currentPage ? 'span' : 'button');
+        span.textContent = i;
+        if (i === currentPage) span.className = 'active';
+        else span.onclick = () => {
+          currentPage = i;
+          renderTable(currentPage);
+        };
+        pagination.appendChild(span);
+      }
+
+      const next = document.createElement('button');
+      next.textContent = 'Siguiente';
+      next.disabled = currentPage === totalPages;
+      next.onclick = () => {
+        if (currentPage < totalPages) {
+          currentPage++;
+          renderTable(currentPage);
+        }
+      };
+      pagination.appendChild(next);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      renderTable(currentPage);
+
+      // menú móvil
+      const currentLocation = location.href;
+      const menuItems = document.querySelectorAll('.nav-link');
+      const toggleBtn = document.querySelector('.mobile-menu-toggle');
+      const navbar = document.querySelector('.navbar-vertical');
+      const overlay = document.querySelector('.overlay');
+
+      menuItems.forEach(item => {
+        if (item.href === currentLocation) item.classList.add('active');
+      });
+
+      function toggleMobileMenu() {
+        navbar.classList.toggle('active');
+        overlay.classList.toggle('active');
+        document.body.style.overflow = navbar.classList.contains('active') ? 'hidden' : '';
+      }
+
+      toggleBtn.addEventListener('click', toggleMobileMenu);
+      overlay.addEventListener('click', toggleMobileMenu);
+    });
+  </script>
+</body>
+</html>

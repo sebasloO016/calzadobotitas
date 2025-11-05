@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Proveedores - Botitas</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #6a5acd;
+      --secondary-color: #7b68ee;
+      --background-color: #f4f6f9;
+      --text-color: #333;
+      --white: #ffffff;
+      --danger-color: #dc3545;
+      --success-color: #28a745;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Arial', sans-serif;
+    }
+
+    body {
+      background-color: var(--background-color);
+      color: var(--text-color);
+      display: flex;
+      min-height: 100vh;
+      margin: 0.5cm;
+      position: relative;
+    }
+
+    .container-fluid {
+      display: flex;
+      flex-grow: 1;
+      gap: 20px;
+      width: 100%;
+    }
+
+    /* ====== BOTÓN MENÚ MÓVIL ====== */
+    .mobile-menu-toggle {
+      display: none;
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      z-index: 1000;
+      background: var(--primary-color);
+      border: none;
+      color: var(--white);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 998;
+    }
+
+    /* ====== NAVBAR ====== */
+    .navbar-vertical {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      width: 230px;
+      padding: 20px;
+      color: var(--white);
+      display: flex;
+      flex-direction: column;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      z-index: 999;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .nav-header {
+      text-align: center;
+      font-size: 1.4em;
+      margin-bottom: 15px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-menu {
+      list-style: none;
+      flex-grow: 1;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      color: var(--white);
+      text-decoration: none;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      border-radius: 6px;
+      background-color: rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+      font-size: 0.95em;
+    }
+
+    .nav-link i {
+      margin-right: 12px;
+      width: 22px;
+      text-align: center;
+      font-size: 1.1em;
+    }
+
+    .nav-link:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+      transform: translateX(8px);
+    }
+
+    .nav-link.active {
+      background-color: rgba(255, 255, 255, 0.3);
+      font-weight: 500;
+    }
+
+    /* ====== MAIN CONTENT ====== */
+    .main-content {
+      flex-grow: 1;
+      background-color: var(--white);
+      border-radius: 15px;
+      padding: 25px;
+      overflow-x: hidden;
+      width: 100%;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    h1 {
+      color: var(--primary-color);
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    /* ====== SEARCH BAR ====== */
+    .search-container {
+      max-width: 500px;
+      margin: 0 auto 25px;
+      position: relative;
+    }
+
+    .search-box {
+      position: relative;
+      display: flex;
+      align-items: center;
+      background: var(--white);
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border: 1px solid #ddd;
+      transition: all 0.3s ease;
+    }
+
+    .search-box:focus-within {
+      box-shadow: 0 0 0 3px rgba(106,90,205,0.25);
+      border-color: var(--primary-color);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      color: #777;
+      font-size: 1.1em;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 10px 40px 10px 35px;
+      border: none;
+      outline: none;
+      border-radius: 10px;
+      font-size: 15px;
+      color: #333;
+    }
+
+    .search-input::placeholder {
+      color: #aaa;
+    }
+
+    /* ====== BOTONES ====== */
+    .btn {
+      padding: 8px 15px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: opacity 0.3s, transform 0.3s;
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: var(--white);
+    }
+
+    .btn-warning {
+      background: #ffc107;
+      color: #fff;
+    }
+
+    .btn-danger {
+      background: var(--danger-color);
+      color: var(--white);
+    }
+
+    /* ====== TABLA ====== */
+    .table-container {
+      background: var(--background-color);
+      border-radius: 10px;
+      padding: 15px;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+
+    th, td {
+      padding: 12px 15px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    th {
+      background-color: var(--background-color);
+      color: var(--primary-color);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.9em;
+    }
+
+    tr:hover {
+      background-color: rgba(0, 0, 0, 0.03);
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+    }
+
+    @media (max-width: 768px) {
+      body { margin: 0.2cm; }
+      .container-fluid { flex-direction: column; }
+      .mobile-menu-toggle { display: block; }
+      .navbar-vertical {
+        position: fixed;
+        left: -260px;
+        top: 0;
+        bottom: 0;
+        margin: 10px;
+        height: calc(100vh - 20px);
+        overflow-y: auto;
+      }
+      .navbar-vertical.active { left: 0; }
+      .overlay.active { display: block; }
+      .main-content { width: 100%; margin-top: 60px; padding: 15px; }
+      .search-container { max-width: 100%; }
+    }
+
+    @media (max-width: 480px) {
+      .navbar-vertical { width: 200px; }
+      .nav-link { font-size: 0.9em; padding: 8px 10px; }
+      .nav-link i { margin-right: 10px; font-size: 1em; }
+      table th, table td { font-size: 13px; padding: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <button class="mobile-menu-toggle"><i class="fas fa-bars"></i></button>
+  <div class="overlay"></div>
+
+  <div class="container-fluid">
+    <!-- NAVBAR -->
+    <nav class="navbar-vertical">
+      <div class="nav-header">Panel Botitas</div>
+      <ul class="nav-menu">
+        <li><a href="/admin-dashboard" class="nav-link"><i class="fas fa-home"></i> Dashboard</a></li>
+        <li><a href="/inventario" class="nav-link"><i class="fas fa-boxes"></i> Inventario</a></li>
+        <li><a href="/stock" class="nav-link"><i class="fas fa-barcode"></i> Stock</a></li>
+        <li><a href="/usuarios" class="nav-link"><i class="fas fa-users"></i> Usuarios</a></li>
+        <li><a href="/proveedores" class="nav-link active"><i class="fas fa-truck"></i> Proveedores</a></li>
+        <li><a href="/logout" class="nav-link"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</a></li>
+      </ul>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+      <h1>Gestión de Proveedores</h1>
+
+      <div class="d-flex justify-content-between align-items-center mb-4" style="margin-bottom:20px; display:flex; justify-content:space-between; align-items:center;">
+        <a href="/proveedores/crear" class="btn btn-success"><i class="fas fa-plus"></i> Nuevo Proveedor</a>
+      </div>
+
+      <!-- Buscador -->
+      <div class="search-container">
+        <form method="GET" action="/proveedores">
+          <div class="search-box">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" class="search-input" name="q" value="<%= q || '' %>" placeholder="Buscar por nombre, contacto, teléfono o dirección...">
+          </div>
+        </form>
+      </div>
+
+      <!-- Tabla -->
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Contacto</th>
+              <th>Teléfono</th>
+              <th>Email</th>
+              <th>Dirección</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (proveedores && proveedores.length > 0) { %>
+              <% proveedores.forEach(p => { %>
+                <tr>
+                  <td><%= p.Nombre %></td>
+                  <td><%= p.Contacto || '-' %></td>
+                  <td><%= p.Telefono || '-' %></td>
+                  <td><%= p.Email || '-' %></td>
+                  <td><%= p.Direccion || '-' %></td>
+                  <td>
+                    <div class="action-buttons">
+                      <a href="/proveedores/editar/<%= p.ProveedorID %>" class="btn btn-warning"><i class="fas fa-edit"></i></a>
+                      <form action="/proveedores/delete/<%= p.ProveedorID %>" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('¿Eliminar a <%= p.Nombre %>?')"><i class="fas fa-trash"></i></button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              <% }) %>
+            <% } else { %>
+              <tr><td colspan="6" style="text-align:center; padding:20px;">No se encontraron proveedores.</td></tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const toggle = document.querySelector('.mobile-menu-toggle');
+    const navbar = document.querySelector('.navbar-vertical');
+    const overlay = document.querySelector('.overlay');
+
+    toggle.addEventListener('click', () => {
+      navbar.classList.toggle('active');
+      overlay.classList.toggle('active');
+    });
+
+    overlay.addEventListener('click', () => {
+      navbar.classList.remove('active');
+      overlay.classList.remove('active');
+    });
+  </script>
+</body>
+</html>

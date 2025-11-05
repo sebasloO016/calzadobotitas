@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventario - Botitas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6a5acd;
+            --secondary-color: #7b68ee;
+            --background-color: #f4f6f9;
+            --text-color: #333;
+            --white: #ffffff;
+            --danger-color: #dc3545;
+            --success-color: #28a745;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+            margin: 0.5cm;
+            position: relative;
+        }
+
+        .container-fluid {
+            display: flex;
+            flex-grow: 1;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 1000;
+            background: var(--primary-color);
+            border: none;
+            color: var(--white);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 998;
+        }
+
+        .navbar-vertical {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            width: 230px;
+            padding: 20px;
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            z-index: 999;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-header {
+            text-align: center;
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-menu {
+            list-style: none;
+            flex-grow: 1;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            color: var(--white);
+            text-decoration: none;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+        }
+
+        .nav-link i {
+            margin-right: 12px;
+            width: 22px;
+            text-align: center;
+            font-size: 1.1em;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateX(8px);
+        }
+
+        .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.3);
+            font-weight: 500;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            background-color: var(--white);
+            border-radius: 15px;
+            padding: 20px;
+            overflow-x: auto;
+            width: 100%;
+        }
+
+        .logo {
+            max-width: 200px;
+            margin: 20px auto 30px;
+            display: block;
+            height: auto;
+        }
+
+        h1 {
+            font-size: 2em;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .filters-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .filter-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .filter-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .filter-group select,
+        .filter-group input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .filter-button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 8px;
+            background: var(--primary-color);
+            color: var(--white);
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .filter-button:hover {
+            background: var(--secondary-color);
+        }
+
+        .table-responsive {
+            max-width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 16px;
+            text-align: left;
+        }
+
+        th, td {
+            padding: 12px 15px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: var(--white);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        tbody tr:nth-of-type(even) {
+            background-color: #f9f9f9;
+        }
+
+        tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .btn {
+            padding: 8px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        .btn-edit {
+            background: var(--success-color);
+            color: var(--white);
+        }
+
+        .btn-edit:hover {
+            background: #218838;
+        }
+
+        .btn-delete {
+            background: var(--danger-color);
+            color: var(--white);
+        }
+
+        .btn-delete:hover {
+            background: #c82333;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+            gap: 10px;
+        }
+
+        .pagination button {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            background: var(--background-color);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .pagination button:hover:not(.disabled) {
+            background: var(--primary-color);
+            color: var(--white);
+        }
+
+        .pagination button.active {
+            background: var(--primary-color);
+            color: var(--white);
+            font-weight: 600;
+        }
+
+        .pagination button.disabled {
+            background: #e9ecef;
+            color: #6c757d;
+            cursor: not-allowed;
+        }
+
+        /* Autocomplete styles */
+        .buscador-container {
+            position: relative;
+            width: 100%;
+        }
+
+        .input-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 10px;
+            width: 20px;
+            height: 20px;
+            color: #666;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 8px 8px 8px 35px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .resultados-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: var(--white);
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .resultados-lista {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .resultado-item {
+            padding: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        .resultado-item:last-child {
+            border-bottom: none;
+        }
+
+        .resultado-item:hover {
+            background: #f1f1f1;
+        }
+
+        .resultado-contenido {
+            display: flex;
+            align-items: center;
+            width: 100%;
+        }
+
+        .resultado-imagen {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+            border-radius: 4px;
+            object-fit: cover;
+        }
+
+        .resultado-imagen-placeholder {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #e9ecef;
+        }
+
+        .resultado-imagen-placeholder svg {
+            width: 30px;
+            height: 30px;
+            fill: #666;
+        }
+
+        .resultado-info {
+            flex-grow: 1;
+        }
+
+        .resultado-codigo {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .resultado-detalle {
+            font-size: 12px;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                margin: 0.2cm;
+            }
+
+            .container-fluid {
+                flex-direction: column;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .navbar-vertical {
+                position: fixed;
+                left: -260px;
+                top: 0;
+                bottom: 0;
+                margin: 10px;
+                height: calc(100vh - 20px);
+                overflow-y: auto;
+            }
+
+            .navbar-vertical.active {
+                left: 0;
+            }
+
+            .overlay.active {
+                display: block;
+            }
+
+            .main-content {
+                width: 100%;
+                margin-top: 60px;
+                padding: 15px;
+            }
+
+            .logo {
+                max-width: 150px;
+                margin: 10px auto 20px;
+            }
+
+            .filter-group {
+                min-width: 100%;
+            }
+
+            table {
+                font-size: 14px;
+            }
+
+            th, td {
+                padding: 8px;
+            }
+
+            .resultados-dropdown {
+                max-height: 150px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navbar-vertical {
+                width: 200px;
+            }
+
+            .nav-link {
+                font-size: 0.9em;
+                padding: 8px 10px;
+            }
+
+            .nav-link i {
+                margin-right: 10px;
+                font-size: 1em;
+            }
+
+            .btn {
+                padding: 6px;
+                font-size: 12px;
+            }
+
+            .pagination button {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+
+            .resultado-imagen,
+            .resultado-imagen-placeholder {
+                width: 30px;
+                height: 30px;
+            }
+
+            .resultado-imagen-placeholder svg {
+                width: 20px;
+                height: 20px;
+            }
+
+            .resultado-codigo {
+                font-size: 12px;
+            }
+
+            .resultado-detalle {
+                font-size: 10px;
+            }
+        }
+        /* 🎯 Estilo moderno de barra de búsqueda */
+            .search-container {
+            max-width: 500px;
+            width: 100%;
+            position: relative;
+            }
+
+            .search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+            background: var(--white);
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            border: 1px solid #ddd;
+            }
+
+            .search-box:focus-within {
+            box-shadow: 0 0 0 3px rgba(106,90,205,0.25);
+            border-color: var(--primary-color);
+            }
+
+            .search-icon {
+            position: absolute;
+            left: 12px;
+            color: #777;
+            font-size: 1.1em;
+            }
+
+            .search-input {
+            width: 100%;
+            padding: 10px 40px 10px 35px;
+            border: none;
+            outline: none;
+            border-radius: 10px;
+            font-size: 15px;
+            color: #333;
+            }
+
+            .search-input::placeholder {
+            color: #aaa;
+            }
+
+            .clear-icon {
+            position: absolute;
+            right: 12px;
+            color: #888;
+            cursor: pointer;
+            display: none;
+            transition: color 0.2s;
+            }
+
+            .clear-icon:hover {
+            color: var(--primary-color);
+            }
+
+            /* 🔽 Lista de sugerencias */
+            .suggestions-box {
+            position: absolute;
+            top: 105%;
+            left: 0;
+            right: 0;
+            background: var(--white);
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+            z-index: 100;
+            animation: fadeIn 0.2s ease;
+            }
+
+            .suggestions-box div {
+            display: flex;
+            align-items: center;
+            padding: 8px 10px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background 0.2s;
+            }
+
+            .suggestions-box div:hover {
+            background: #f4f4f4;
+            }
+
+            .suggestions-box img {
+            width: 45px;
+            height: 45px;
+            border-radius: 6px;
+            object-fit: cover;
+            margin-right: 10px;
+            }
+
+            .suggestions-box strong {
+            color: var(--text-color);
+            }
+
+            @keyframes fadeIn {
+            from {opacity: 0; transform: translateY(-5px);}
+            to {opacity: 1; transform: translateY(0);}
+            }
+
+    </style>
+</head>
+<body>
+  <button class="mobile-menu-toggle"><i class="fas fa-bars"></i></button>
+  <div class="overlay"></div>
+
+  <div class="container-fluid">
+    <nav class="navbar-vertical">
+      <div class="nav-header">Inventario Botitas</div>
+      <ul class="nav-menu">
+        <li><a href="/inventario/agregar" class="nav-link"><i class="fas fa-box-open"></i> Re-stock Producto</a></li>
+        <li><a href="/crearProducto/crear" class="nav-link"><i class="fas fa-plus"></i> Crear Producto</a></li>
+        <li><a href="/admin-dashboard" class="nav-link"><i class="fas fa-arrow-left"></i> Regresar</a></li>
+      </ul>
+    </nav>
+
+    <main class="main-content">
+      <img src="/imagenes/logo botitas.png" alt="Logo Botitas" class="logo">
+      <h1>Inventario General</h1>
+
+      <div id="alert-message" class="alert"></div>
+
+      <div class="filters">
+        <div class="search-container">
+            <div class="search-box">
+            <i class="fas fa-search search-icon"></i>
+            <input 
+                type="text" 
+                id="search" 
+                placeholder="Buscar por código, nombre, tipo, color o material..."
+                autocomplete="off"
+                class="search-input"
+            />
+            <i class="fas fa-times clear-icon" id="clearSearch" title="Limpiar"></i>
+            </div>
+            <div id="suggestions" class="suggestions-box"></div>
+        </div>
+      </div>
+
+
+
+      <div class="table-responsive">
+        <table>
+            <thead>
+            <tr>
+                <th>Imagen</th>
+                <th>Código</th>
+                <th>Nombre</th>
+                <th>Tipo</th>
+                <th>Material</th>
+                <th>Género</th>
+                <th>Color</th>
+                <th>Talla</th>
+                <th>Cantidad</th>
+                <th>Precio Venta</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <% if (productos && productos.length > 0) { %>
+                <% productos.forEach(p => { %>
+                <tr style="background:<%= p.Estado === 'inactivo' ? '#f5f5f5' : 'white' %>;">
+                    <!-- ✅ Columna nueva: imagen -->
+                    <td>
+                    <% if (p.Foto && (p.Foto.startsWith('/') || p.Foto.startsWith('http'))) { %>
+                    <img src="<%= p.Foto %>" alt="Foto de <%= p.Nombre %>" 
+                        style="width:55px;height:55px;object-fit:cover;border-radius:6px;">
+                    <% } else { %>
+                    <img src="/imagenes/no-image.png" 
+                        alt="Sin imagen" 
+                        style="width:55px;height:55px;opacity:0.6;border-radius:6px;">
+                    <% } %>
+
+                    </td>
+
+                    <!-- resto de columnas -->
+                    <td><%= p.Codigo %></td>
+                    <td><%= p.Nombre %></td>
+                    <td><%= p.Tipo || '-' %></td>
+                    <td><%= p.Material || '-' %></td>
+                    <td><%= p.Genero || '-' %></td>
+                    <td><%= p.Color || '-' %></td>
+                    <td><%= p.Talla || '-' %></td>
+                    <td><%= p.Cantidad %></td>
+                    <td>$<%= parseFloat(p.PrecioVenta || 0).toFixed(2) %></td>
+                    <td>
+                    <% if (p.Estado === 'activo') { %>
+                        <span style="color:green;">Activo</span>
+                    <% } else { %>
+                        <span style="color:red;">Inactivo</span>
+                    <% } %>
+                    </td>
+                    <td>
+                    <a href="/crearProducto/editar/<%= p.Codigo %>" class="btn btn-edit">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <button class="btn btn-toggle" onclick="toggleEstado('<%= p.Codigo %>', '<%= p.Estado %>')">
+                        <%= p.Estado === 'activo' ? 'Desactivar' : 'Activar' %>
+                    </button>
+                    </td>
+                </tr>
+                <% }) %>
+            <% } else { %>
+                <tr><td colspan="12">No se encontraron productos en inventario.</td></tr>
+            <% } %>
+            </tbody>
+        </table>
+        </div>
+
+
+      <div class="pagination" id="pagination-controls"></div>
+    </main>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const currentLocation = location.href;
+      const menuItems = document.querySelectorAll('.nav-link');
+      const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+      const navbar = document.querySelector('.navbar-vertical');
+      const overlay = document.querySelector('.overlay');
+
+      menuItems.forEach(item => {
+        if (item.href === currentLocation) item.classList.add('active');
+      });
+
+      function toggleMobileMenu() {
+        navbar.classList.toggle('active');
+        overlay.classList.toggle('active');
+        document.body.style.overflow = navbar.classList.contains('active') ? 'hidden' : '';
+      }
+
+      mobileMenuToggle.addEventListener('click', toggleMobileMenu);
+      overlay.addEventListener('click', toggleMobileMenu);
+    });
+
+    // ✅ Activar / Desactivar producto
+    async function toggleEstado(codigo, currentEstado) {
+      const newEstado = currentEstado === 'activo' ? 'inactivo' : 'activo';
+      try {
+        const response = await fetch(`/crearProducto/cambiarEstado/${codigo}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ Estado: newEstado })
+        });
+
+        if (!response.ok) throw new Error('Error al cambiar el estado.');
+        showAlert(`El producto ${codigo} ahora está ${newEstado}.`, 'success');
+        setTimeout(() => location.reload(), 1000);
+      } catch (err) {
+        showAlert('No se pudo cambiar el estado.', 'danger');
+        console.error(err);
+      }
+    }
+
+    // ✅ Mostrar mensajes
+    function showAlert(msg, type) {
+      const alert = document.getElementById('alert-message');
+      alert.textContent = msg;
+      alert.className = `alert alert-${type}`;
+      alert.style.display = 'block';
+      setTimeout(() => (alert.style.display = 'none'), 3000);
+    }
+    // ======================================================
+// 🔍 AUTOCOMPLETADO VISUAL CON IMÁGENES
+// ======================================================
+const inputSearch = document.getElementById('search');
+const suggestionsBox = document.getElementById('suggestions');
+
+let searchTimeout;
+inputSearch.addEventListener('input', (e) => {
+  const value = e.target.value.trim();
+  clearTimeout(searchTimeout);
+  if (value.length < 2) {
+    suggestionsBox.style.display = 'none';
+    return;
+  }
+
+  // Espera 300ms antes de buscar
+  searchTimeout = setTimeout(() => {
+    fetch(`/inventario/search?texto=${encodeURIComponent(value)}`)
+      .then(res => res.json())
+      .then(data => {
+        suggestionsBox.innerHTML = '';
+        if (!data || data.length === 0) {
+          suggestionsBox.style.display = 'none';
+          return;
+        }
+
+        data.forEach(p => {
+          const div = document.createElement('div');
+          div.style.display = 'flex';
+          div.style.alignItems = 'center';
+          div.style.padding = '6px 8px';
+          div.style.cursor = 'pointer';
+          div.style.borderBottom = '1px solid #eee';
+          div.addEventListener('mouseenter', () => div.style.background = '#f2f2f2');
+          div.addEventListener('mouseleave', () => div.style.background = 'white');
+          
+          div.innerHTML = `
+            <img src="${p.Foto || '/imagenes/no-image.png'}" 
+                 alt="${p.Nombre}" 
+                 style="width:45px;height:45px;object-fit:cover;border-radius:4px;margin-right:8px;">
+            <div style="display:flex;flex-direction:column;">
+              <strong>${p.Codigo} - ${p.Nombre}</strong>
+              <span style="font-size:0.85em;color:#666;">
+                ${p.Color || 'Sin color'} · ${p.Tipo || 'Sin tipo'} · ${p.Talla || ''}
+              </span>
+            </div>
+          `;
+
+          div.addEventListener('click', () => {
+            inputSearch.value = p.Codigo;
+            suggestionsBox.style.display = 'none';
+            window.location.href = `/inventario?q=${encodeURIComponent(p.Codigo)}`;
+          });
+
+          suggestionsBox.appendChild(div);
+        });
+        suggestionsBox.style.display = 'block';
+      })
+      .catch(err => {
+        console.error('Error en la búsqueda:', err);
+        suggestionsBox.style.display = 'none';
+      });
+  }, 300);
+});
+
+document.addEventListener('click', (e) => {
+  if (!suggestionsBox.contains(e.target) && e.target !== inputSearch) {
+    suggestionsBox.style.display = 'none';
+  }
+});
+// Botón para limpiar búsqueda
+const clearIcon = document.getElementById('clearSearch');
+inputSearch.addEventListener('input', () => {
+  clearIcon.style.display = inputSearch.value ? 'block' : 'none';
+});
+clearIcon.addEventListener('click', () => {
+  inputSearch.value = '';
+  suggestionsBox.style.display = 'none';
+  clearIcon.style.display = 'none';
+  inputSearch.focus();
+});
+
+
+  </script>
+</body>

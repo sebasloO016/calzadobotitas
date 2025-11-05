@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Producto - Botitas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="crearProducto.css">
+</head>
+<body>
+    <button class="mobile-menu-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="overlay"></div>
+
+    <div class="container-fluid">
+        <nav class="navbar-vertical">
+            <div class="nav-header">Inventario Botitas</div>
+            <ul class="nav-menu">
+                <li><a href="/inventario/agregar" class="nav-link"><i class="fas fa-box-open"></i> Re-stock Producto</a></li>
+                <li><a href="/crearProducto/verTodos" class="nav-link"><i class="fas fa-list"></i> Ver Productos</a></li>
+                <li><a href="/crearProducto/crear" class="nav-link active"><i class="fas fa-box-open"></i> Crear nuevo Producto</a></li>
+                <li><a href="/stock" class="nav-link"><i class="fas fa-barcode"></i> Buscar por Código</a></li>
+                <li><a href="/inventario" class="nav-link"><i class="fas fa-box-open"></i> Ver Inventario</a></li>
+                <li><a href="/admin-dashboard" class="nav-link"><i class="fas fa-arrow-left"></i> Regresar</a></li>
+            </ul>
+            <form class="nav-search" action="/crearProducto/buscar" method="GET">
+                <input type="search" placeholder="Buscar producto" name="query">
+                <button type="submit"><i class="fas fa-search"></i> Buscar</button>
+            </form>
+        </nav>
+
+        <main class="main-content">
+            <img src="/imagenes/logo botitas.png" alt="Logo Botitas" class="logo">
+            <h1 style="margin-bottom: 20px;">Crear Producto</h1>
+
+            <div id="alert-message" class="alert"></div>
+            <% if (error) { %>
+                <div id="alert-message" class="alert alert-danger" style="display: block;"><%= error %></div>
+            <% } %>
+
+            <form id="productoForm" action="/crearProducto/crear" method="POST" enctype="multipart/form-data">
+                <div class="form-section">
+                    <h3>Información del Producto</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="Codigo" class="form-label">Código</label>
+                            <input type="text" class="form-control" id="Codigo" name="Codigo" required>
+                            <div id="codigoError" class="invalid-feedback"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="Nombre" class="form-label">Nombre</label>
+                            <input type="text" class="form-control" id="Nombre" name="Nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="ProveedorID" class="form-label">Proveedor</label>
+                            <select class="form-control" id="ProveedorID" name="ProveedorID" required>
+                                <option value="">Seleccione un proveedor</option>
+                                <% proveedores.forEach(proveedor => { %>
+                                    <option value="<%= proveedor.ProveedorID %>"><%= proveedor.Nombre %></option>
+                                <% }) %>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="FechaCompra" class="form-label">Fecha de Compra</label>
+                            <input type="date" class="form-control" id="FechaCompra" name="FechaCompra" value="<%= new Date().toISOString().split('T')[0] %>" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="NumeroFactura" class="form-label">Número de Factura</label>
+                            <input type="text" class="form-control" id="NumeroFactura" name="NumeroFactura">
+                        </div>
+                        <div class="form-group">
+                            <label for="TipoID" class="form-label">Tipo</label>
+                            <select class="form-control" id="TipoID" name="TipoID" required>
+                                <option value="">Seleccione un tipo</option>
+                                <% tipos.forEach(tipo => { %>
+                                    <option value="<%= tipo.TipoID %>"><%= tipo.Nombre %></option>
+                                <% }) %>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="MaterialID" class="form-label">Material</label>
+                            <select class="form-control" id="MaterialID" name="MaterialID" required>
+                                <option value="">Seleccione un material</option>
+                                <% materiales.forEach(material => { %>
+                                    <option value="<%= material.MaterialID %>"><%= material.Nombre %></option>
+                                <% }) %>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="GeneroID" class="form-label">Género</label>
+                            <select class="form-control" id="GeneroID" name="GeneroID" required>
+                                <option value="">Seleccione un género</option>
+                                <% generos.forEach(genero => { %>
+                                    <option value="<%= genero.GeneroID %>"><%= genero.Nombre %></option>
+                                <% }) %>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="ColorID" class="form-label">Color</label>
+                            <select class="form-control" id="ColorID" name="ColorID" required>
+                                <option value="">Seleccione un color</option>
+                                <% colores.forEach(color => { %>
+                                    <option value="<%= color.ColorID %>"><%= color.Nombre %></option>
+                                <% }) %>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Tallas y Cantidades</label>
+                            <div id="tallasContainer">
+                                <div class="talla-group">
+                                    <select class="form-control" name="TallaID[]">
+                                        <option value="">Seleccione una talla</option>
+                                        <% tallas.forEach(talla => { %>
+                                            <option value="<%= talla.TallaID %>"><%= talla.Valor %></option>
+                                        <% }) %>
+                                    </select>
+                                    <input type="number" class="form-control" name="Cantidad[]" placeholder="Cantidad" min="1">
+                                    <button type="button" class="btn btn-remove" onclick="removeTalla(this)">Eliminar</button>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-success" style="margin-top: 10px;" onclick="addTalla()">Agregar Talla</button>
+                        </div>
+                        <div class="form-group">
+                            <label for="UbicacionID" class="form-label">Ubicación</label>
+                            <select class="form-control" id="UbicacionID" name="UbicacionID">
+                                <option value="">Seleccione una ubicación</option>
+                                <% ubicaciones.forEach(ubicacion => { %>
+                                    <option value="<%= ubicacion.UbicacionID %>"><%= ubicacion.Nombre %></option>
+                                <% }) %>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="Detalle" class="form-label">Detalle</label>
+                            <textarea class="form-control" id="Detalle" name="Detalle"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="Foto" class="form-label">Foto del producto</label>
+                            <p style="font-size: 0.9em; color: #555;">Puedes subir una imagen o pegar una URL (opcional)</p>
+                            <input type="file" class="form-control" id="FotoFile" name="FotoFile" accept="image/*">
+                            <br>
+                            <input type="text" class="form-control" id="Foto" name="Foto" placeholder="O pega aquí la URL de la foto">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="PrecioCosto" class="form-label">Precio Costo</label>
+                            <input type="number" step="0.01" class="form-control" id="PrecioCosto" name="PrecioCosto" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="PrecioVenta" class="form-label">Precio Venta</label>
+                            <input type="number" step="0.01" class="form-control" id="PrecioVenta" name="PrecioVenta" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Crear Producto</button>
+                </div>
+            </form>
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentLocation = location.href;
+            const menuItems = document.querySelectorAll('.nav-link');
+            const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+            const navbar = document.querySelector('.navbar-vertical');
+            const overlay = document.querySelector('.overlay');
+
+            menuItems.forEach(item => {
+                if (item.href === currentLocation) {
+                    item.classList.add('active');
+                }
+            });
+
+            function toggleMobileMenu() {
+                navbar.classList.toggle('active');
+                overlay.classList.toggle('active');
+                document.body.style.overflow = navbar.classList.contains('active') ? 'hidden' : '';
+            }
+
+            mobileMenuToggle.addEventListener('click', toggleMobileMenu);
+            overlay.addEventListener('click', toggleMobileMenu);
+
+            menuItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    if (window.innerWidth <= 768) {
+                        toggleMobileMenu();
+                    }
+                });
+            });
+
+            window.addEventListener('resize', () => {
+                if (window.innerWidth > 768) {
+                    navbar.classList.remove('active');
+                    overlay.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            });
+
+            const alertMessage = document.getElementById('alert-message');
+            if (alertMessage && alertMessage.textContent.trim()) {
+                alertMessage.style.display = 'block';
+                setTimeout(() => {
+                    alertMessage.style.display = 'none';
+                }, 3000);
+            }
+        });
+
+        function addTalla() {
+            const container = document.getElementById('tallasContainer');
+            const tallaGroup = document.createElement('div');
+            tallaGroup.className = 'talla-group';
+            tallaGroup.innerHTML = `
+                <select class="form-control" name="TallaID[]">
+                    <option value="">Seleccione una talla</option>
+                    <% tallas.forEach(talla => { %>
+                        <option value="<%= talla.TallaID %>"><%= talla.Valor %></option>
+                    <% }) %>
+                </select>
+                <input type="number" class="form-control" name="Cantidad[]" placeholder="Cantidad" min="1">
+                <button type="button" class="btn btn-remove" onclick="removeTalla(this)">Eliminar</button>
+            `;
+            container.appendChild(tallaGroup);
+        }
+
+        function removeTalla(button) {
+            const container = document.getElementById('tallasContainer');
+            if (container.children.length > 1) {
+                button.parentElement.remove();
+            }
+        }
+
+
+    </script>
+</body>
+</html>

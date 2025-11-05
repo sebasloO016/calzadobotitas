@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agregar Producto - Botitas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #6a5acd;
+            --secondary-color: #7b68ee;
+            --background-color: #f4f6f9;
+            --text-color: #333;
+            --white: #ffffff;
+            --danger-color: #dc3545;
+            --success-color: #28a745;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+            margin: 0.5cm;
+            position: relative;
+        }
+
+        .container-fluid {
+            display: flex;
+            flex-grow: 1;
+            gap: 20px;
+            width: 100%;
+        }
+
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 1000;
+            background: var(--primary-color);
+            border: none;
+            color: var(--white);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 998;
+        }
+
+        .navbar-vertical {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            width: 230px;
+            padding: 20px;
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            z-index: 999;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .nav-header {
+            text-align: center;
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-menu {
+            list-style: none;
+            flex-grow: 1;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            color: var(--white);
+            text-decoration: none;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+        }
+
+        .nav-link i {
+            margin-right: 12px;
+            width: 22px;
+            text-align: center;
+            font-size: 1.1em;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateX(8px);
+        }
+
+        .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.3);
+            font-weight: 500;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            background-color: var(--white);
+            border-radius: 15px;
+            padding: 20px;
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        .logo {
+            max-width: 200px;
+            margin: 20px auto 30px;
+            display: block;
+            height: auto;
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+            padding: 15px;
+            background: var(--background-color);
+            border-radius: 10px;
+        }
+
+        .form-section h3 {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: var(--text-color);
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-control {
+            padding: 10px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            font-size: 14px;
+            width: 100%;
+            max-width: 300px; /* Reducir ancho máximo de los campos */
+            transition: border-color 0.3s;
+        }
+
+        .form-control[readonly] {
+            background-color: #e9ecef;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        .form-control.is-invalid {
+            border-color: var(--danger-color);
+        }
+
+        .invalid-feedback {
+            color: var(--danger-color);
+            font-size: 0.85em;
+            margin-top: 5px;
+        }
+
+        .form-check {
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-2px);
+        }
+
+        .tallas-container {
+            max-width: 100%;
+            overflow-x: auto;
+        }
+
+        .tallas-table {
+            width: 100%;
+            border-collapse: collapse;
+            display: table;
+        }
+
+        .tallas-table th, .tallas-table td {
+            padding: 8px;
+            text-align: center;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            min-width: 60px; /* Reducir ancho mínimo para tallas */
+        }
+
+        .tallas-table th {
+            background-color: var(--background-color);
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+
+        .talla-input-group {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            justify-content: center;
+        }
+
+        .talla-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            line-height: 25px;
+            text-align: center;
+        }
+
+        .talla-btn:hover {
+            background: var(--secondary-color);
+        }
+
+        .talla-input {
+            width: 50px;
+            text-align: center;
+            padding: 5px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .tallas-list {
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .talla-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--white);
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+        }
+
+        .talla-item label {
+            width: 60px;
+            font-weight: 500;
+            margin: 0;
+        }
+
+        .alert {
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+            font-size: 14px;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .spinner {
+            display: none;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .fade {
+            transition: opacity 0.3s ease;
+        }
+
+        .fade-out {
+            opacity: 0;
+        }
+
+        .fade-in {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                margin: 0.2cm;
+            }
+
+            .container-fluid {
+                flex-direction: column;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .navbar-vertical {
+                position: fixed;
+                left: -260px;
+                top: 0;
+                bottom: 0;
+                margin: 10px;
+                height: calc(100vh - 20px);
+                overflow-y: auto;
+            }
+
+            .navbar-vertical.active {
+                left: 0;
+            }
+
+            .overlay.active {
+                display: block;
+            }
+
+            .main-content {
+                width: 100%;
+                margin-top: 60px;
+                padding: 15px;
+            }
+
+            .logo {
+                max-width: 150px;
+                margin: 10px auto 20px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr; /* Una columna en móviles */
+            }
+
+            .form-control {
+                max-width: 100%; /* Campos ocupan todo el ancho disponible en móviles */
+            }
+
+            .tallas-table {
+                display: none; /* Ocultar tabla en móviles */
+            }
+
+            .tallas-list {
+                display: flex; /* Mostrar lista en móviles */
+            }
+
+            .talla-input {
+                width: 40px;
+                font-size: 13px;
+            }
+
+            .talla-btn {
+                width: 20px;
+                height: 20px;
+                font-size: 12px;
+            }
+
+            .talla-item {
+                padding: 6px;
+            }
+
+            .talla-item label {
+                width: 50px;
+                font-size: 0.9em;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .navbar-vertical {
+                width: 200px;
+            }
+
+            .nav-link {
+                font-size: 0.9em;
+                padding: 8px 10px;
+            }
+
+            .nav-link i {
+                margin-right: 10px;
+                font-size: 1em;
+            }
+
+            .talla-item {
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+
+            .talla-input-group {
+                flex-grow: 1;
+                justify-content: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+  <button class="mobile-menu-toggle"><i class="fas fa-bars"></i></button>
+  <div class="overlay"></div>
+
+  <div class="container-fluid">
+    <nav class="navbar-vertical">
+      <div class="nav-header">Inventario Botitas</div>
+      <ul class="nav-menu">
+        <li><a href="/inventario/agregar" class="nav-link active"><i class="fas fa-box-open"></i> Re-stock Producto</a></li>
+        <li><a href="/crearProducto/crear" class="nav-link"><i class="fas fa-box-open"></i> Crear nuevo Producto</a></li>
+        <li><a href="/stock" class="nav-link"><i class="fas fa-barcode"></i> Buscar por Código</a></li>
+        <li><a href="/inventario" class="nav-link"><i class="fas fa-box-open"></i> Ver Inventario</a></li>
+        <li><a href="/admin-dashboard" class="nav-link"><i class="fas fa-arrow-left"></i> Regresar</a></li>
+      </ul>
+    </nav>
+
+    <main class="main-content">
+      <img src="/imagenes/logo botitas.png" alt="Logo Botitas" class="logo" />
+      <h1>Agregar Stock</h1>
+
+      <div id="alert-message" class="alert"></div>
+
+      <form id="productoForm" action="/inventario/agregar" method="POST" onsubmit="return validateForm(event)">
+        <div class="form-section">
+          <h3>Buscar Producto Existente</h3>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="codigo" class="form-label">Código</label>
+              <input type="text" class="form-control" id="codigo" name="codigo" onblur="checkCodigo()" required />
+              <div id="codigoError" class="invalid-feedback"></div>
+            </div>
+            <div class="form-group">
+              <label for="Nombre" class="form-label">Nombre</label>
+              <input type="text" class="form-control" id="Nombre" name="Nombre" readonly />
+            </div>
+            <div class="form-group">
+              <label for="Tipo" class="form-label">Tipo</label>
+              <input type="text" class="form-control" id="Tipo" name="Tipo" readonly />
+            </div>
+            <div class="form-group">
+              <label for="Material" class="form-label">Material</label>
+              <input type="text" class="form-control" id="Material" name="Material" readonly />
+            </div>
+            <div class="form-group">
+              <label for="Genero" class="form-label">Género</label>
+              <input type="text" class="form-control" id="Genero" name="Genero" readonly />
+            </div>
+            <div class="form-group">
+              <label for="Color" class="form-label">Color</label>
+              <input type="text" class="form-control" id="Color" name="Color" readonly />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Ingreso de Stock</h3>
+          <div class="form-grid">
+            <div class="form-section">
+                <h3>Tallas detectadas</h3>
+                <p style="font-size: 0.9em; color: #666;">
+                    Se mostrarán automáticamente las tallas cuando ingreses un código base existente (por ejemplo <strong>910</strong>).
+                </p>
+                <div id="tallasContainer" class="form-grid"></div>
+            </div>
+            <div class="form-section">
+            <h3>Agregar nueva talla</h3>
+            <p style="font-size: 0.9em; color: #666;">
+                Si el producto tiene una nueva talla que aún no existe, puedes agregarla aquí.
+            </p>
+
+            <div class="form-grid">
+                <div class="form-group">
+                <label for="nuevaTallaID" class="form-label">Seleccione talla</label>
+                <select class="form-control" id="nuevaTallaID" name="TallaID">
+                    <option value="">Seleccione una talla</option>
+                    <% tallas.forEach(t => { %>
+                    <option value="<%= t.TallaID %>"><%= t.Valor %></option>
+                    <% }) %>
+                </select>
+                </div>
+
+                <div class="form-group">
+                <label for="nuevaCantidad" class="form-label">Cantidad</label>
+                <input type="number" class="form-control" id="nuevaCantidad" name="Cantidad" min="1">
+                </div>
+
+                <div class="form-group">
+                <label for="nuevoPrecioCosto" class="form-label">Precio costo</label>
+                <input type="number" step="0.01" class="form-control" id="nuevoPrecioCosto" name="PrecioCosto">
+                </div>
+
+                <div class="form-group">
+                <button type="button" class="btn btn-primary" onclick="crearNuevaTalla()">
+                    <i class="fas fa-plus"></i> Crear nueva talla
+                </button>
+                </div>
+            </div>
+            </div>
+
+
+            <div class="form-group">
+              <label for="PrecioCosto" class="form-label">Precio Costo</label>
+              <input type="number" step="0.01" class="form-control" id="PrecioCosto" name="PrecioCosto" oninput="calculateInversionTotal()" required />
+            </div>
+
+            <div class="form-group">
+              <label for="InversionTotal" class="form-label">Inversión Total</label>
+              <input type="number" class="form-control" id="InversionTotal" name="InversionTotal" readonly />
+            </div>
+
+            <div class="form-group">
+              <label for="UbicacionID" class="form-label">Ubicación</label>
+              <select class="form-control" id="UbicacionID" name="UbicacionID">
+                <option value="">Seleccione una ubicación</option>
+                <% ubicaciones.forEach(ubi => { %>
+                  <option value="<%= ubi.UbicacionID %>"><%= ubi.Nombre %></option>
+                <% }) %>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="IDFactura" class="form-label">Número de Factura</label>
+              <input type="text" class="form-control" id="IDFactura" name="IDFactura" required />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Agregar Stock</button>
+          <button type="button" class="btn btn-danger" onclick="resetForm()"><i class="fas fa-undo"></i> Limpiar</button>
+        </div>
+      </form>
+    </main>
+  </div>
+
+  <script>
+    function calculateInversionTotal() {
+    const precioCosto = parseFloat(document.getElementById('PrecioCosto').value) || 0;
+
+    // Suma todas las cantidades ingresadas por talla
+    const totalUnidades = [...document.querySelectorAll('input[name^="talla_"]')]
+        .reduce((acc, input) => acc + (parseInt(input.value) || 0), 0);
+
+    const inversionTotal = (precioCosto * totalUnidades).toFixed(2);
+    const inversionField = document.getElementById('InversionTotal');
+    if (inversionField) inversionField.value = inversionTotal;
+    }
+
+
+    function checkCodigo() {
+        const codigo = document.getElementById('codigo').value.trim();
+        if (!codigo) return;
+
+        fetch('/inventario/checkCodigo', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ codigo })
+        })
+        .then(res => res.json())
+        .then(data => {
+            const container = document.getElementById('tallasContainer');
+            container.innerHTML = '';
+
+            if (data.exists && data.productos.length > 0) {
+                const p0 = data.productos[0]; // producto base
+                document.getElementById('Nombre').value = p0.Nombre || '';
+                document.getElementById('Tipo').value = p0.Tipo || '';
+                document.getElementById('Material').value = p0.Material || '';
+                document.getElementById('Genero').value = p0.Genero || '';
+                document.getElementById('Color').value = p0.Color || '';
+
+                // generar tallas
+                const container = document.getElementById('tallasContainer');
+                container.innerHTML = '';
+                data.productos.forEach(p => {
+                    const div = document.createElement('div');
+                    div.className = 'talla-group';
+                    div.innerHTML = `
+                    <label><strong>${p.Codigo}</strong> (Talla ${p.Talla}) — Stock actual: ${p.Cantidad}</label>
+                    <input type="number" class="form-control" name="talla_${p.Codigo}" placeholder="Agregar cantidad" min="0" value="0" oninput="calculateInversionTotal()">
+                    `;
+                    container.appendChild(div);
+                });
+                showAlert('Producto base encontrado. Tallas listadas abajo.', 'success');
+                }
+
+        })
+        .catch(err => {
+            console.error('Error al verificar código base:', err);
+            showAlert('Error al buscar el código base.', 'danger');
+        });
+    }
+
+
+    function showAlert(message, type) {
+      const alertMessage = document.getElementById('alert-message');
+      alertMessage.textContent = message;
+      alertMessage.className = `alert alert-${type}`;
+      alertMessage.style.display = 'block';
+      setTimeout(() => alertMessage.style.display = 'none', 3000);
+    }
+    function crearNuevaTalla() {
+        const codigoBase = document.getElementById('codigo').value.trim();
+        const TallaID = document.getElementById('nuevaTallaID').value;
+        const Cantidad = document.getElementById('nuevaCantidad').value;
+        const PrecioCosto = document.getElementById('nuevoPrecioCosto').value;
+
+        if (!codigoBase || !TallaID || !Cantidad || !PrecioCosto) {
+            showAlert('Por favor completa todos los campos para agregar la nueva talla.', 'danger');
+            return;
+        }
+
+        fetch('/inventario/agregar-talla', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ codigoBase, TallaID, Cantidad, PrecioCosto })
+        })
+        .then(res => {
+            if (!res.ok) throw new Error('Error al crear la nueva talla.');
+            showAlert('✅ Nueva talla creada y agregada correctamente.', 'success');
+            setTimeout(() => location.reload(), 1500);
+        })
+        .catch(err => {
+            console.error('Error al crear nueva talla:', err);
+            showAlert('❌ No se pudo agregar la nueva talla.', 'danger');
+        });
+        }
+
+
+    function validateForm(e) {
+      const codigo = document.getElementById('codigo').value.trim();
+      const cantidad = parseInt(document.getElementById('Cantidad').value);
+      const costo = parseFloat(document.getElementById('PrecioCosto').value);
+      if (!codigo || cantidad <= 0 || costo <= 0) {
+        e.preventDefault();
+        showAlert('Por favor completa todos los campos correctamente.', 'danger');
+        return false;
+      }
+      return true;
+    }
+
+    function resetForm() {
+      document.getElementById('productoForm').reset();
+      showAlert('Formulario limpio.', 'info');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
+      const navbar = document.querySelector('.navbar-vertical');
+      const overlay = document.querySelector('.overlay');
+
+      mobileMenuToggle.addEventListener('click', () => {
+        navbar.classList.toggle('active');
+        overlay.classList.toggle('active');
+      });
+
+      overlay.addEventListener('click', () => {
+        navbar.classList.remove('active');
+        overlay.classList.remove('active');
+      });
+    });
+  </script>
+</body>

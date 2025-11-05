@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestión de Usuarios - Botitas</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #6a5acd;
+      --secondary-color: #7b68ee;
+      --background-color: #f4f6f9;
+      --text-color: #333;
+      --white: #ffffff;
+      --danger-color: #dc3545;
+      --success-color: #28a745;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Arial', sans-serif;
+    }
+
+    body {
+      background-color: var(--background-color);
+      color: var(--text-color);
+      line-height: 1.6;
+      display: flex;
+      min-height: 100vh;
+      margin: 0.5cm;
+      position: relative;
+    }
+
+    .container-fluid {
+      display: flex;
+      flex-grow: 1;
+      gap: 20px;
+      width: 100%;
+    }
+
+    /* Botón menú móvil */
+    .mobile-menu-toggle {
+      display: none;
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      z-index: 1000;
+      background: var(--primary-color);
+      border: none;
+      color: var(--white);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 998;
+    }
+
+    /* ===== NAVBAR ===== */
+    .navbar-vertical {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      width: 230px;
+      padding: 20px;
+      color: var(--white);
+      display: flex;
+      flex-direction: column;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      z-index: 999;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    .nav-header {
+      text-align: center;
+      font-size: 1.4em;
+      margin-bottom: 15px;
+      font-weight: bold;
+    }
+
+    .nav-menu {
+      list-style: none;
+      flex-grow: 1;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      color: var(--white);
+      text-decoration: none;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      border-radius: 6px;
+      background-color: rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+      font-size: 0.95em;
+    }
+
+    .nav-link i {
+      margin-right: 12px;
+      width: 22px;
+      text-align: center;
+      font-size: 1.1em;
+    }
+
+    .nav-link:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+      transform: translateX(8px);
+    }
+
+    .nav-link.active {
+      background-color: rgba(255, 255, 255, 0.3);
+      font-weight: 500;
+    }
+
+    /* ===== MAIN CONTENT ===== */
+    .main-content {
+      flex-grow: 1;
+      background-color: var(--white);
+      border-radius: 15px;
+      padding: 25px;
+      width: 100%;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    }
+
+    .main-content h1 {
+      color: var(--primary-color);
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    /* ===== FORMULARIO ===== */
+    .form-section {
+      margin-bottom: 2rem;
+      padding: 15px;
+      background: var(--background-color);
+      border-radius: 10px;
+    }
+
+    .form-section h3 {
+      font-size: 1.2em;
+      margin-bottom: 15px;
+      color: var(--primary-color);
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 15px;
+      align-items: end;
+    }
+
+    .form-control, .form-select {
+      padding: 10px;
+      border: 1px solid rgba(0,0,0,0.1);
+      border-radius: 8px;
+      font-size: 14px;
+      width: 100%;
+      transition: border-color 0.3s;
+    }
+
+    .form-control:focus, .form-select:focus {
+      border-color: var(--primary-color);
+      outline: none;
+    }
+
+    .btn-success {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-success:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+
+    /* ===== TABLA ===== */
+    .table-container {
+      background: var(--background-color);
+      border-radius: 10px;
+      padding: 15px;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 10px;
+      border-bottom: 1px solid rgba(0,0,0,0.1);
+    }
+
+    th {
+      background-color: var(--background-color);
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+
+    tr:hover {
+      background-color: rgba(0,0,0,0.03);
+    }
+
+    .btn-danger, .btn-save {
+      border: none;
+      padding: 8px 10px;
+      border-radius: 6px;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-danger {
+      background-color: var(--danger-color);
+    }
+
+    .btn-save {
+      background-color: var(--success-color);
+    }
+
+    .btn-danger:hover, .btn-save:hover {
+      opacity: 0.9;
+      transform: scale(1.05);
+    }
+
+    @media (max-width: 768px) {
+      body { margin: 0.2cm; }
+
+      .container-fluid {
+        flex-direction: column;
+      }
+
+      .mobile-menu-toggle {
+        display: block;
+      }
+
+      .navbar-vertical {
+        position: fixed;
+        left: -260px;
+        top: 0;
+        bottom: 0;
+        margin: 10px;
+        height: calc(100vh - 20px);
+        overflow-y: auto;
+      }
+
+      .navbar-vertical.active { left: 0; }
+      .overlay.active { display: block; }
+
+      .main-content {
+        margin-top: 60px;
+        padding: 15px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .navbar-vertical { width: 200px; }
+      .nav-link { font-size: 0.9em; padding: 8px 10px; }
+      .nav-link i { margin-right: 10px; font-size: 1em; }
+    }
+  </style>
+</head>
+<body>
+  <button class="mobile-menu-toggle"><i class="fas fa-bars"></i></button>
+  <div class="overlay"></div>
+
+  <div class="container-fluid">
+    <nav class="navbar-vertical">
+      <div class="nav-header">Panel Botitas</div>
+      <ul class="nav-menu">
+        <li><a href="/admin-dashboard" class="nav-link"><i class="fas fa-home"></i> Dashboard</a></li>
+        <li><a href="/inventario" class="nav-link"><i class="fas fa-boxes"></i> Inventario</a></li>
+        <li><a href="/stock" class="nav-link"><i class="fas fa-barcode"></i> Stock</a></li>
+        <li><a href="/usuarios" class="nav-link active"><i class="fas fa-users"></i> Usuarios</a></li>
+        <li><a href="/logout" class="nav-link"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</a></li>
+      </ul>
+    </nav>
+
+    <main class="main-content">
+      <h1>Gestión de Usuarios</h1>
+
+      <div class="form-section">
+        <h3><i class="fas fa-user-plus"></i> Agregar Usuario</h3>
+        <form action="/usuarios/crear" method="post">
+          <div class="form-grid">
+            <input type="text" name="nombre" class="form-control" placeholder="Nombre" required>
+            <input type="email" name="email" class="form-control" placeholder="Correo electrónico" required>
+            <input type="password" name="password" class="form-control" placeholder="Contraseña" required>
+            <select name="rol" class="form-select" required>
+              <option value="Administrador">Administrador</option>
+              <option value="Empleado">Empleado</option>
+            </select>
+            <button type="submit" class="btn-success"><i class="fas fa-plus"></i> Agregar</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Email</th>
+              <th>Rol</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% usuarios.forEach(usuario => { %>
+              <tr>
+                <td><%= usuario.UsuarioID %></td>
+                <td><%= usuario.Nombre %></td>
+                <td><%= usuario.Email %></td>
+                <td><%= usuario.Rol %></td>
+                <td>
+                  <form action="/usuarios/editar/<%= usuario.UsuarioID %>" method="post" style="display:inline;">
+                    <input type="text" name="nombre" value="<%= usuario.Nombre %>" class="form-control" required>
+                    <input type="email" name="email" value="<%= usuario.Email %>" class="form-control" required>
+                    <select name="rol" class="form-select" required>
+                      <option value="Administrador" <%= usuario.Rol === 'Administrador' ? 'selected' : '' %>>Administrador</option>
+                      <option value="Empleado" <%= usuario.Rol === 'Empleado' ? 'selected' : '' %>>Empleado</option>
+                    </select>
+                    <button type="submit" class="btn-save"><i class="fas fa-save"></i></button>
+                  </form>
+                  <form action="/usuarios/eliminar/<%= usuario.UsuarioID %>" method="post" style="display:inline;">
+                    <button type="submit" class="btn-danger" onclick="return confirm('¿Eliminar a <%= usuario.Nombre %>?')"><i class="fas fa-trash"></i></button>
+                  </form>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    const toggle = document.querySelector('.mobile-menu-toggle');
+    const navbar = document.querySelector('.navbar-vertical');
+    const overlay = document.querySelector('.overlay');
+
+    toggle.addEventListener('click', () => {
+      navbar.classList.toggle('active');
+      overlay.classList.toggle('active');
+    });
+
+    overlay.addEventListener('click', () => {
+      navbar.classList.remove('active');
+      overlay.classList.remove('active');
+    });
+  </script>
+</body>
+</html>
