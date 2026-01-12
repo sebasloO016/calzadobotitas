@@ -661,36 +661,131 @@
             }
         }
 
+        /* ==========================================
+       LOGICA PARA AGREGAR NUEVA VARIANTE VISUAL
+    ========================================== */
         function agregarNuevaVariante() {
-            // Lógica para interfaz visual de agregar nueva variante (si se requiere enviar en el mismo submit)
-            // Por ahora, solo validación visual ya que el backend original parece manejar solo restock de existentes aquí
-            // Si tu backend soporta creación al vuelo, aquí iría la lógica.
-            // Dejaré la alerta original del usuario:
-            alert("Funcionalidad de agregar nueva variante en desarrollo. Por favor usa 'Crear Producto' para nuevas tallas por ahora.");
+            // 1. Obtener valores de los inputs
+            const tallaSelect = document.getElementById('newTalla');
+            const colorSelect = document.getElementById('newColor');
+            const materialSelect = document.getElementById('newMaterial');
+            const cantidadInput = document.getElementById('newCantidad');
+            const costoInput = document.getElementById('newCostoVariante'); // O el costo general
+
+            const tallaID = tallaSelect.value;
+            const tallaTxt = tallaSelect.options[tallaSelect.selectedIndex]?.text;
+
+            const colorID = colorSelect.value;
+            const colorTxt = colorSelect.options[colorSelect.selectedIndex]?.text;
+
+            const materialID = materialSelect.value;
+            const materialTxt = materialSelect.options[materialSelect.selectedIndex]?.text;
+
+            const cantidad = cantidadInput.value;
+            // Si el costo individual está vacío, usará el global al enviar, pero validemos cantidad
+
+            if (!tallaID || !colorID || !materialID || !cantidad || cantidad <= 0) {
+                return alert("Por favor completa Talla, Color, Material y una Cantidad válida.");
+            }
+
+            // 2. Crear elemento visual en la lista
+            const container = document.getElementById('variantesContainer');
+
+            // Limpiar mensaje de "No hay variantes" si existe
+            if (container.querySelector('.fa-spinner') || container.innerText.includes('No hay variantes')) {
+                container.innerHTML = '';
+            }
+
+            const div = document.createElement('div');
+            div.className = 'variant-row new-variant-row'; // Clase especial para identificar visualmente
+            div.style.backgroundColor = "#eeffee"; // Un colorcito verde suave para indicar que es nuevo
+            div.style.border = "1px dashed #28a745";
+
+            div.innerHTML = `
+            <div class="variant-info">
+                <strong><i class="fas fa-plus-circle text-success"></i> NUEVA: ${tallaTxt}</strong>
+                <small>${colorTxt} | ${materialTxt}</small>
+            </div>
+            <input type="hidden" class="new-item-data" 
+                   data-talla="${tallaID}" 
+                   data-color="${colorID}" 
+                   data-material="${materialID}">
+                   
+            <input type="number" class="form-control new-item-qty" 
+                   value="${cantidad}" 
+                   style="text-align:center; font-weight:bold;">
+            
+            <button type="button" class="btn btn-sm btn-danger" onclick="this.parentElement.remove()" style="margin-left:10px;">
+                <i class="fas fa-trash"></i>
+            </button>
+        `;
+
+            container.appendChild(div);
+
+            // 3. Limpiar inputs para agregar otra
+            tallaSelect.value = "";
+            colorSelect.value = "";
+            materialSelect.value = "";
+            cantidadInput.value = "";
+            // newCostoVariante lo dejamos o limpiamos según preferencia
         }
 
-        // SUBMIT FORM
+        /* ==========================================
+       SUBMIT DEL FORMULARIO (MODIFICADO)
+    ========================================== */
         document.getElementById('restockForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             if (!productoSeleccionado) return alert("Selecciona un producto primero");
 
             const variantesAEnviar = [];
-            const costo = Number(document.getElementById('costoRestock').value) || 0;
+            // Costo global si no se especifica individual
+            const costoGlobal = Number(document.getElementById('costoRestock').value);
 
-            // Recolectar inputs de variantes existentes
+            if (!costoGlobal || costoGlobal <= 0) {
+                // Podrías permitir costo individual, pero validemos que haya al menos un costo
+                // return alert("Ingresa el Costo Unitario de Re-stock");
+            }
+
+            // A. RECOLECTAR VARIANTES EXISTENTES
             document.querySelectorAll('input[data-variante]').forEach(input => {
                 const cant = Number(input.value);
                 if (cant > 0) {
                     variantesAEnviar.push({
                         VarianteID: Number(input.dataset.variante),
                         Cantidad: cant,
-                        CostoUnitario: costo
+                        CostoUnitario: costoGlobal // Usamos el costo global
+                    });
+                }
+            });
+
+            // B. RECOLECTAR NUEVAS VARIANTES CREADAS MANUALMENTE
+            document.querySelectorAll('.new-variant-row').forEach(row => {
+                const dataInput = row.querySelector('.new-item-data');
+                const qtyInput = row.querySelector('.new-item-qty');
+                const cant = Number(qtyInput.value);
+
+                // Costo específico de la sección "Nueva Variante" si quisieras, 
+                // pero por simplicidad usaremos el costoGlobal del formulario principal
+                // O podrías leer el input individual si lo mantienes en el HTML del row.
+
+                if (cant > 0) {
+                    variantesAEnviar.push({
+                        VarianteID: null, // Es null para indicar al backend que debe crearla
+                        TallaID: Number(dataInput.dataset.talla),
+                        ColorID: Number(dataInput.dataset.color),
+                        MaterialID: Number(dataInput.dataset.material),
+                        Cantidad: cant,
+                        CostoUnitario: costoGlobal
                     });
                 }
             });
 
             if (variantesAEnviar.length === 0) {
-                return alert("Ingresa cantidad en al menos una variante.");
+                return alert("Ingresa cantidad en al menos una variante (existente o nueva).");
+            }
+
+            if (costoGlobal <= 0) {
+                return alert("Debes ingresar un Costo Unitario de Re-stock válido.");
             }
 
             const btn = e.target.querySelector('button[type="submit"]');
@@ -700,7 +795,7 @@
             const payload = {
                 ProveedorID: Number(document.getElementById('proveedor').value),
                 NumeroFactura: document.getElementById('factura').value,
-                Codigo: productoSeleccionado.Codigo,
+                Codigo: productoSeleccionado.Codigo, // IMPORTANTE: Enviamos el código para asociar las nuevas variantes
                 variantes: variantesAEnviar
             };
 
@@ -721,13 +816,13 @@
                 } else {
                     alert('❌ Error: ' + result.error);
                     btn.disabled = false;
-                    btn.innerHTML = 'REGISTRAR INGRESO AL INVENTARIO';
+                    btn.innerHTML = '<i class="fas fa-save"></i> REGISTRAR INGRESO AL INVENTARIO';
                 }
             } catch (err) {
                 console.error(err);
                 alert("Error de conexión");
                 btn.disabled = false;
-                btn.innerHTML = 'REGISTRAR INGRESO AL INVENTARIO';
+                btn.innerHTML = '<i class="fas fa-save"></i> REGISTRAR INGRESO AL INVENTARIO';
             }
         });
     </script>

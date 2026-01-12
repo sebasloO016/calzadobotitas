@@ -119,40 +119,82 @@ exports.verInventario = (req, res) => {
 };
 
 /* =====================================================
-   ➕ PROCESAR RE-STOCK (NUEVA COMPRA)
+   /* =====================================================
+   ➕ PROCESAR RE-STOCK (CON CREACIÓN AUTOMÁTICA)
 ===================================================== */
-// controllers/inventarioController.js
 exports.procesarRestock = async (req, res) => {
-    const { ProveedorID, NumeroFactura, FechaCompra, variantes } = req.body;
+    const { ProveedorID, NumeroFactura, FechaCompra, Codigo, variantes } = req.body; // Asegúrate de recibir el Codigo del producto
 
     if (!ProveedorID || !Array.isArray(variantes) || variantes.length === 0) {
         return res.status(400).json({ error: 'Datos incompletos para re-stock' });
     }
 
     try {
+        const Inventario = require('../models/inventarioModel');
+        const Compras = require('../models/comprasModel');
+
+        // 1. Obtener el ProductoID base usando el Código
+        const productoBase = await new Promise((resolve, reject) => {
+            Inventario.getProductoByCodigo(Codigo, (err, p) => err ? reject(err) : resolve(p));
+        });
+
+        if (!productoBase) {
+            return res.status(404).json({ error: 'Producto base no encontrado' });
+        }
+
         const detalleCompra = [];
 
+        // 2. Iterar sobre las variantes enviadas
         for (const v of variantes) {
-            if (
-                !v.VarianteID ||
-                !v.Cantidad ||
-                v.Cantidad <= 0 ||
-                !v.CostoUnitario
-            ) continue;
+            // Validar datos básicos
+            if (!v.Cantidad || v.Cantidad <= 0 || !v.CostoUnitario) continue;
 
+            let finalVarianteID = v.VarianteID;
+
+            // SI NO TIENE ID, ES UNA NUEVA VARIANTE QUE HAY QUE CREAR O BUSCAR
+            if (!finalVarianteID) {
+                if (!v.TallaID || !v.ColorID || !v.MaterialID) {
+                    continue; // Si falta info estructural, saltar
+                }
+
+                // Datos para búsqueda/creación
+                const datosVariante = {
+                    ProductoID: productoBase.ProductoID,
+                    TallaID: v.TallaID,
+                    ColorID: v.ColorID,
+                    MaterialID: v.MaterialID,
+                    CostoUnitario: v.CostoUnitario,
+                    PrecioVentaVariante: null // Opcional
+                };
+
+                // A. Verificar si ya existe (para evitar duplicados)
+                const existente = await new Promise((resolve, reject) => {
+                    Inventario.getVarianteExistente(datosVariante, (err, row) => err ? reject(err) : resolve(row));
+                });
+
+                if (existente) {
+                    finalVarianteID = existente.VarianteID;
+                } else {
+                    // B. Si no existe, CREARLA
+                    finalVarianteID = await new Promise((resolve, reject) => {
+                        Inventario.crearVariante(datosVariante, (err, newId) => err ? reject(err) : resolve(newId));
+                    });
+                }
+            }
+
+            // Agregar al array final de la compra
             detalleCompra.push({
-                VarianteID: v.VarianteID,
+                VarianteID: finalVarianteID,
                 Cantidad: v.Cantidad,
                 CostoUnitario: v.CostoUnitario
             });
         }
 
         if (detalleCompra.length === 0) {
-            return res.status(400).json({ error: 'No hay cantidades válidas para re-stock' });
+            return res.status(400).json({ error: 'No se pudieron procesar las variantes (verifique datos)' });
         }
 
-        const Compras = require('../models/comprasModel');
-
+        // 3. Crear la compra con los IDs resueltos
         await new Promise((resolve, reject) => {
             Compras.crearCompraAutomatica({
                 ProveedorID,
@@ -164,7 +206,7 @@ exports.procesarRestock = async (req, res) => {
 
         res.json({
             success: true,
-            message: 'Re-stock registrado correctamente'
+            message: 'Re-stock y actualización de variantes completada'
         });
 
     } catch (err) {
