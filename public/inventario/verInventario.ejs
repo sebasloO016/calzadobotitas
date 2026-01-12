@@ -1,38 +1,49 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inventario - Botitas</title>
+    <title>Inventario General - Botitas</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
     <style>
+        /* ================= ESTILOS PRO + ADN ================= */
         :root {
-            --primary-color: #6a5acd;
-            --secondary-color: #7b68ee;
-            --background-color: #f4f6f9;
-            --text-color: #333;
+            --primary: #6a5acd;
+            --secondary: #7b68ee;
+            --bg: #f4f6f9;
+            --text: #334155;
             --white: #ffffff;
-            --danger-color: #dc3545;
-            --success-color: #28a745;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+
+            /* Estados */
+            --success-bg: #dcfce7;
+            --success-txt: #166534;
+            --warning-bg: #fef3c7;
+            --warning-txt: #92400e;
+            --danger-bg: #fee2e2;
+            --danger-txt: #991b1b;
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
+            font-family: 'Segoe UI', system-ui, sans-serif;
         }
 
         body {
-            background-color: var(--background-color);
-            color: var(--text-color);
-            line-height: 1.6;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.5;
             display: flex;
             min-height: 100vh;
             margin: 0.5cm;
-            position: relative;
         }
 
+        /* ===== LAYOUT & SIDEBAR ===== */
         .container-fluid {
             display: flex;
             flex-grow: 1;
@@ -40,57 +51,19 @@
             width: 100%;
         }
 
-        .mobile-menu-toggle {
-            display: none;
-            position: fixed;
-            top: 15px;
-            right: 15px;
-            z-index: 1000;
-            background: var(--primary-color);
-            border: none;
-            color: var(--white);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
-
-        .overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 998;
-        }
-
         .navbar-vertical {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
             width: 230px;
             padding: 20px;
             color: var(--white);
             display: flex;
             flex-direction: column;
             border-radius: 12px;
-            transition: all 0.3s ease;
+            height: fit-content;
+            min-height: 80vh;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: 0.3s;
             z-index: 999;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
-
-        .nav-header {
-            text-align: center;
-            font-size: 1.4em;
-            margin-bottom: 15px;
-            font-weight: bold;
-            letter-spacing: 0.5px;
-        }
-
-        .nav-menu {
-            list-style: none;
-            flex-grow: 1;
         }
 
         .nav-link {
@@ -98,304 +71,277 @@
             align-items: center;
             color: var(--white);
             text-decoration: none;
-            padding: 10px 12px;
-            margin-bottom: 8px;
-            border-radius: 6px;
-            background-color: rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
-            font-size: 0.95em;
-        }
-
-        .nav-link i {
-            margin-right: 12px;
-            width: 22px;
-            text-align: center;
-            font-size: 1.1em;
+            padding: 12px 15px;
+            margin-bottom: 5px;
+            border-radius: 8px;
+            transition: 0.2s;
+            font-size: 0.95rem;
         }
 
         .nav-link:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            transform: translateX(8px);
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(3px);
         }
 
         .nav-link.active {
-            background-color: rgba(255, 255, 255, 0.3);
-            font-weight: 500;
+            background: rgba(255, 255, 255, 0.3);
+            font-weight: 600;
+            border-left: 4px solid #fff;
         }
 
+        .nav-link i {
+            width: 25px;
+            text-align: center;
+            margin-right: 10px;
+        }
+
+        /* ===== CONTENIDO ===== */
         .main-content {
             flex-grow: 1;
-            background-color: var(--white);
+            background: var(--white);
             border-radius: 15px;
-            padding: 20px;
-            overflow-x: auto;
+            padding: 30px;
+            box-shadow: var(--shadow);
             width: 100%;
-        }
-
-        .logo {
-            max-width: 200px;
-            margin: 20px auto 30px;
-            display: block;
-            height: auto;
+            overflow-x: hidden;
         }
 
         h1 {
-            font-size: 2em;
-            margin-bottom: 20px;
-            color: var(--primary-color);
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 25px;
+            font-size: 1.8rem;
         }
 
-        .filters-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .filter-group {
-            flex: 1;
-            min-width: 200px;
-        }
-
-        .filter-group label {
+        .logo {
             display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
+            margin: 0 auto 15px;
+            max-width: 140px;
         }
 
-        .filter-group select,
-        .filter-group input {
+        /* ===== BUSCADOR ===== */
+        .search-bar {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            background: #fff;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .search-input {
             width: 100%;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-size: 14px;
+            padding: 12px 15px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            outline: none;
+            transition: 0.3s;
         }
 
-        .filter-button {
-            padding: 8px 15px;
-            border: none;
-            border-radius: 8px;
-            background: var(--primary-color);
-            color: var(--white);
-            font-size: 14px;
-            cursor: pointer;
-            transition: background-color 0.3s;
+        .search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(106, 90, 205, 0.15);
         }
 
-        .filter-button:hover {
-            background: var(--secondary-color);
-        }
-
-        .table-responsive {
-            max-width: 100%;
-            overflow-x: auto;
+        /* ===== TABLA PRO ===== */
+        .table-container {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 16px;
-            text-align: left;
+            font-size: 0.9rem;
         }
 
-        th, td {
-            padding: 12px 15px;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-        }
-
-        th {
-            background-color: var(--primary-color);
-            color: var(--white);
+        thead th {
+            background: #f8fafc;
+            color: var(--primary);
             text-transform: uppercase;
-            font-weight: 600;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 15px;
+            text-align: left;
+            border-bottom: 2px solid var(--border);
         }
 
-        tbody tr:nth-of-type(even) {
-            background-color: #f9f9f9;
+        tbody td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
         }
 
-        tbody tr:hover {
-            background-color: #f1f1f1;
-        }
-
-        .btn {
-            padding: 8px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 14px;
-            text-decoration: none;
-            display: inline-block;
-            transition: opacity 0.3s, transform 0.3s;
-        }
-
-        .btn-edit {
-            background: var(--success-color);
-            color: var(--white);
-        }
-
-        .btn-edit:hover {
-            background: #218838;
-        }
-
-        .btn-delete {
-            background: var(--danger-color);
-            color: var(--white);
-        }
-
-        .btn-delete:hover {
-            background: #c82333;
-        }
-
-        .action-buttons {
-            display: flex;
-            gap: 5px;
-        }
-
-        .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 20px;
-            gap: 10px;
-        }
-
-        .pagination button {
-            padding: 8px 12px;
-            border: none;
-            border-radius: 5px;
-            font-size: 14px;
-            cursor: pointer;
-            background: var(--background-color);
-            color: var(--text-color);
-            transition: background-color 0.3s, color 0.3s;
-        }
-
-        .pagination button:hover:not(.disabled) {
-            background: var(--primary-color);
-            color: var(--white);
-        }
-
-        .pagination button.active {
-            background: var(--primary-color);
-            color: var(--white);
-            font-weight: 600;
-        }
-
-        .pagination button.disabled {
-            background: #e9ecef;
-            color: #6c757d;
-            cursor: not-allowed;
-        }
-
-        /* Autocomplete styles */
-        .buscador-container {
+        /* IMAGENES MEJORADAS */
+        .img-wrapper {
+            width: 60px;
+            height: 60px;
             position: relative;
+        }
+
+        .product-img {
             width: 100%;
-        }
-
-        .input-container {
-            position: relative;
-            display: flex;
-            align-items: center;
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 10px;
-            width: 20px;
-            height: 20px;
-            color: #666;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 8px 8px 8px 35px;
-            border: 1px solid #ccc;
+            height: 100%;
+            object-fit: cover;
             border-radius: 8px;
-            font-size: 14px;
+            border: 1px solid #ddd;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: #fff;
+            cursor: zoom-in;
         }
 
-        .resultados-dropdown {
+        /* Efecto Zoom Hover */
+        .product-img:hover {
+            transform: scale(2.5);
+            z-index: 100;
             position: absolute;
-            top: 100%;
+            top: 0;
             left: 0;
-            right: 0;
-            background: var(--white);
-            border: 1px solid #ccc;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            border-color: var(--primary);
+        }
+
+        /* ===== SUB-TABLA (VARIANTES) ===== */
+        .variant-row {
+            display: none;
+            background: #f8fafc;
+        }
+
+        .variant-box {
+            padding: 15px;
+            margin: 10px 20px;
+            background: #fff;
             border-radius: 8px;
-            max-height: 200px;
-            overflow-y: auto;
-            z-index: 1000;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border: 1px solid var(--border);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.02);
         }
 
-        .resultados-lista {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .resultado-item {
-            padding: 10px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
+        .variant-table th {
+            background: transparent;
+            color: #64748b;
+            padding: 8px;
             border-bottom: 1px solid #eee;
         }
 
-        .resultado-item:last-child {
-            border-bottom: none;
+        .variant-table td {
+            padding: 8px;
+            border-bottom: 1px solid #f1f5f9;
         }
 
-        .resultado-item:hover {
-            background: #f1f1f1;
+        /* ===== BADGES & BOTONES ===== */
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
         }
 
-        .resultado-contenido {
+        .bg-ok {
+            background: var(--success-bg);
+            color: var(--success-txt);
+        }
+
+        .bg-low {
+            background: var(--warning-bg);
+            color: var(--warning-txt);
+        }
+
+        .bg-crit {
+            background: var(--danger-bg);
+            color: var(--danger-txt);
+        }
+
+        .actions-cell {
             display: flex;
-            align-items: center;
-            width: 100%;
+            gap: 8px;
+            justify-content: flex-end;
         }
 
-        .resultado-imagen {
-            width: 40px;
-            height: 40px;
-            margin-right: 10px;
-            border-radius: 4px;
-            object-fit: cover;
-        }
-
-        .resultado-imagen-placeholder {
-            width: 40px;
-            height: 40px;
-            margin-right: 10px;
-            border-radius: 4px;
-            display: flex;
+        .btn-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            background: #e9ecef;
+            border: 1px solid var(--border);
+            background: #fff;
+            color: var(--text);
+            cursor: pointer;
+            transition: 0.2s;
+            text-decoration: none;
         }
 
-        .resultado-imagen-placeholder svg {
-            width: 30px;
-            height: 30px;
-            fill: #666;
+        .btn-icon:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
-        .resultado-info {
-            flex-grow: 1;
+        .btn-toggle:hover {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
         }
 
-        .resultado-codigo {
-            font-weight: 600;
-            font-size: 14px;
+        .btn-edit {
+            color: var(--primary);
+            border-color: #e0e7ff;
+            background: #e0e7ff;
         }
 
-        .resultado-detalle {
-            font-size: 12px;
-            color: #666;
+        .btn-edit:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        /* ===== PAGINACIÓN ===== */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            margin-top: 20px;
+        }
+
+        .page-btn {
+            padding: 8px 12px;
+            border: 1px solid var(--border);
+            background: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .page-btn.active {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+
+        /* ===== RESPONSIVE ===== */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 1000;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 998;
         }
 
         @media (max-width: 768px) {
@@ -416,8 +362,7 @@
                 left: -260px;
                 top: 0;
                 bottom: 0;
-                margin: 10px;
-                height: calc(100vh - 20px);
+                height: 100vh;
                 overflow-y: auto;
             }
 
@@ -430,428 +375,219 @@
             }
 
             .main-content {
-                width: 100%;
-                margin-top: 60px;
+                margin-top: 50px;
                 padding: 15px;
             }
 
-            .logo {
-                max-width: 150px;
-                margin: 10px auto 20px;
+            .table-container {
+                overflow-x: auto;
             }
 
-            .filter-group {
-                min-width: 100%;
-            }
-
-            table {
-                font-size: 14px;
-            }
-
-            th, td {
-                padding: 8px;
-            }
-
-            .resultados-dropdown {
-                max-height: 150px;
+            th,
+            td {
+                min-width: 100px;
             }
         }
-
-        @media (max-width: 480px) {
-            .navbar-vertical {
-                width: 200px;
-            }
-
-            .nav-link {
-                font-size: 0.9em;
-                padding: 8px 10px;
-            }
-
-            .nav-link i {
-                margin-right: 10px;
-                font-size: 1em;
-            }
-
-            .btn {
-                padding: 6px;
-                font-size: 12px;
-            }
-
-            .pagination button {
-                padding: 6px 10px;
-                font-size: 12px;
-            }
-
-            .resultado-imagen,
-            .resultado-imagen-placeholder {
-                width: 30px;
-                height: 30px;
-            }
-
-            .resultado-imagen-placeholder svg {
-                width: 20px;
-                height: 20px;
-            }
-
-            .resultado-codigo {
-                font-size: 12px;
-            }
-
-            .resultado-detalle {
-                font-size: 10px;
-            }
-        }
-        /* 🎯 Estilo moderno de barra de búsqueda */
-            .search-container {
-            max-width: 500px;
-            width: 100%;
-            position: relative;
-            }
-
-            .search-box {
-            position: relative;
-            display: flex;
-            align-items: center;
-            background: var(--white);
-            border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            transition: all 0.3s ease;
-            border: 1px solid #ddd;
-            }
-
-            .search-box:focus-within {
-            box-shadow: 0 0 0 3px rgba(106,90,205,0.25);
-            border-color: var(--primary-color);
-            }
-
-            .search-icon {
-            position: absolute;
-            left: 12px;
-            color: #777;
-            font-size: 1.1em;
-            }
-
-            .search-input {
-            width: 100%;
-            padding: 10px 40px 10px 35px;
-            border: none;
-            outline: none;
-            border-radius: 10px;
-            font-size: 15px;
-            color: #333;
-            }
-
-            .search-input::placeholder {
-            color: #aaa;
-            }
-
-            .clear-icon {
-            position: absolute;
-            right: 12px;
-            color: #888;
-            cursor: pointer;
-            display: none;
-            transition: color 0.2s;
-            }
-
-            .clear-icon:hover {
-            color: var(--primary-color);
-            }
-
-            /* 🔽 Lista de sugerencias */
-            .suggestions-box {
-            position: absolute;
-            top: 105%;
-            left: 0;
-            right: 0;
-            background: var(--white);
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-            max-height: 300px;
-            overflow-y: auto;
-            display: none;
-            z-index: 100;
-            animation: fadeIn 0.2s ease;
-            }
-
-            .suggestions-box div {
-            display: flex;
-            align-items: center;
-            padding: 8px 10px;
-            border-bottom: 1px solid #f0f0f0;
-            cursor: pointer;
-            transition: background 0.2s;
-            }
-
-            .suggestions-box div:hover {
-            background: #f4f4f4;
-            }
-
-            .suggestions-box img {
-            width: 45px;
-            height: 45px;
-            border-radius: 6px;
-            object-fit: cover;
-            margin-right: 10px;
-            }
-
-            .suggestions-box strong {
-            color: var(--text-color);
-            }
-
-            @keyframes fadeIn {
-            from {opacity: 0; transform: translateY(-5px);}
-            to {opacity: 1; transform: translateY(0);}
-            }
-
     </style>
 </head>
+
 <body>
-  <button class="mobile-menu-toggle"><i class="fas fa-bars"></i></button>
-  <div class="overlay"></div>
+    <button class="mobile-menu-toggle"><i class="fas fa-bars"></i></button>
+    <div class="overlay"></div>
 
-  <div class="container-fluid">
-    <nav class="navbar-vertical">
-      <div class="nav-header">Inventario Botitas</div>
-      <ul class="nav-menu">
-        <li><a href="/inventario/agregar" class="nav-link"><i class="fas fa-box-open"></i> Re-stock Producto</a></li>
-        <li><a href="/crearProducto/crear" class="nav-link"><i class="fas fa-plus"></i> Crear Producto</a></li>
-        <li><a href="/admin-dashboard" class="nav-link"><i class="fas fa-arrow-left"></i> Regresar</a></li>
-      </ul>
-    </nav>
-
-    <main class="main-content">
-      <img src="/imagenes/logo botitas.png" alt="Logo Botitas" class="logo">
-      <h1>Inventario General</h1>
-
-      <div id="alert-message" class="alert"></div>
-
-      <div class="filters">
-        <div class="search-container">
-            <div class="search-box">
-            <i class="fas fa-search search-icon"></i>
-            <input 
-                type="text" 
-                id="search" 
-                placeholder="Buscar por código, nombre, tipo, color o material..."
-                autocomplete="off"
-                class="search-input"
-            />
-            <i class="fas fa-times clear-icon" id="clearSearch" title="Limpiar"></i>
+    <div class="container-fluid">
+        <nav class="navbar-vertical">
+            <div style="text-align:center; font-size:1.4em; font-weight:bold; margin-bottom:25px;">Inventario Botitas
             </div>
-            <div id="suggestions" class="suggestions-box"></div>
-        </div>
-      </div>
+            <ul style="list-style:none; flex-grow:1;">
+                <li><a href="/inventario/agregar" class="nav-link"><i class="fas fa-box-open"></i> Re-stock</a></li>
+                <li><a href="/crearProducto/verTodos" class="nav-link active"><i class="fas fa-list"></i> Ver
+                        Productos</a></li>
+                <li><a href="/crearProducto/crear" class="nav-link"><i class="fas fa-plus"></i> Crear Producto</a></li>
+                <li><a href="/stock" class="nav-link"><i class="fas fa-barcode"></i> Buscador QR</a></li>
+                <li><a href="/admin-dashboard" class="nav-link"><i class="fas fa-arrow-left"></i> Regresar</a></li>
+            </ul>
+        </nav>
 
+        <main class="main-content">
+            <img src="/imagenes/logo botitas.png" class="logo" alt="Logo">
+            <h1>Inventario General</h1>
 
+            <div class="search-bar">
+                <input type="text" id="searchInput" class="search-input"
+                    placeholder="Buscar por código, nombre o tipo...">
+            </div>
 
-      <div class="table-responsive">
-        <table>
-            <thead>
-            <tr>
-                <th>Imagen</th>
-                <th>Código</th>
-                <th>Nombre</th>
-                <th>Tipo</th>
-                <th>Material</th>
-                <th>Género</th>
-                <th>Color</th>
-                <th>Talla</th>
-                <th>Cantidad</th>
-                <th>Precio Venta</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-            </tr>
-            </thead>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th width="80">Foto</th>
+                            <th>Código</th>
+                            <th>Producto</th>
+                            <th>Tipo / Género</th>
+                            <th>Stock Total</th>
+                            <th>Estado</th>
+                            <th style="text-align:right;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventoryBody">
+                    </tbody>
+                </table>
+            </div>
 
-            <tbody>
-            <% if (productos && productos.length > 0) { %>
-                <% productos.forEach(p => { %>
-                <tr style="background:<%= p.Estado === 'inactivo' ? '#f5f5f5' : 'white' %>;">
-                    <!-- ✅ Columna nueva: imagen -->
+            <div class="pagination" id="pagination"></div>
+        </main>
+    </div>
+
+    <script>
+        // DATA
+        const productos = JSON.parse(`<%- JSON.stringify(productos || []).replace(/</g, '\\u003c') %>`);
+        let currentData = [...productos];
+        const rowsPerPage = 15;
+        let currentPage = 1;
+
+        // ESTADO STOCK
+        const getStockStatus = (total) => {
+            if (total === 0) return { class: 'bg-crit', text: 'AGOTADO' };
+            if (total < 5) return { class: 'bg-low', text: 'BAJO' };
+            return { class: 'bg-ok', text: 'NORMAL' };
+        };
+
+        // RENDER TABLA
+        function renderTable(page) {
+            const tbody = document.getElementById('inventoryBody');
+            tbody.innerHTML = '';
+
+            const start = (page - 1) * rowsPerPage;
+            const slice = currentData.slice(start, start + rowsPerPage);
+
+            if (slice.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px;">No se encontraron resultados.</td></tr>';
+                return;
+            }
+
+            slice.forEach(p => {
+                const status = getStockStatus(Number(p.TotalStock || 0));
+                const foto = p.Foto || '/imagenes/no-image.png';
+
+                // Fila Principal
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
                     <td>
-                    <% if (p.Foto && (p.Foto.startsWith('/') || p.Foto.startsWith('http'))) { %>
-                    <img src="<%= p.Foto %>" alt="Foto de <%= p.Nombre %>" 
-                        style="width:55px;height:55px;object-fit:cover;border-radius:6px;">
-                    <% } else { %>
-                    <img src="/imagenes/no-image.png" 
-                        alt="Sin imagen" 
-                        style="width:55px;height:55px;opacity:0.6;border-radius:6px;">
-                    <% } %>
-
+                        <div class="img-wrapper">
+                            <img src="${foto}" class="product-img" alt="Prod">
+                        </div>
                     </td>
-
-                    <!-- resto de columnas -->
-                    <td><%= p.Codigo %></td>
-                    <td><%= p.Nombre %></td>
-                    <td><%= p.Tipo || '-' %></td>
-                    <td><%= p.Material || '-' %></td>
-                    <td><%= p.Genero || '-' %></td>
-                    <td><%= p.Color || '-' %></td>
-                    <td><%= p.Talla || '-' %></td>
-                    <td><%= p.Cantidad %></td>
-                    <td>$<%= parseFloat(p.PrecioVenta || 0).toFixed(2) %></td>
-                    <td>
-                    <% if (p.Estado === 'activo') { %>
-                        <span style="color:green;">Activo</span>
-                    <% } else { %>
-                        <span style="color:red;">Inactivo</span>
-                    <% } %>
+                    <td style="font-weight:bold; color:var(--primary); font-family:monospace; font-size:1rem;">${p.Codigo}</td>
+                    <td style="font-weight:600;">${p.Nombre}</td>
+                    <td><small style="color:#64748b;">${p.Tipo || '-'} / ${p.Genero || '-'}</small></td>
+                    <td style="font-weight:bold; font-size:1.1rem;">${p.TotalStock || 0}</td>
+                    <td><span class="badge ${status.class}">${status.text}</span></td>
+                    <td style="text-align:right;">
+                        <div class="actions-cell">
+                            <button class="btn-icon btn-toggle" onclick="toggleVariants('${p.Codigo}')" title="Ver Variantes">
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <a href="/crearProducto/editar/${p.Codigo}" class="btn-icon btn-edit" title="Editar Producto">
+                                <i class="fas fa-pen"></i>
+                            </a>
+                        </div>
                     </td>
-                    <td>
-                    <a href="/crearProducto/editar/<%= p.Codigo %>" class="btn btn-edit">
-                        <i class="fas fa-edit"></i>
-                    </a>
-                    <button class="btn btn-toggle" onclick="toggleEstado('<%= p.Codigo %>', '<%= p.Estado %>')">
-                        <%= p.Estado === 'activo' ? 'Desactivar' : 'Activar' %>
-                    </button>
+                `;
+                tbody.appendChild(tr);
+
+                // Fila Variantes (Oculta)
+                const trVar = document.createElement('tr');
+                trVar.id = `var-${p.Codigo}`;
+                trVar.className = 'variant-row';
+
+                let varRows = '';
+                if (p.Variantes && p.Variantes.length > 0) {
+                    p.Variantes.forEach(v => {
+                        varRows += `
+                            <tr>
+                                <td><b>${v.Talla}</b></td>
+                                <td>${v.Color || '-'}</td>
+                                <td>${v.Material || '-'}</td>
+                                <td><i class="fas fa-map-marker-alt" style="color:#94a3b8"></i> ${v.Ubicacion || '-'}</td>
+                                <td><b>${v.Stock}</b></td>
+                            </tr>
+                        `;
+                    });
+                } else {
+                    varRows = '<tr><td colspan="5" style="text-align:center; font-style:italic;">Sin variantes registradas</td></tr>';
+                }
+
+                trVar.innerHTML = `
+                    <td colspan="7" style="padding:0;">
+                        <div class="variant-box">
+                            <h5 style="color:var(--primary); margin-bottom:10px;">Variantes de ${p.Nombre}</h5>
+                            <table class="variant-table" style="width:100%;">
+                                <thead>
+                                    <tr><th>Talla</th><th>Color</th><th>Material</th><th>Ubicación</th><th>Stock</th></tr>
+                                </thead>
+                                <tbody>${varRows}</tbody>
+                            </table>
+                        </div>
                     </td>
-                </tr>
-                <% }) %>
-            <% } else { %>
-                <tr><td colspan="12">No se encontraron productos en inventario.</td></tr>
-            <% } %>
-            </tbody>
-        </table>
-        </div>
+                `;
+                tbody.appendChild(trVar);
+            });
 
-
-      <div class="pagination" id="pagination-controls"></div>
-    </main>
-  </div>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const currentLocation = location.href;
-      const menuItems = document.querySelectorAll('.nav-link');
-      const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
-      const navbar = document.querySelector('.navbar-vertical');
-      const overlay = document.querySelector('.overlay');
-
-      menuItems.forEach(item => {
-        if (item.href === currentLocation) item.classList.add('active');
-      });
-
-      function toggleMobileMenu() {
-        navbar.classList.toggle('active');
-        overlay.classList.toggle('active');
-        document.body.style.overflow = navbar.classList.contains('active') ? 'hidden' : '';
-      }
-
-      mobileMenuToggle.addEventListener('click', toggleMobileMenu);
-      overlay.addEventListener('click', toggleMobileMenu);
-    });
-
-    // ✅ Activar / Desactivar producto
-    async function toggleEstado(codigo, currentEstado) {
-      const newEstado = currentEstado === 'activo' ? 'inactivo' : 'activo';
-      try {
-        const response = await fetch(`/crearProducto/cambiarEstado/${codigo}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ Estado: newEstado })
-        });
-
-        if (!response.ok) throw new Error('Error al cambiar el estado.');
-        showAlert(`El producto ${codigo} ahora está ${newEstado}.`, 'success');
-        setTimeout(() => location.reload(), 1000);
-      } catch (err) {
-        showAlert('No se pudo cambiar el estado.', 'danger');
-        console.error(err);
-      }
-    }
-
-    // ✅ Mostrar mensajes
-    function showAlert(msg, type) {
-      const alert = document.getElementById('alert-message');
-      alert.textContent = msg;
-      alert.className = `alert alert-${type}`;
-      alert.style.display = 'block';
-      setTimeout(() => (alert.style.display = 'none'), 3000);
-    }
-    // ======================================================
-// 🔍 AUTOCOMPLETADO VISUAL CON IMÁGENES
-// ======================================================
-const inputSearch = document.getElementById('search');
-const suggestionsBox = document.getElementById('suggestions');
-
-let searchTimeout;
-inputSearch.addEventListener('input', (e) => {
-  const value = e.target.value.trim();
-  clearTimeout(searchTimeout);
-  if (value.length < 2) {
-    suggestionsBox.style.display = 'none';
-    return;
-  }
-
-  // Espera 300ms antes de buscar
-  searchTimeout = setTimeout(() => {
-    fetch(`/inventario/search?texto=${encodeURIComponent(value)}`)
-      .then(res => res.json())
-      .then(data => {
-        suggestionsBox.innerHTML = '';
-        if (!data || data.length === 0) {
-          suggestionsBox.style.display = 'none';
-          return;
+            renderPagination();
         }
 
-        data.forEach(p => {
-          const div = document.createElement('div');
-          div.style.display = 'flex';
-          div.style.alignItems = 'center';
-          div.style.padding = '6px 8px';
-          div.style.cursor = 'pointer';
-          div.style.borderBottom = '1px solid #eee';
-          div.addEventListener('mouseenter', () => div.style.background = '#f2f2f2');
-          div.addEventListener('mouseleave', () => div.style.background = 'white');
-          
-          div.innerHTML = `
-            <img src="${p.Foto || '/imagenes/no-image.png'}" 
-                 alt="${p.Nombre}" 
-                 style="width:45px;height:45px;object-fit:cover;border-radius:4px;margin-right:8px;">
-            <div style="display:flex;flex-direction:column;">
-              <strong>${p.Codigo} - ${p.Nombre}</strong>
-              <span style="font-size:0.85em;color:#666;">
-                ${p.Color || 'Sin color'} · ${p.Tipo || 'Sin tipo'} · ${p.Talla || ''}
-              </span>
-            </div>
-          `;
+        // TOGGLE VARIANTES
+        window.toggleVariants = (code) => {
+            const row = document.getElementById(`var-${code}`);
+            if (row) row.style.display = (row.style.display === 'table-row') ? 'none' : 'table-row';
+        };
 
-          div.addEventListener('click', () => {
-            inputSearch.value = p.Codigo;
-            suggestionsBox.style.display = 'none';
-            window.location.href = `/inventario?q=${encodeURIComponent(p.Codigo)}`;
-          });
+        // PAGINACIÓN
+        function renderPagination() {
+            const container = document.getElementById('pagination');
+            container.innerHTML = '';
+            const pages = Math.ceil(currentData.length / rowsPerPage);
+            if (pages <= 1) return;
 
-          suggestionsBox.appendChild(div);
+            for (let i = 1; i <= pages; i++) {
+                const btn = document.createElement('button');
+                btn.textContent = i;
+                btn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
+                btn.onclick = () => { currentPage = i; renderTable(i); };
+                container.appendChild(btn);
+            }
+        }
+
+        // BÚSQUEDA
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            currentData = productos.filter(p =>
+                p.Nombre.toLowerCase().includes(term) ||
+                p.Codigo.toLowerCase().includes(term) ||
+                (p.Tipo && p.Tipo.toLowerCase().includes(term))
+            );
+            currentPage = 1;
+            renderTable(1);
         });
-        suggestionsBox.style.display = 'block';
-      })
-      .catch(err => {
-        console.error('Error en la búsqueda:', err);
-        suggestionsBox.style.display = 'none';
-      });
-  }, 300);
-});
 
-document.addEventListener('click', (e) => {
-  if (!suggestionsBox.contains(e.target) && e.target !== inputSearch) {
-    suggestionsBox.style.display = 'none';
-  }
-});
-// Botón para limpiar búsqueda
-const clearIcon = document.getElementById('clearSearch');
-inputSearch.addEventListener('input', () => {
-  clearIcon.style.display = inputSearch.value ? 'block' : 'none';
-});
-clearIcon.addEventListener('click', () => {
-  inputSearch.value = '';
-  suggestionsBox.style.display = 'none';
-  clearIcon.style.display = 'none';
-  inputSearch.focus();
-});
+        // SIDEBAR
+        const menuBtn = document.querySelector('.mobile-menu-toggle');
+        const sidebar = document.querySelector('.navbar-vertical');
+        const overlay = document.querySelector('.overlay');
 
+        const toggleMenu = () => {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        };
 
-  </script>
+        menuBtn.addEventListener('click', toggleMenu);
+        overlay.addEventListener('click', toggleMenu);
+
+        // INIT
+        renderTable(1);
+    </script>
 </body>
+
+</html>

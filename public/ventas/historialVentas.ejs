@@ -1,404 +1,907 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Historial de Ventas - Botitas</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
   <style>
+    /* ================= ESTILOS ADN (Marca) ================= */
     :root {
-      --primary: #6a5acd;
-      --secondary: #7b68ee;
-      --bg: #f4f6f9;
-      --white: #fff;
-      --text: #333;
-      --danger: #dc3545;
-      --success: #28a745;
-      --shadow: 0 4px 10px rgba(0,0,0,0.05);
+      --primary-color: #6a5acd;
+      --secondary-color: #7b68ee;
+      --background-color: #f4f6f9;
+      --text-color: #334155;
+      --white: #ffffff;
+      --danger-color: #dc3545;
+      --success-color: #10b981;
+      --warning-color: #f59e0b;
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
 
     body {
-      background: var(--bg);
-      color: var(--text);
+      background-color: var(--background-color);
+      color: var(--text-color);
+      line-height: 1.6;
       display: flex;
       min-height: 100vh;
-      margin: .5cm;
+      margin: 0.5cm;
+      position: relative;
     }
 
-    .container-fluid { display: flex; flex-grow: 1; gap: 20px; width: 100%; }
+    /* ===== LAYOUT PRINCIPAL (Flexbox) ===== */
+    .container-fluid {
+      display: flex;
+      flex-grow: 1;
+      gap: 20px;
+      width: 100%;
+    }
 
-    /* ===== NAVBAR ===== */
+    /* ===== SIDEBAR & NAV (ADN) ===== */
+    .mobile-menu-toggle {
+      display: none;
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      z-index: 1000;
+      background: var(--primary-color);
+      border: none;
+      color: var(--white);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 998;
+    }
+
     .navbar-vertical {
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
       width: 230px;
       padding: 20px;
       color: var(--white);
-      border-radius: 15px;
-      box-shadow: var(--shadow);
       display: flex;
       flex-direction: column;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      z-index: 999;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      height: 100%;
+      min-height: 80vh;
+      /* Ajuste para que se vea bien */
     }
 
     .nav-header {
       text-align: center;
-      font-weight: 700;
       font-size: 1.4em;
-      margin-bottom: 15px;
+      margin-bottom: 25px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-menu {
+      list-style: none;
+      flex-grow: 1;
     }
 
     .nav-link {
       display: flex;
       align-items: center;
-      padding: 10px 12px;
       color: var(--white);
       text-decoration: none;
+      padding: 12px 15px;
       margin-bottom: 10px;
       border-radius: 8px;
-      background: rgba(255,255,255,0.1);
-      transition: 0.3s;
+      background-color: rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+      font-size: 0.95em;
     }
 
-    .nav-link i { margin-right: 10px; }
+    .nav-link i {
+      margin-right: 12px;
+      width: 22px;
+      text-align: center;
+      font-size: 1.1em;
+    }
 
-    .nav-link:hover { background: rgba(255,255,255,0.2); transform: translateX(8px); }
-    .nav-link.active { background: rgba(255,255,255,0.3); font-weight: 600; }
+    .nav-link:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+      transform: translateX(5px);
+    }
 
-    /* ===== MAIN ===== */
+    .nav-link.active {
+      background-color: rgba(255, 255, 255, 0.3);
+      font-weight: 600;
+      border-left: 4px solid #fff;
+    }
+
+    /* ===== CONTENIDO PRINCIPAL ===== */
     .main-content {
       flex-grow: 1;
-      background: var(--white);
+      background-color: var(--white);
       border-radius: 15px;
       padding: 30px;
-      box-shadow: var(--shadow);
+      overflow-x: hidden;
+      width: 100%;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, .05);
     }
 
     h1 {
-      color: var(--primary);
-      text-align: center;
-      margin-bottom: 25px;
+      color: var(--primary-color);
+      margin-bottom: 0;
+      font-size: 1.8rem;
     }
 
-    /* ===== TARJETAS ===== */
-    .stats-container {
+    /* ===== TARJETAS DE ESTADÍSTICAS (PRO + ADN) ===== */
+    .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
       gap: 20px;
       margin-bottom: 30px;
     }
 
-    .stats-card {
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      color: var(--white);
-      border-radius: 12px;
+    .stat-card {
+      background: white;
       padding: 20px;
-      text-align: center;
-      box-shadow: var(--shadow);
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      border-left: 5px solid var(--primary-color);
+      transition: transform 0.2s;
     }
 
-    .stats-card h4 { font-size: 1.1em; margin-bottom: 8px; }
-    .stats-card p { font-size: 1.6em; font-weight: 600; }
+    .stat-card:hover {
+      transform: translateY(-3px);
+    }
 
-    /* ===== FILTROS ===== */
-    .filters {
+    .stat-card h3 {
+      margin: 0 0 5px 0;
+      font-size: 0.85rem;
+      color: #64748b;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .stat-card p {
+      margin: 0;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text-color);
+    }
+
+    /* ===== TOOLBAR Y FILTROS ===== */
+    .toolbar {
+      background: #f8fafc;
+      padding: 15px;
+      border-radius: 12px;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      gap: 12px;
       flex-wrap: wrap;
-      gap: 10px;
       margin-bottom: 20px;
+      align-items: center;
+      border: 1px solid #e2e8f0;
     }
 
-    .filters input, .filters select {
-      border: 1px solid rgba(0,0,0,0.1);
+    .search-box {
+      flex: 1;
+      min-width: 250px;
+      position: relative;
+    }
+
+    .search-box i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--primary-color);
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 12px 12px 12px 40px;
+      border: 1px solid #cbd5e1;
       border-radius: 8px;
-      padding: 8px;
-      font-size: 14px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+      outline: none;
+      transition: 0.3s;
     }
 
-    .filters .btn {
+    .search-box input:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(106, 90, 205, .15);
+    }
+
+    select,
+    input[type="date"] {
+      padding: 11px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      outline: none;
+      background: white;
+      color: var(--text-color);
+    }
+
+    select:focus,
+    input[type="date"]:focus {
+      border-color: var(--primary-color);
+    }
+
+    /* ===== BOTONES ===== */
+    .btn {
+      padding: 10px 20px;
       border: none;
-      padding: 10px 16px;
       border-radius: 8px;
-      font-size: 14px;
       cursor: pointer;
-      transition: all 0.3s;
+      font-weight: 600;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: 0.2s;
+      font-size: 0.95rem;
     }
 
-    .btn-primary {
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      color: var(--white);
+    .btn-main {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      box-shadow: 0 4px 10px rgba(106, 90, 205, 0.3);
     }
 
-    .btn-secondary { background: #777; color: var(--white); }
-    .btn-outline-primary { border: 1px solid var(--primary); color: var(--primary); background: transparent; }
-    .btn-outline-primary:hover { background: var(--primary); color: var(--white); }
+    .btn-main:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+
+    .btn-filter {
+      background: #64748b;
+      color: white;
+    }
+
+    .btn-danger {
+      background: white;
+      color: var(--danger-color);
+      border: 1px solid var(--danger-color);
+    }
+
+    .btn-danger:hover {
+      background: var(--danger-color);
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #f1f5f9;
+      color: var(--text-color);
+      border: 1px solid #e2e8f0;
+    }
+
+    .btn-secondary:hover {
+      background: #e2e8f0;
+    }
 
     /* ===== TABLA ===== */
+    .table-responsive {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #e2e8f0;
+    }
+
     table {
       width: 100%;
       border-collapse: collapse;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: var(--shadow);
     }
 
     th {
-      background: var(--primary);
-      color: var(--white);
+      background: #f1f5f9;
+      text-align: left;
+      padding: 16px;
+      font-weight: 600;
+      color: var(--primary-color);
+      font-size: 0.9rem;
       text-transform: uppercase;
-      font-size: 0.9em;
-      padding: 12px;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid #e2e8f0;
     }
 
     td {
-      padding: 10px 12px;
-      border-bottom: 1px solid #eee;
+      padding: 16px;
+      border-bottom: 1px solid #e2e8f0;
+      vertical-align: middle;
+      font-size: 0.95rem;
     }
 
-    tr:hover { background: #f8f8f8; }
+    tr:hover {
+      background-color: #f8fafc;
+    }
+
+    /* ===== BADGES ===== */
+    .badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .bg-success {
+      background: #dcfce7;
+      color: #15803d;
+    }
+
+    .bg-danger {
+      background: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .bg-warning {
+      background: #fef3c7;
+      color: #b45309;
+    }
 
     /* ===== MODAL ===== */
     .modal {
       display: none;
       position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5);
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
+      z-index: 1100;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(3px);
     }
 
     .modal-content {
-      background: var(--white);
-      padding: 20px;
-      border-radius: 10px;
-      width: 80%;
+      background: white;
+      margin: 5% auto;
+      width: 90%;
       max-width: 800px;
-      box-shadow: var(--shadow);
-      animation: fadeIn 0.3s ease;
+      border-radius: 16px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      animation: slideDown 0.3s ease;
+      overflow: hidden;
+    }
+
+    @keyframes slideDown {
+      from {
+        transform: translateY(-30px);
+        opacity: 0;
+      }
+
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
     }
 
     .modal-header {
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
-      color: var(--white);
-      padding: 10px 15px;
-      border-radius: 8px 8px 0 0;
+      padding: 20px 30px;
+      border-bottom: 1px solid #e2e8f0;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      background: #f8fafc;
     }
 
-    .close-modal {
-      cursor: pointer;
-      background: none;
-      border: none;
-      color: var(--white);
-      font-size: 1.2em;
+    .modal-body {
+      padding: 30px;
     }
 
-    @keyframes fadeIn { from {opacity:0; transform:scale(0.95);} to {opacity:1; transform:scale(1);} }
+    /* Factura Visual en Modal */
+    .invoice-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 25px;
+    }
 
+    .invoice-details {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 25px;
+      font-size: 0.95rem;
+      background: #f8fafc;
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .grand-total {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--primary-color);
+      text-align: right;
+      margin-top: 15px;
+      border-top: 2px solid #e2e8f0;
+      padding-top: 15px;
+    }
+
+    /* MEDIA QUERIES */
     @media (max-width: 768px) {
-      .container-fluid { flex-direction: column; }
-      .navbar-vertical { width: 100%; border-radius: 10px; }
-      .main-content { padding: 20px; }
-      table { font-size: 0.9em; }
+      body {
+        margin: 0.2cm;
+      }
+
+      .container-fluid {
+        flex-direction: column;
+      }
+
+      .mobile-menu-toggle {
+        display: block;
+      }
+
+      .navbar-vertical {
+        position: fixed;
+        left: -260px;
+        top: 0;
+        bottom: 0;
+        margin: 10px;
+        height: calc(100vh - 20px);
+        overflow-y: auto;
+      }
+
+      .navbar-vertical.active {
+        left: 0;
+      }
+
+      .overlay.active {
+        display: block;
+      }
+
+      .main-content {
+        width: 100%;
+        margin-top: 50px;
+        padding: 15px;
+      }
+
+      .invoice-details {
+        grid-template-columns: 1fr;
+      }
+
+      .invoice-header {
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      /* Tabla responsive horizontal */
+      .table-responsive {
+        overflow-x: auto;
+      }
     }
   </style>
 </head>
+
 <body>
+  <button class="mobile-menu-toggle"><i class="fas fa-bars"></i></button>
+  <div class="overlay"></div>
+
   <div class="container-fluid">
-    <!-- NAVBAR -->
     <nav class="navbar-vertical">
-      <div class="nav-header">Panel Botitas</div>
+      <div class="nav-header">Ventas Botitas</div>
       <ul class="nav-menu">
-        <li><a href="/admin-dashboard" class="nav-link"><i class="fas fa-home"></i> Dashboard</a></li>
-        <li><a href="/inventario" class="nav-link"><i class="fas fa-boxes"></i> Inventario</a></li>
-        <li><a href="/clientes" class="nav-link"><i class="fas fa-users"></i> Clientes</a></li>
-        <li><a href="/proveedores" class="nav-link"><i class="fas fa-truck"></i> Proveedores</a></li>
-        <li><a href="/ventas/nueva" class="nav-link"><i class="fas fa-cash-register"></i> Nueva Venta</a></li>
-        <li><a href="/ventas/historial" class="nav-link active"><i class="fas fa-list"></i> Historial</a></li>
-        <li><a href="/logout" class="nav-link"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</a></li>
+        <li>
+          <a href="/admin-dashboard" class="nav-link">
+            <i class="fas fa-home"></i> Dashboard
+          </a>
+        </li>
+        <li>
+          <a href="/ventas/nueva" class="nav-link">
+            <i class="fas fa-cash-register"></i> Nueva Venta
+          </a>
+        </li>
+        <li>
+          <a href="/ventas/historial" class="nav-link active">
+            <i class="fas fa-history"></i> Historial
+          </a>
+        </li>
+        <li>
+          <a href="/inventario" class="nav-link">
+            <i class="fas fa-boxes"></i> Inventario
+          </a>
+        </li>
+        <li>
+          <a href="/clientes" class="nav-link">
+            <i class="fas fa-users"></i> Clientes
+          </a>
+        </li>
+        <li><a href="/admin-dashboard" class="nav-link"><i class="fas fa-arrow-left"></i> Regresar</a></li>
       </ul>
     </nav>
 
-    <!-- MAIN -->
     <main class="main-content">
-      <h1>📊 Historial de Ventas</h1>
-
-      <!-- TARJETAS -->
-      <div class="stats-container">
-        <div class="stats-card"><h4>Total Vendido</h4><p id="totalVendido">$0.00</p></div>
-        <div class="stats-card"><h4>N° Ventas</h4><p id="totalVentas">0</p></div>
-        <div class="stats-card"><h4>Promedio Venta</h4><p id="promedioVenta">$0.00</p></div>
+      <div
+        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;">
+        <h1>📊 Historial de Transacciones</h1>
+        <a href="/ventas/nueva" class="btn btn-main"><i class="fas fa-plus-circle"></i> Nueva Venta</a>
       </div>
 
-      <!-- FILTROS -->
-      <div class="filters">
-        <div style="display:flex; gap:10px; flex-wrap:wrap;">
-          <input type="text" id="buscarVenta" placeholder="Buscar por cliente o pago...">
-          <select id="filtroFecha">
-            <option value="todo">Todo</option>
-            <option value="hoy">Hoy</option>
-            <option value="semana">Esta Semana</option>
-            <option value="mes">Este Mes</option>
-          </select>
-          <input type="date" id="fechaInicio">
-          <input type="date" id="fechaFin">
-          <button id="filtrarRango" class="btn-outline-primary">Filtrar</button>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>Ventas Totales</h3>
+          <p id="totalVendido">$0.00</p>
         </div>
-        <div style="display:flex; gap:10px; flex-wrap:wrap;">
-          <a href="/ventas/nueva" class="btn btn-primary"><i class="fas fa-plus"></i> Nueva Venta</a>
-          <a href="/admin-dashboard" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Regresar</a>
+        <div class="stat-card" style="border-left-color: var(--success-color);">
+          <h3>Transacciones</h3>
+          <p id="cantidadVentas">0</p>
+        </div>
+        <div class="stat-card" style="border-left-color: var(--warning-color);">
+          <h3>Ticket Promedio</h3>
+          <p id="ticketPromedio">$0.00</p>
         </div>
       </div>
 
-      <!-- TABLA -->
-      <% if (ventas && ventas.length > 0) { %>
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Cliente</th>
-                <th>Cédula</th>
-                <th>Fecha</th>
-                <th>Forma de Pago</th>
-                <th>Total ($)</th>
-                <th>Acciones</th>
-              </tr>
-            </thead>
-            <tbody id="tablaVentas">
-              <% ventas.forEach((v, i) => { %>
-                <tr data-fecha="<%= v.Fecha %>">
-                  <td><%= i + 1 %></td>
-                  <td><%= v.Cliente || 'N/A' %></td>
-                  <td><%= v.Identificacion || '' %></td>
-                  <td><%= new Date(v.Fecha).toLocaleString('es-EC', { timeZone: 'America/Guayaquil' }) %></td>
-                  <td><%= v.FormaDePago %></td>
-                  <td><%= v.ValorTotal ? v.ValorTotal.toFixed(2) : '0.00' %></td>
+      <div class="stats-grid">
+        <div class="stat-card" style="border-left-color: #64748b;">
+          <h3>Efectivo</h3>
+          <p id="totalEfectivo">$0.00</p>
+        </div>
+        <div class="stat-card" style="border-left-color: #64748b;">
+          <h3>Transferencia</h3>
+          <p id="totalTransferencia">$0.00</p>
+        </div>
+        <div class="stat-card" style="border-left-color: #64748b;">
+          <h3>Tarjetas</h3>
+          <p id="totalTarjeta">$0.00</p>
+        </div>
+      </div>
+
+      <div class="toolbar">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" id="buscador" placeholder="Buscar por cliente, factura o cédula...">
+        </div>
+
+        <input type="date" id="fechaInicio">
+        <input type="date" id="fechaFin">
+
+        <select id="filtroEstado">
+          <option value="todos">Todos los Estados</option>
+          <option value="Completada">Autorizados</option>
+          <option value="Anulada">Anulados</option>
+        </select>
+
+        <button id="btnFiltrar" class="btn btn-filter">
+          <i class="fas fa-filter"></i> Filtrar
+        </button>
+      </div>
+
+      <div class="table-responsive">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 70px;">Foto</th>
+              <th>Factura SRI</th>
+              <th>Fecha</th>
+              <th>Cliente</th>
+              <th>Método Pago</th>
+              <th>Total</th>
+              <th>Estado</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaVentas">
+            <% if (ventas && ventas.length> 0) { %>
+              <% ventas.forEach(v=> { %>
+                <tr data-estado="<%= v.Estado %>" data-fecha="<%= v.Fecha %>">
                   <td>
-                    <button class="btn btn-outline-primary btn-sm verDetalle" data-id="<%= v.VentaID %>">
-                      <i class="fas fa-eye"></i> Ver
+                    <img src="/<%= v.FotoPrincipal ? v.FotoPrincipal.replace(/^\//, '') : 'placeholder.png' %>"
+                      alt="Prod"
+                      style="width: 45px; height: 45px; object-fit: cover; border-radius: 8px; border: 1px solid #e2e8f0;">
+                  </td>
+
+                  <td style="font-family: monospace; font-weight: bold; color: #475569; font-size: 0.9rem;">
+                    <%= v.NumeroFacturaSri || 'PENDIENTE' %>
+                  </td>
+
+                  <td>
+                    <%= new Date(v.Fecha).toLocaleDateString() %> <br>
+                      <small style="color: #94a3b8;">
+                        <%= new Date(v.Fecha).toLocaleTimeString([], {hour: '2-digit' , minute:'2-digit'}) %>
+                      </small>
+                  </td>
+
+                  <td>
+                    <strong style="color: var(--text-color);">
+                      <%= v.Cliente %>
+                    </strong><br>
+                    <small style="color: #64748b;"><i class="fas fa-id-card"></i>
+                      <%= v.Identificacion %>
+                    </small>
+                  </td>
+
+                  <td>
+                    <span
+                      style="background: #f1f5f9; padding: 4px 8px; border-radius: 6px; font-size: 0.85rem; font-weight: 500;">
+                      <%= v.FormaDePago %>
+                    </span>
+                  </td>
+
+                  <td style="font-weight: 800; color: var(--primary-color);">$<%= parseFloat(v.TotalVenta).toFixed(2) %>
+                  </td>
+
+                  <td>
+                    <% if(v.Estado==='Anulada' ) { %>
+                      <span class="badge bg-danger">ANULADA</span>
+                      <% } else { %>
+                        <span class="badge bg-success">AUTORIZADO</span>
+                        <% } %>
+                  </td>
+
+                  <td>
+                    <button class="btn btn-main verDetalle" style="padding: 6px 12px; font-size: 0.85rem;"
+                      data-id="<%= v.VentaID %>" data-factura="<%= v.NumeroFacturaSri %>"
+                      data-cliente="<%= v.Cliente %>" data-fecha="<%= v.Fecha %>">
+                      <i class="fas fa-eye"></i>
                     </button>
-                    <button class="btn btn-danger btn-sm anularVenta" data-id="<%= v.VentaID %>">
-                      <i class="fas fa-times"></i> Anular
+
+                    <button class="btn btn-secondary imprimirVenta" style="padding: 6px 12px; font-size: 0.85rem;"
+                      data-id="<%= v.VentaID %>" title="Imprimir">
+                      <i class="fas fa-print"></i>
                     </button>
+
+                    <% if(v.Estado !=='Anulada' ) { %>
+                      <button class="btn btn-danger anularVenta" style="padding: 6px 12px; font-size: 0.85rem;"
+                        data-id="<%= v.VentaID %>" title="Anular Venta">
+                        <i class="fas fa-ban"></i>
+                      </button>
+                      <% } %>
                   </td>
                 </tr>
-              <% }) %>
-            </tbody>
-          </table>
-        </div>
-      <% } else { %>
-        <div class="alert alert-info" style="text-align:center; margin-top:20px;">No hay ventas registradas aún.</div>
-      <% } %>
-
-      <!-- MODAL DETALLE -->
-      <div class="modal" id="detalleModal">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h3>Detalle de Venta</h3>
-            <button class="close-modal">&times;</button>
-          </div>
-          <div class="modal-body">
-            <table style="width:100%; margin-top:10px;">
-              <thead>
-                <tr>
-                  <th>Producto</th><th>Cantidad</th><th>Precio</th><th>Descuento</th><th>Total</th>
-                </tr>
-              </thead>
-              <tbody id="detalleVentaBody"></tbody>
-            </table>
-            <div id="detalleResumen" style="text-align:right; margin-top:10px; font-weight:600;"></div>
-          </div>
-        </div>
+                <% }) %>
+                  <% } else { %>
+                    <tr>
+                      <td colspan="8" style="text-align: center; padding: 40px; color: #94a3b8;">
+                        <i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                        No hay ventas registradas aún.
+                      </td>
+                    </tr>
+                    <% } %>
+          </tbody>
+        </table>
       </div>
     </main>
   </div>
 
+  <div id="modalDetalle" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 style="margin: 0; color: var(--primary-color);"><i class="fas fa-file-invoice"></i> Detalle de Factura</h3>
+        <span class="close-modal" style="cursor: pointer; font-size: 1.5rem; color: #94a3b8;">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div class="invoice-header">
+          <div>
+            <h2 style="margin: 0; color: var(--primary-color);">CALZADO BOTITAS</h2>
+            <p style="margin: 5px 0; color: #64748b;">RUC: 9999999990001</p>
+            <p style="margin: 0; font-size: 0.85rem;">Dir: Matriz Ambato</p>
+          </div>
+          <div style="text-align: right; min-width: 200px;">
+            <h3 id="modalFacturaNum" style="margin: 0; color: #475569;">001-001-000000000</h3>
+            <p id="modalFecha" style="margin: 5px 0;">Fecha: --/--/----</p>
+            <span class="badge bg-success" id="modalEstado">AUTORIZADO</span>
+          </div>
+        </div>
+
+        <div class="invoice-details">
+          <div><strong>Cliente:</strong> <span id="modalCliente"
+              style="color: var(--primary-color); font-weight: 600;">Nombre Cliente</span></div>
+          <div><strong>Identificación:</strong> <span id="modalCedula">1234567890</span></div>
+          <div><strong>Vendedor:</strong> <span id="modalVendedor">Admin</span></div>
+        </div>
+
+        <div class="table-responsive" style="box-shadow: none; border: 1px solid #e2e8f0; border-radius: 8px;">
+          <table style="width: 100%;">
+            <thead>
+              <tr style="background: #f8fafc;">
+                <th style="padding: 12px; font-size: 0.8rem;">Item</th>
+                <th style="padding: 12px; font-size: 0.8rem; text-align: center;">Cant.</th>
+                <th style="padding: 12px; font-size: 0.8rem; text-align: right;">P. Unit</th>
+                <th style="padding: 12px; font-size: 0.8rem; text-align: right;">Total</th>
+              </tr>
+            </thead>
+            <tbody id="modalTablaProductos">
+            </tbody>
+          </table>
+        </div>
+
+        <div style="width: 100%; max-width: 300px; margin-left: auto; margin-top: 25px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;"><span>Subtotal:</span> <span
+              id="modalSubtotal">$0.00</span></div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;"><span>IVA (15%):</span> <span
+              id="modalIva">$0.00</span></div>
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;"><span>Descuento:</span> <span
+              id="modalDescuento">$0.00</span></div>
+          <div class="grand-total">Total: <span id="modalTotal">$0.00</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script>
-    $(function(){
-      const modal = $('#detalleModal');
+    // --- LÓGICA DEL SIDEBAR RESPONSIVO (ADN) ---
+    const menuToggle = document.querySelector('.mobile-menu-toggle');
+    const sidebar = document.querySelector('.navbar-vertical');
+    const overlay = document.querySelector('.overlay');
 
-      // Buscar
-      $('#buscarVenta').on('input', function(){
-        const val = $(this).val().toLowerCase();
-        $('#tablaVentas tr').each(function(){
-          $(this).toggle($(this).text().toLowerCase().includes(val));
+    menuToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('active');
+      overlay.classList.toggle('active');
+    });
+
+    overlay.addEventListener('click', () => {
+      sidebar.classList.remove('active');
+      overlay.classList.remove('active');
+    });
+
+    // --- LÓGICA DE VENTAS (PRO) ---
+    $(document).ready(function () {
+
+      function filtrarTabla() {
+        const texto = $('#buscador').val().toLowerCase();
+        const estado = $('#filtroEstado').val();
+        const fechaInicioStr = $('#fechaInicio').val();
+        const fechaFinStr = $('#fechaFin').val();
+
+        const fechaInicio = fechaInicioStr ? new Date(`${fechaInicioStr}T00:00:00`) : null;
+        const fechaFin = fechaFinStr ? new Date(`${fechaFinStr}T23:59:59`) : null;
+
+        let total = 0;
+        let count = 0;
+        let efectivo = 0;
+        let transferencia = 0;
+        let tarjeta = 0;
+
+        $('#tablaVentas tr').each(function () {
+          const row = $(this);
+          const rowText = row.text().toLowerCase();
+          const rowEstado = row.data('estado');
+
+          const rawFecha = row.data('fecha');
+          const rowDate = new Date(rawFecha);
+
+          const metodoPago = row.find('td:eq(4)').text().trim();
+          const totalFila = parseFloat(row.find('td:eq(5)').text().replace('$', '')) || 0;
+
+          const coincideTexto = rowText.includes(texto);
+
+          const coincideEstado =
+            estado === 'todos' ||
+            (estado === 'Completada' && rowEstado !== 'Anulada') ||
+            (estado === 'Anulada' && rowEstado === 'Anulada');
+
+          let coincideFecha = true;
+
+          if (!isNaN(rowDate.getTime())) {
+            if (fechaInicio && rowDate < fechaInicio) coincideFecha = false;
+            if (fechaFin && rowDate > fechaFin) coincideFecha = false;
+          }
+
+          if (coincideTexto && coincideEstado && coincideFecha) {
+            row.show();
+            // KPI Logic
+            if (rowEstado !== 'Anulada') {
+              total += totalFila;
+              count++;
+              const mp = metodoPago.toLowerCase();
+              if (mp.includes('efectivo')) efectivo += totalFila;
+              else if (mp.includes('transferencia')) transferencia += totalFila;
+              else if (mp.includes('tarjeta') || mp.includes('débito') || mp.includes('crédito')) tarjeta += totalFila;
+            }
+          } else {
+            row.hide();
+          }
         });
-        actualizarStats();
-      });
 
-      // Filtros
-      $('#filtroFecha').on('change', function(){
-        const val = $(this).val();
-        const hoy = new Date();
-        $('#tablaVentas tr').each(function(){
-          const fecha = new Date($(this).data('fecha'));
-          let mostrar = true;
-          if(val==='hoy') mostrar = fecha.toDateString() === hoy.toDateString();
-          else if(val==='semana'){const inicio=new Date();inicio.setDate(hoy.getDate()-7);mostrar=fecha>=inicio;}
-          else if(val==='mes') mostrar=fecha.getMonth()===hoy.getMonth();
-          $(this).toggle(mostrar);
-        });
-        actualizarStats();
-      });
-
-      $('#filtrarRango').click(()=>{
-        const i=new Date($('#fechaInicio').val()), f=new Date($('#fechaFin').val());
-        if(!i||!f)return alert('Selecciona fechas válidas');
-        $('#tablaVentas tr').each(function(){
-          const fecha=new Date($(this).data('fecha'));
-          $(this).toggle(fecha>=i&&fecha<=f);
-        });
-        actualizarStats();
-      });
-
-      // Detalle
-      $(document).on('click','.verDetalle',function(){
-        const id=$(this).data('id');
-        $.get(`/ventas/detalle/${id}`).done(d=>{
-          $('#detalleVentaBody').empty();
-          let sub=0;
-          (d.detalles||[]).forEach(x=>{
-            const t=(x.Precio-x.Descuento)*x.Cantidad; sub+=t;
-            $('#detalleVentaBody').append(`<tr>
-              <td>${x.Producto}</td><td>${x.Cantidad}</td><td>${x.Precio.toFixed(2)}</td>
-              <td>${x.Descuento.toFixed(2)}</td><td>${t.toFixed(2)}</td></tr>`);
-          });
-          const iva=sub*0.15,total=sub+iva;
-          $('#detalleResumen').html(`<p>Subtotal: $${sub.toFixed(2)}</p><p>IVA: $${iva.toFixed(2)}</p><p>Total: $${total.toFixed(2)}</p>`);
-          modal.fadeIn(200);
-        });
-      });
-
-      $('.close-modal').click(()=>modal.fadeOut(200));
-      $(window).on('click',e=>{if($(e.target).is('#detalleModal'))modal.fadeOut(200);});
-
-      // Anular
-      $(document).on('click','.anularVenta',function(){
-        const id=$(this).data('id');
-        if(!confirm('¿Deseas anular esta venta?'))return;
-        $.post(`/ventas/anular/${id}`).done(()=>{alert('✅ Venta anulada');location.reload();});
-      });
-
-      function actualizarStats(){
-        let total=0,c=0;
-        $('#tablaVentas tr:visible').each(function(){
-          const val=parseFloat($(this).find('td:nth-child(6)').text())||0;
-          total+=val;c++;
-        });
+        // Actualizar KPIs
         $('#totalVendido').text(`$${total.toFixed(2)}`);
-        $('#totalVentas').text(c);
-        $('#promedioVenta').text(c?`$${(total/c).toFixed(2)}`:'$0.00');
+        $('#cantidadVentas').text(count);
+        $('#ticketPromedio').text(count ? `$${(total / count).toFixed(2)}` : '$0.00');
+        $('#totalEfectivo').text(`$${efectivo.toFixed(2)}`);
+        $('#totalTransferencia').text(`$${transferencia.toFixed(2)}`);
+        $('#totalTarjeta').text(`$${tarjeta.toFixed(2)}`);
       }
-      actualizarStats();
+
+      // Event Listeners
+      $('#buscador').on('input', filtrarTabla);
+      $('#filtroEstado').on('change', filtrarTabla);
+      $('#fechaInicio, #fechaFin').on('change', filtrarTabla);
+      $('#btnFiltrar').on('click', filtrarTabla);
+
+      // Init
+      filtrarTabla();
+
+      // VER DETALLE (MODAL)
+      $('.verDetalle').click(function () {
+        const btn = $(this);
+        const id = btn.data('id');
+
+        $('#modalFacturaNum').text(btn.data('factura') || 'S/N');
+        $('#modalCliente').text(btn.data('cliente'));
+        $('#modalFecha').text(new Date(btn.data('fecha')).toLocaleDateString());
+
+        $.get(`/ventas/detalle/${id}`, function (data) {
+          const tbody = $('#modalTablaProductos');
+          tbody.empty();
+
+          $('#modalCedula').text(data.venta.Identificacion);
+          $('#modalVendedor').text(data.venta.Vendedor || 'Sistema');
+          $('#modalEstado').text(data.venta.Estado === 'Anulada' ? 'ANULADA' : 'AUTORIZADO')
+            .attr('class', data.venta.Estado === 'Anulada' ? 'badge bg-danger' : 'badge bg-success');
+
+          data.detalles.forEach(d => {
+            const totalLinea = parseFloat(d.ValorTotal || 0);
+            const imgUrl = d.Foto ? `/${d.Foto.replace(/^\//, '')}` : '/img/placeholder.png';
+
+            tbody.append(`
+                        <tr>
+                          <td style="padding: 10px; display: flex; align-items: center; gap: 12px;">
+                            <img src="${imgUrl}" style="width: 40px; height: 40px; border-radius: 6px; object-fit: cover; border: 1px solid #eee;">
+                            <div>
+                              <div style="font-weight: 600; font-size: 0.9rem;">${d.Producto}</div>
+                              <small style="color: #64748b;">${d.Talla ? 'T: ' + d.Talla : ''} ${d.Color ? '| ' + d.Color : ''}</small>
+                            </div>
+                          </td>
+                          <td style="padding: 10px; text-align: center;">${d.Cantidad}</td>
+                          <td style="padding: 10px; text-align: right;">$${parseFloat(d.PrecioUnitario || 0).toFixed(2)}</td>
+                          <td style="padding: 10px; text-align: right; font-weight: bold; color: var(--text-color);">$${totalLinea.toFixed(2)}</td>
+                        </tr>
+                      `);
+          });
+
+          $('#modalSubtotal').text(`$${parseFloat(data.venta.Subtotal || 0).toFixed(2)}`);
+          $('#modalIva').text(`$${parseFloat(data.venta.IvaValor || 0).toFixed(2)}`);
+          $('#modalDescuento').text(`$${parseFloat(data.venta.DescuentoTotal || 0).toFixed(2)}`);
+          $('#modalTotal').text(`$${parseFloat(data.venta.TotalVenta || 0).toFixed(2)}`);
+
+          $('#modalDetalle').fadeIn(200);
+        });
+      });
+
+      $('.close-modal').click(function () {
+        $('#modalDetalle').fadeOut(200);
+      });
+
+      // IMPRIMIR
+      $('.imprimirVenta').click(function () {
+        const id = $(this).data('id');
+        window.open(`/ventas/imprimir/${id}`, '_blank');
+      });
+
+      // ANULAR
+      $('.anularVenta').click(function () {
+        if (!confirm('⚠️ ¿Estás seguro de ANULAR esta factura?\n\n- El stock será devuelto al inventario.\n- Esta acción es irreversible.')) return;
+        const id = $(this).data('id');
+        $.post(`/ventas/anular/${id}`, function () {
+          alert('✅ Venta anulada correctamente.');
+          location.reload();
+        }).fail(function (err) {
+          alert('❌ Error: ' + (err.responseJSON?.error || 'Error'));
+        });
+      });
     });
   </script>
 </body>
+
 </html>

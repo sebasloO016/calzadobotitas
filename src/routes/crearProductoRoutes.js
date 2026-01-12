@@ -1,4 +1,5 @@
-//routes/crearProductoRoutes.js
+// routes/crearProductoRoutes.js (código completo actualizado)
+// routes/crearProductoRoutes.js
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');

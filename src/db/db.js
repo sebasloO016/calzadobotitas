@@ -1,19 +1,25 @@
-const mysql = require('mysql');
+// src/db/db.js
+const mysql = require('mysql2');
 
-const connection = mysql.createConnection({
+// Creamos un "Pool" en lugar de una sola conexión
+const pool = mysql.createPool({
   host: 'localhost',
   user: 'root',
-  password: 'Puces4',
-  database: 'try2',
-  multipleStatements: true
+  password: 'Puces4', // Tu contraseña
+  database: 'calzado_botitas_2026',
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
 });
 
-connection.connect((err) => {
-  if (err) {
-    console.error('Error connecting to MySQL:', err.stack);
-    return;
+// Mensaje de confirmación (opcional)
+pool.getConnection((err, conn) => {
+  if (err) console.error('Error al conectar:', err.message);
+  else {
+    console.log('✅ Conectado a MySQL como id ' + conn.threadId);
+    conn.release(); // Liberar la conexión de prueba
   }
-  console.log('Connected to MySQL as id ' + connection.threadId);
 });
 
-module.exports = connection;
+// Exportamos el pool directamente
+module.exports = pool;

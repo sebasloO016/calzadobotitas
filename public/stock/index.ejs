@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock y Ubicación - Botitas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* ================= ESTILOS PRO + ADN ================= */
+        :root {
+            --primary-color: #6a5acd;
+            --secondary-color: #7b68ee;
+            --background-color: #f4f6f9;
+            --text-color: #334155;
+            --white: #ffffff;
+            --danger-color: #dc3545;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --border-color: #e2e8f0;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+            margin: 0.5cm;
+            position: relative;
+        }
+
+        /* ===== LAYOUT ===== */
+        .container-fluid {
+            display: flex;
+            flex-grow: 1;
+            gap: 20px;
+            width: 100%;
+        }
+
+        /* ===== SIDEBAR & NAV ===== */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 1000;
+            background: var(--primary-color);
+            border: none;
+            color: var(--white);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+        }
+
+        .mobile-menu-toggle:hover {
+            transform: scale(1.05);
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 998;
+            backdrop-filter: blur(2px);
+        }
+
+        .navbar-vertical {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            width: 230px;
+            padding: 20px;
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            z-index: 999;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+            min-height: 80vh;
+        }
+
+        .nav-header {
+            text-align: center;
+            font-size: 1.4em;
+            margin-bottom: 25px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-menu {
+            list-style: none;
+            flex-grow: 1;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            color: var(--white);
+            text-decoration: none;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+        }
+
+        .nav-link i {
+            margin-right: 12px;
+            width: 22px;
+            text-align: center;
+            font-size: 1.1em;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.3);
+            font-weight: 600;
+            border-left: 4px solid #fff;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            flex-grow: 1;
+            background-color: var(--white);
+            border-radius: 15px;
+            padding: 30px;
+            overflow-x: hidden;
+            width: 100%;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, .05);
+        }
+
+        .logo {
+            max-width: 150px;
+            display: block;
+            margin: 0 auto 15px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+            text-align: center;
+        }
+
+        /* ===== CONTROLES DE ESCANEO ===== */
+        .scan-controls {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .scan-btn-large {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+            transition: transform 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .scan-btn-large:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        #qr-reader {
+            width: 100%;
+            max-width: 400px;
+            border: 2px dashed var(--primary-color);
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        /* Buscador integrado */
+        .search-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .search-box {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            color: var(--primary-color);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 14px 45px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 1rem;
+            outline: none;
+            transition: 0.3s;
+            background: white;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(106, 90, 205, .15);
+        }
+
+        /* Dropdown Sugerencias */
+        .suggestions-box {
+            position: absolute;
+            top: 105%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 100;
+            display: none;
+        }
+
+        .suggestion-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #f1f5f9;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .suggestion-item:hover {
+            background: #f8fafc;
+        }
+
+        .suggestion-item img {
+            width: 45px;
+            height: 45px;
+            border-radius: 6px;
+            object-fit: cover;
+            margin-right: 12px;
+            border: 1px solid #eee;
+        }
+
+        /* ===== FICHA PRODUCTO ===== */
+        .product-card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            animation: fadeIn 0.4s ease;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 30px;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .product-header {
+            background: linear-gradient(to right, #f8fafc, #fff);
+            padding: 25px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            gap: 25px;
+            align-items: center;
+        }
+
+        .product-img-large {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .product-details h2 {
+            margin: 0 0 5px 0;
+            color: var(--text-color);
+            font-size: 1.4rem;
+        }
+
+        .price-tag {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--success-color);
+        }
+
+        /* ===== TABLA CON CHECKBOXES ===== */
+        .table-responsive {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        thead th {
+            background: #f1f5f9;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 16px;
+            text-align: left;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        thead th i {
+            margin-right: 6px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        tbody td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-color);
+            font-size: 0.95rem;
+            vertical-align: middle;
+        }
+
+        tbody tr:hover {
+            background-color: #f8fafc;
+        }
+
+        /* Badges Stock */
+        .stock-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.8rem;
+        }
+
+        .stock-high {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .stock-low {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Botones Acción */
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-right: 5px;
+        }
+
+        .btn-view {
+            background: #e0e7ff;
+            color: #4338ca;
+        }
+
+        .btn-view:hover {
+            background: #c7d2fe;
+        }
+
+        .btn-print {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .btn-print:hover {
+            background: #bfdbfe;
+        }
+
+        /* Botón Masivo */
+        .bulk-actions {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .btn-bulk {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 6px rgba(106, 90, 205, 0.25);
+            transition: 0.2s;
+        }
+
+        .btn-bulk:hover {
+            transform: translateY(-2px);
+            opacity: 0.95;
+        }
+
+        /* Checkbox grande */
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--primary-color);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                margin: 0.2cm;
+            }
+
+            .container-fluid {
+                flex-direction: column;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .navbar-vertical {
+                position: fixed;
+                left: -260px;
+                top: 0;
+                bottom: 0;
+                margin: 10px;
+                height: calc(100vh - 20px);
+                overflow-y: auto;
+            }
+
+            .navbar-vertical.active {
+                left: 0;
+            }
+
+            .overlay.active {
+                display: block;
+            }
+
+            .main-content {
+                margin-top: 50px;
+                padding: 15px;
+            }
+
+            .product-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .table-responsive {
+                overflow-x: auto;
+            }
+
+            .scan-controls {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <button class="mobile-menu-toggle"><i class="fas fa-bars"></i></button>
+    <div class="overlay"></div>
+
+    <div class="container-fluid">
+        <nav class="navbar-vertical">
+            <div class="nav-header">Inventario Botitas</div>
+            <ul class="nav-menu">
+                <li><a href="/inventario/agregar" class="nav-link"><i class="fas fa-box-open"></i> Re-stock</a></li>
+                <li><a href="/stock" class="nav-link active"><i class="fas fa-barcode"></i> Stock / QR</a></li>
+                <li><a href="/inventario" class="nav-link"><i class="fas fa-clipboard-list"></i> Inventario</a></li>
+                <li><a href="/admin-dashboard" class="nav-link"><i class="fas fa-arrow-left"></i> Regresar</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <img src="/imagenes/logo botitas.png" class="logo" alt="Logo Botitas">
+            <h1>Stock y Ubicación</h1>
+
+            <div class="scan-controls">
+                <button id="btnScanQR" class="scan-btn-large">
+                    <i class="fas fa-camera"></i> Escanear con Cámara
+                </button>
+
+                <div id="qr-reader" style="display:none;"></div>
+
+                <div class="search-container">
+                    <div class="search-box">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" id="busqueda" class="search-input"
+                            placeholder="Escanea QR o busca código (ej: 912)..." autocomplete="off">
+                    </div>
+                    <div id="resultados" class="suggestions-box"></div>
+                </div>
+            </div>
+
+            <% if (error) { %>
+                <div
+                    style="background:#fee2e2; color:#991b1b; padding:15px; border-radius:8px; margin-bottom:20px; text-align:center;">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <%= error %>
+                </div>
+                <% } %>
+
+                    <% if (producto) { %>
+                        <div class="product-card">
+                            <div class="product-header">
+                                <img src="<%= producto.Foto || '/imagenes/no-image.png' %>" class="product-img-large"
+                                    alt="Producto">
+                                <div>
+                                    <h2>
+                                        <%= producto.Nombre %> <small style="color:#64748b; font-size:0.6em;">(<%=
+                                                    producto.Codigo %>)</small>
+                                    </h2>
+                                    <p class="price-tag">$<%= parseFloat(producto.Precio).toFixed(2) %>
+                                    </p>
+                                    <p style="color:#64748b; font-size:0.9rem;">Seleccione las variantes para imprimir
+                                        sus etiquetas QR.</p>
+                                </div>
+                            </div>
+
+                            <div style="padding: 25px;">
+                                <h3 style="margin-bottom:15px; color:var(--primary-color); font-size:1.1rem;">
+                                    <i class="fas fa-layer-group"></i> Variantes Disponibles
+                                </h3>
+
+                                <div class="table-responsive">
+                                    <table>
+                                        <thead>
+                                            <tr>
+                                                <th style="width: 50px; text-align:center;">
+                                                    <input type="checkbox" id="checkAll">
+                                                </th>
+                                                <th><i class="fas fa-ruler-vertical"></i> Talla</th>
+                                                <th><i class="fas fa-palette"></i> Color</th>
+                                                <th><i class="fas fa-shoe-prints"></i> Material</th>
+                                                <th><i class="fas fa-map-marker-alt"></i> Ubicación</th>
+                                                <th><i class="fas fa-cubes"></i> Stock</th>
+                                                <th style="text-align:right;">Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% variantes.forEach(v=> { %>
+                                                <tr>
+                                                    <td style="text-align:center;">
+                                                        <input type="checkbox" class="qr-check"
+                                                            data-qr="<%= v.QrCode %>"
+                                                            data-codigo="<%= producto.Codigo %>"
+                                                            data-talla="<%= v.Talla %>" data-color="<%= v.Color %>"
+                                                            data-ubicacion="<%= v.Ubicacion %>">
+                                                    </td>
+                                                    <td><strong>
+                                                            <%= v.Talla || '-' %>
+                                                        </strong></td>
+                                                    <td>
+                                                        <%= v.Color || '-' %>
+                                                    </td>
+                                                    <td>
+                                                        <%= v.Material || '-' %>
+                                                    </td>
+                                                    <td><small style="color:#64748b;">
+                                                            <%= v.Ubicacion || 'N/A' %>
+                                                        </small></td>
+                                                    <td>
+                                                        <span
+                                                            class="stock-badge <%= v.Stock > 0 ? 'stock-high' : 'stock-low' %>">
+                                                            <%= v.Stock %>
+                                                        </span>
+                                                    </td>
+                                                    <td style="text-align:right;">
+                                                        <a href="/stock/qr/<%= v.QrCode %>" class="btn-action btn-view"
+                                                            title="Ver Detalle">
+                                                            <i class="fas fa-eye"></i>
+                                                        </a>
+                                                        <a href="/stock/qr-pdf/<%= v.QrCode %>"
+                                                            class="btn-action btn-print" target="_blank"
+                                                            title="Imprimir QR Individual">
+                                                            <i class="fas fa-print"></i>
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                                <% }) %>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div class="bulk-actions">
+                                    <button id="btnImprimirMasivo" class="btn-bulk">
+                                        <i class="fas fa-print"></i> Imprimir QRs Seleccionados
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <% } %>
+
+        </main>
+    </div>
+
+    <script src="https://unpkg.com/html5-qrcode"></script>
+
+    <script>
+        // --- Sidebar Logic ---
+        const menuToggle = document.querySelector('.mobile-menu-toggle');
+        const sidebar = document.querySelector('.navbar-vertical');
+        const overlay = document.querySelector('.overlay');
+
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        });
+
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+
+        // --- Buscador Autocomplete ---
+        const input = document.getElementById('busqueda');
+        const box = document.getElementById('resultados');
+        let t;
+
+        if (input) {
+            input.addEventListener('input', () => {
+                const q = input.value.trim();
+                clearTimeout(t);
+
+                if (q.length < 2) {
+                    box.style.display = 'none';
+                    return;
+                }
+
+                t = setTimeout(() => {
+                    fetch(`/stock/autocomplete?texto=${encodeURIComponent(q)}`)
+                        .then(r => r.json())
+                        .then(data => {
+                            box.innerHTML = '';
+                            if (!data.length) {
+                                box.style.display = 'none';
+                                return;
+                            }
+
+                            data.forEach(p => {
+                                const div = document.createElement('div');
+                                div.className = 'suggestion-item';
+                                div.innerHTML = `
+                                    <img src="${p.Foto || '/imagenes/no-image.png'}">
+                                    <div>
+                                        <div style="font-weight:bold; color:var(--primary-color);">${p.Codigo}</div>
+                                        <small style="color:#64748b;">${p.Nombre}</small>
+                                    </div>
+                                `;
+                                div.onclick = () => {
+                                    window.location.href = `/stock/codigo/${p.Codigo}`;
+                                };
+                                box.appendChild(div);
+                            });
+                            box.style.display = 'block';
+                        });
+                }, 250);
+            });
+
+            input.addEventListener('keydown', e => {
+                if (e.key === 'Enter') {
+                    window.location.href = `/stock/codigo/${input.value.trim()}`;
+                }
+            });
+
+            document.addEventListener('click', e => {
+                if (!box.contains(e.target) && e.target !== input) {
+                    box.style.display = 'none';
+                }
+            });
+        }
+
+        // --- Selección Masiva ---
+        const btnPrint = document.getElementById('btnImprimirMasivo');
+        const checkAll = document.getElementById('checkAll');
+
+        if (checkAll) {
+            checkAll.addEventListener('change', () => {
+                document.querySelectorAll('.qr-check')
+                    .forEach(cb => cb.checked = checkAll.checked);
+            });
+        }
+
+        if (btnPrint) {
+            btnPrint.addEventListener('click', async () => {
+                const items = Array.from(document.querySelectorAll('.qr-check:checked'))
+                    .map(cb => ({
+                        qr: cb.dataset.qr,
+                        codigo: cb.dataset.codigo,
+                        talla: cb.dataset.talla,
+                        color: cb.dataset.color,
+                        ubicacion: cb.dataset.ubicacion
+                    }));
+
+                if (items.length === 0) {
+                    alert('⚠️ Selecciona al menos un QR para imprimir.');
+                    return;
+                }
+
+                try {
+                    const res = await fetch('/stock/qr-pdf-masivo', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ items })
+                    });
+
+                    if (!res.ok) throw new Error('Error generando PDF');
+                    const blob = await res.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    window.open(url, '_blank');
+                } catch (err) {
+                    console.error(err);
+                    alert('❌ No se pudo generar el PDF');
+                }
+            });
+        }
+
+        // --- Lector QR ---
+        const btnScan = document.getElementById('btnScanQR');
+        const qrReaderDiv = document.getElementById('qr-reader');
+        let html5QrCode;
+
+        if (btnScan) {
+            btnScan.addEventListener('click', () => {
+                qrReaderDiv.style.display = 'block';
+                if (!html5QrCode) {
+                    html5QrCode = new Html5Qrcode("qr-reader");
+                }
+                html5QrCode.start(
+                    { facingMode: "environment" },
+                    { fps: 10, qrbox: { width: 250, height: 250 } },
+                    (decodedText) => {
+                        html5QrCode.stop();
+                        window.location.href = decodedText;
+                    },
+                    (errorMessage) => { /* ignora errores de lectura frame a frame */ }
+                );
+            });
+        }
+    </script>
+</body>
+
+</html>

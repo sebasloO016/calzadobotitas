@@ -6,16 +6,18 @@ const reportesController = require('../controllers/reportesController');
 // Dashboard visual
 router.get('/dashboard', reportesController.getDashboard);
 
-// Datos JSON
+// Datos JSON (para Chart.js)
 router.get('/general', reportesController.getDatosDashboard);
+
+// Comparativo dinámico AJAX (seguro)
+router.get('/comparar', reportesController.getComparativoInteractivo);
 
 // Exportaciones
 router.get('/exportar/excel', reportesController.exportarExcel);
 router.get('/exportar/pdf', reportesController.exportarPDF);
-// Comparativo dinámico AJAX
-router.get('/comparar', reportesController.getComparativoInteractivo);
 
 // Redirección a dashboard
 router.get('/', (req, res) => res.redirect('/reportes/dashboard'));
 
 module.exports = router;
+

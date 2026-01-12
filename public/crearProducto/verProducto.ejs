@@ -1,364 +1,375 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Productos - Botitas</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root {
-            --primary-color: #6a5acd;
-            --secondary-color: #7b68ee;
-            --background-color: #f4f6f9;
-            --text-color: #333;
-            --white: #ffffff;
-            --danger-color: #dc3545;
-            --success-color: #28a745;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Productos - Botitas</title>
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
-        }
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
-        body {
-            background-color: var(--background-color);
-            color: var(--text-color);
-            line-height: 1.6;
-            display: flex;
-            min-height: 100vh;
-            margin: 0.5cm;
-            position: relative;
-        }
+  <style>
+    /* ================= ESTILOS PRO + ADN ================= */
+    :root {
+      --primary-color: #6a5acd;
+      --secondary-color: #7b68ee;
+      --background-color: #f4f6f9;
+      --text-color: #334155;
+      --white: #ffffff;
+      --danger-color: #ef4444;
+      --success-color: #10b981;
+      --warning-color: #f59e0b;
+      --border-color: #e2e8f0;
+      --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
 
-        .container-fluid {
-            display: flex;
-            flex-grow: 1;
-            gap: 20px;
-            width: 100%;
-        }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
 
-        .mobile-menu-toggle {
-            display: none;
-            position: fixed;
-            top: 15px;
-            right: 15px;
-            z-index: 1000;
-            background: var(--primary-color);
-            border: none;
-            color: var(--white);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
+    body {
+      background-color: var(--background-color);
+      color: var(--text-color);
+      line-height: 1.6;
+      display: flex;
+      min-height: 100vh;
+      margin: 0.5cm;
+      position: relative;
+    }
 
-        .overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 998;
-        }
+    /* ===== LAYOUT ===== */
+    .container-fluid {
+      display: flex;
+      flex-grow: 1;
+      gap: 20px;
+      width: 100%;
+    }
 
-        .navbar-vertical {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            width: 230px;
-            padding: 20px;
-            color: var(--white);
-            display: flex;
-            flex-direction: column;
-            border-radius: 12px;
-            transition: all 0.3s ease;
-            z-index: 999;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
+    /* ===== SIDEBAR & NAV ===== */
+    .mobile-menu-toggle {
+      display: none;
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      z-index: 1000;
+      background: var(--primary-color);
+      border: none;
+      color: var(--white);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      transition: transform 0.2s;
+    }
 
-        .nav-header {
-            text-align: center;
-            font-size: 1.4em;
-            margin-bottom: 15px;
-            font-weight: bold;
-            letter-spacing: 0.5px;
-        }
+    .mobile-menu-toggle:hover {
+      transform: scale(1.05);
+    }
 
-        .nav-menu {
-            list-style: none;
-            flex-grow: 1;
-        }
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 998;
+      backdrop-filter: blur(2px);
+    }
 
-        .nav-link {
-            display: flex;
-            align-items: center;
-            color: var(--white);
-            text-decoration: none;
-            padding: 10px 12px;
-            margin-bottom: 8px;
-            border-radius: 6px;
-            background-color: rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
-            font-size: 0.95em;
-        }
+    .navbar-vertical {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      width: 230px;
+      padding: 20px;
+      color: var(--white);
+      display: flex;
+      flex-direction: column;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      z-index: 999;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      height: fit-content;
+      min-height: 80vh;
+    }
 
-        .nav-link i {
-            margin-right: 12px;
-            width: 22px;
-            text-align: center;
-            font-size: 1.1em;
-        }
+    .nav-header {
+      text-align: center;
+      font-size: 1.4em;
+      margin-bottom: 25px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
 
-        .nav-link:hover {
-            background-color: rgba(255, 255, 255, 0.2);
-            transform: translateX(8px);
-        }
+    .nav-menu {
+      list-style: none;
+      flex-grow: 1;
+    }
 
-        .nav-link.active {
-            background-color: rgba(255, 255, 255, 0.3);
-            font-weight: 500;
-        }
+    .nav-link {
+      display: flex;
+      align-items: center;
+      color: var(--white);
+      text-decoration: none;
+      padding: 12px 15px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      background-color: rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+      font-size: 0.95em;
+    }
 
-        .nav-search {
-            margin: 15px 0;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
+    .nav-link i {
+      margin-right: 12px;
+      width: 22px;
+      text-align: center;
+      font-size: 1.1em;
+    }
 
-        .nav-search input {
-            padding: 8px;
-            border: 1px solid var(--white);
-            border-radius: 8px;
-            font-size: 14px;
-            background-color: rgba(255, 255, 255, 0.1);
-            color: var(--white);
-        }
+    .nav-link:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+      transform: translateX(5px);
+    }
 
-        .nav-search input::placeholder {
-            color: rgba(255, 255, 255, 0.7);
-        }
+    .nav-link.active {
+      background-color: rgba(255, 255, 255, 0.3);
+      font-weight: 600;
+      border-left: 4px solid #fff;
+    }
 
-        .nav-search button {
-            padding: 8px;
-            border: none;
-            border-radius: 8px;
-            background: var(--white);
-            color: var(--primary-color);
-            font-size: 14px;
-            cursor: pointer;
-            transition: background-color 0.3s, color 0.3s;
-        }
+    /* ===== MAIN CONTENT ===== */
+    .main-content {
+      flex-grow: 1;
+      background-color: var(--white);
+      border-radius: 15px;
+      padding: 30px;
+      overflow-x: hidden;
+      width: 100%;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, .05);
+    }
 
-        .nav-search button:hover {
-            background: var(--secondary-color);
-            color: var(--white);
-        }
+    .logo {
+      max-width: 150px;
+      display: block;
+      margin: 0 auto 15px;
+    }
 
-        .main-content {
-            flex-grow: 1;
-            background-color: var(--white);
-            border-radius: 15px;
-            padding: 20px;
-            overflow-x: auto;
-            width: 100%;
-        }
+    h1 {
+      color: var(--primary-color);
+      margin-bottom: 25px;
+      font-size: 1.8rem;
+      text-align: center;
+    }
 
-        .logo {
-            max-width: 200px;
-            margin: 20px auto 30px;
-            display: block;
-            height: auto;
-        }
+    /* ===== TABLA PRO ===== */
+    .table-responsive {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+      box-shadow: var(--card-shadow);
+      margin-bottom: 20px;
+    }
 
-        .table-container {
-            margin-top: 20px;
-        }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
 
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-            background: var(--white);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
+    thead th {
+      background: #f1f5f9;
+      color: var(--primary-color);
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 15px;
+      text-align: left;
+      border-bottom: 2px solid var(--border-color);
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
 
-        .table th, .table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid rgba(0,0,0,0.1);
-        }
+    tbody td {
+      padding: 15px;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-color);
+      vertical-align: middle;
+    }
 
-        .table th {
-            background: var(--primary-color);
-            color: var(--white);
-            font-weight: 500;
-        }
+    tbody tr:hover {
+      background-color: #f8fafc;
+    }
 
-        .table td {
-            font-size: 14px;
-        }
+    /* Imágenes de producto en tabla */
+    .product-thumb {
+      width: 50px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
 
-        .table-list {
-            display: none;
-        }
+    /* ===== BADGES Y BOTONES ===== */
+    .badge {
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      display: inline-block;
+    }
 
-        .table-item {
-            background: var(--white);
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
+    .badge-activo {
+      background: #dcfce7;
+      color: #166534;
+    }
 
-        .table-item div {
-            margin-bottom: 8px;
-        }
+    .badge-inactivo {
+      background: #fee2e2;
+      color: #991b1b;
+    }
 
-        .btn {
-            padding: 8px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 13px;
-            text-decoration: none;
-            display: inline-block;
-            margin-right: 5px;
-        }
+    .action-cell {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
 
-        .btn-edit {
-            background: var(--primary-color);
-            color: var(--white);
-        }
+    .btn-action {
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      text-decoration: none;
+    }
 
-        .btn-toggle {
-            background: var(--success-color);
-            color: var(--white);
-        }
+    .btn-edit {
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1px solid #bfdbfe;
+    }
 
-        .btn-toggle.inactivo {
-            background: var(--danger-color);
-        }
+    .btn-edit:hover {
+      background: #dbeafe;
+    }
 
-        .pagination {
-            margin-top: 20px;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-        }
+    /* Botón toggle dinámico */
+    .btn-toggle-off {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
 
-        .pagination button, .pagination span {
-            padding: 8px 12px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            background: var(--primary-color);
-            color: var(--white);
-        }
+    .btn-toggle-off:hover {
+      background: #fecaca;
+    }
 
-        .pagination span.active {
-            background: var(--secondary-color);
-            font-weight: bold;
-        }
+    .btn-toggle-on {
+      background: #dcfce7;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+    }
 
-        .pagination button:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-        }
+    .btn-toggle-on:hover {
+      background: #bbf7d0;
+    }
 
-        .no-results {
-            text-align: center;
-            color: var(--danger-color);
-            font-size: 16px;
-            margin-top: 20px;
-        }
+    /* ===== PAGINACIÓN ===== */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      gap: 5px;
+      margin-top: 20px;
+    }
 
-        .sizes-list {
-            display: inline-block;
-        }
+    .page-btn {
+      padding: 8px 14px;
+      border: 1px solid var(--border-color);
+      background: white;
+      border-radius: 8px;
+      cursor: pointer;
+      color: var(--text-color);
+      transition: 0.2s;
+    }
 
-        @media (max-width: 768px) {
-            body {
-                margin: 0.2cm;
-            }
+    .page-btn:hover {
+      background: #f1f5f9;
+    }
 
-            .container-fluid {
-                flex-direction: column;
-            }
+    .page-btn.active {
+      background: var(--primary-color);
+      color: white;
+      border-color: var(--primary-color);
+    }
 
-            .mobile-menu-toggle {
-                display: block;
-            }
+    .page-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
 
-            .navbar-vertical {
-                position: fixed;
-                left: -260px;
-                top: 0;
-                bottom: 0;
-                margin: 10px;
-                height: calc(100vh - 20px);
-                overflow-y: auto;
-            }
+    /* Responsive */
+    @media (max-width: 768px) {
+      body {
+        margin: 0.2cm;
+      }
 
-            .navbar-vertical.active {
-                left: 0;
-            }
+      .container-fluid {
+        flex-direction: column;
+      }
 
-            .overlay.active {
-                display: block;
-            }
+      .mobile-menu-toggle {
+        display: block;
+      }
 
-            .main-content {
-                width: 100%;
-                margin-top: 60px;
-                padding: 15px;
-            }
+      .navbar-vertical {
+        position: fixed;
+        left: -260px;
+        top: 0;
+        bottom: 0;
+        margin: 10px;
+        height: calc(100vh - 20px);
+        overflow-y: auto;
+      }
 
-            .logo {
-                max-width: 150px;
-                margin: 10px auto 20px;
-            }
+      .navbar-vertical.active {
+        left: 0;
+      }
 
-            .table {
-                display: none;
-            }
+      .overlay.active {
+        display: block;
+      }
 
-            .table-list {
-                display: block;
-            }
+      .main-content {
+        margin-top: 50px;
+        padding: 15px;
+      }
 
-            .pagination button, .pagination span {
-                padding: 6px 10px;
-                font-size: 12px;
-            }
-        }
+      .table-responsive {
+        overflow-x: auto;
+      }
 
-        @media (max-width: 480px) {
-            .navbar-vertical {
-                width: 200px;
-            }
+      th,
+      td {
+        min-width: 120px;
+      }
 
-            .nav-link {
-                font-size: 0.9em;
-                padding: 8px 10px;
-            }
-
-            .nav-link i {
-                margin-right: 10px;
-                font-size: 1em;
-            }
-
-            .btn {
-                padding: 6px 10px;
-                font-size: 12px;
-            }
-        }
-    </style>
+      /* Evitar que se rompa la tabla */
+    }
+  </style>
 </head>
-</head>
+
 <body>
   <button class="mobile-menu-toggle"><i class="fas fa-bars"></i></button>
   <div class="overlay"></div>
@@ -369,44 +380,35 @@
       <ul class="nav-menu">
         <li><a href="/inventario/agregar" class="nav-link"><i class="fas fa-box-open"></i> Re-stock Producto</a></li>
         <li><a href="/crearProducto/verTodos" class="nav-link active"><i class="fas fa-list"></i> Ver Productos</a></li>
-        <li><a href="/crearProducto/crear" class="nav-link"><i class="fas fa-box-open"></i> Crear nuevo Producto</a></li>
+        <li><a href="/crearProducto/crear" class="nav-link"><i class="fas fa-plus"></i> Crear Producto</a></li>
         <li><a href="/stock" class="nav-link"><i class="fas fa-barcode"></i> Buscar por Código</a></li>
-        <li><a href="/inventario" class="nav-link"><i class="fas fa-box-open"></i> Ver Inventario</a></li>
+        <li><a href="/inventario" class="nav-link"><i class="fas fa-clipboard-list"></i> Ver Inventario</a></li>
         <li><a href="/admin-dashboard" class="nav-link"><i class="fas fa-arrow-left"></i> Regresar</a></li>
       </ul>
-      <form class="nav-search" action="/crearProducto/buscar" method="GET">
-        <input type="search" placeholder="Buscar producto" name="query" />
-        <button type="submit"><i class="fas fa-search"></i> Buscar</button>
-      </form>
     </nav>
 
     <main class="main-content">
-      <img src="/imagenes/logo botitas.png" alt="Logo Botitas" class="logo" />
-      <h1>Productos</h1>
+      <img src="/imagenes/logo botitas.png" alt="Logo Botitas" class="logo">
+      <h1>Catálogo de Productos</h1>
 
-      <div class="table-container">
-        <table class="table" id="productosTable">
+      <div class="table-responsive">
+        <table>
           <thead>
             <tr>
-              <th>Foto</th>
+              <th>Imagen</th>
               <th>Código</th>
               <th>Nombre</th>
-              <th>Tipo</th>
-              <th>Material</th>
-              <th>Género</th>
-              <th>Color</th>
-              <th>Talla</th>
-              <th>Cantidad</th>
+              <th>Detalles</th>
+              <th>Variantes</th>
+              <th>Stock Total</th>
               <th>Precio Venta</th>
               <th>Estado</th>
               <th>Acciones</th>
             </tr>
           </thead>
-          <tbody id="productosBody"></tbody>
+          <tbody id="productosBody">
+          </tbody>
         </table>
-
-        <div class="table-list" id="productosList"></div>
-        <div id="noResults" class="no-results" style="display:none;">No se encontraron productos.</div>
       </div>
 
       <div class="pagination" id="pagination"></div>
@@ -414,164 +416,134 @@
   </div>
 
   <script>
-    let productos = <%- JSON.stringify(productos) %>;
-    const itemsPerPage = 7;
+    // Data del servidor
+    const productos = JSON.parse(
+      `<%- JSON.stringify(productos || []).replace(/</g, '\\u003c') %>`
+    );
+
+    const itemsPerPage = 10;
     let currentPage = 1;
 
-    async function toggleEstado(codigo, currentEstado) {
-      const newEstado = currentEstado === 'activo' ? 'inactivo' : 'activo';
+    // Toggle Sidebar
+    const menuToggle = document.querySelector('.mobile-menu-toggle');
+    const sidebar = document.querySelector('.navbar-vertical');
+    const overlay = document.querySelector('.overlay');
+
+    menuToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('active');
+      overlay.classList.toggle('active');
+    });
+
+    overlay.addEventListener('click', () => {
+      sidebar.classList.remove('active');
+      overlay.classList.remove('active');
+    });
+
+    // Lógica de Estado
+    async function toggleEstado(codigo, estadoActual) {
+      const nuevoEstado = estadoActual === 'activo' ? 'inactivo' : 'activo';
+
       try {
-        const response = await fetch(`/crearProducto/cambiarEstado/${codigo}`, {
+        await fetch(`/crearProducto/cambiarEstado/${codigo}`, {
           method: 'PATCH',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ Estado: newEstado }),
+          body: JSON.stringify({ Estado: nuevoEstado })
         });
 
-        if (!response.ok) throw new Error('Error al cambiar el estado');
-
-        const producto = productos.find(p => p.Codigo === codigo);
-        if (producto) producto.Estado = newEstado;
+        // Actualizar localmente y re-renderizar
+        const p = productos.find(x => x.Codigo === codigo);
+        if (p) p.Estado = nuevoEstado;
         renderTable(currentPage);
-      } catch (error) {
-        alert('No se pudo cambiar el estado: ' + error.message);
+
+      } catch (err) {
+        console.error("Error al cambiar estado:", err);
+        alert("No se pudo cambiar el estado.");
       }
     }
 
+    // Renderizado Tabla
     function renderTable(page) {
+      const tbody = document.getElementById('productosBody');
+      tbody.innerHTML = '';
+
       const start = (page - 1) * itemsPerPage;
       const end = start + itemsPerPage;
-      const paginatedProductos = productos.slice(start, end);
+      const slice = productos.slice(start, end);
 
-      const tbody = document.getElementById('productosBody');
-      const list = document.getElementById('productosList');
-      const noResults = document.getElementById('noResults');
-
-      tbody.innerHTML = '';
-      list.innerHTML = '';
-
-      if (productos.length === 0) {
-        noResults.style.display = 'block';
+      if (slice.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:20px; color:#94a3b8;">No hay productos registrados.</td></tr>';
         return;
-      } else {
-        noResults.style.display = 'none';
       }
 
-      paginatedProductos.forEach(p => {
-        const img = p.Foto ? `<img src="${p.Foto}" alt="foto" style="width:70px;height:auto;border-radius:5px;">` : '—';
-        const generoTxt = p.Genero || '—';
-        const estadoClase = p.Estado === 'activo' ? '' : 'inactivo';
+      slice.forEach(p => {
+        const tr = document.createElement('tr');
+        const fotoSrc = p.Foto || '/imagenes/no-image.png';
+        const isActive = p.Estado === 'activo';
 
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${img}</td>
-          <td>${p.Codigo}</td>
-          <td>${p.Nombre}</td>
-          <td>${p.Tipo || ''}</td>
-          <td>${p.Material || ''}</td>
-          <td>${generoTxt}</td>
-          <td>${p.Color || ''}</td>
-          <td>${p.Talla || ''}</td>
-          <td>${p.Cantidad || 0}</td>
-          <td>$${p.PrecioVenta?.toFixed ? p.PrecioVenta.toFixed(2) : p.PrecioVenta}</td>
-          <td>${p.Estado}</td>
-          <td>
-            <a href="/crearProducto/editar/${p.Codigo}" class="btn btn-edit">Editar</a>
-            <button class="btn btn-toggle ${estadoClase}" onclick="toggleEstado('${p.Codigo}','${p.Estado}')">
-              ${p.Estado === 'activo' ? 'Desactivar' : 'Activar'}
-            </button>
-          </td>
-        `;
-        tbody.appendChild(row);
-
-        const item = document.createElement('div');
-        item.className = 'table-item';
-        item.innerHTML = `
-          <div><strong>Foto:</strong><br>${img}</div>
-          <div><strong>Código:</strong> ${p.Codigo}</div>
-          <div><strong>Nombre:</strong> ${p.Nombre}</div>
-          <div><strong>Tipo:</strong> ${p.Tipo}</div>
-          <div><strong>Material:</strong> ${p.Material}</div>
-          <div><strong>Género:</strong> ${p.Genero}</div>
-          <div><strong>Color:</strong> ${p.Color}</div>
-          <div><strong>Talla:</strong> ${p.Talla}</div>
-          <div><strong>Cantidad:</strong> ${p.Cantidad}</div>
-          <div><strong>Precio Venta:</strong> $${p.PrecioVenta}</div>
-          <div><strong>Estado:</strong> ${p.Estado}</div>
-          <div>
-            <a href="/crearProducto/editar/${p.Codigo}" class="btn btn-edit">Editar</a>
-            <button class="btn btn-toggle ${estadoClase}" onclick="toggleEstado('${p.Codigo}','${p.Estado}')">
-              ${p.Estado === 'activo' ? 'Desactivar' : 'Activar'}
-            </button>
-          </div>
-        `;
-        list.appendChild(item);
+        // Generar HTML de fila
+        tr.innerHTML = `
+                    <td>
+                        <img src="${fotoSrc}" class="product-thumb" alt="Img">
+                    </td>
+                    <td style="font-weight:bold; color:var(--primary-color);">${p.Codigo}</td>
+                    <td>${p.Nombre}</td>
+                    <td>
+                        <small style="display:block; color:#64748b;">${p.Tipo || '-'} / ${p.Genero || '-'}</small>
+                        <small style="color:#64748b;">${p.Materiales || '-'}</small>
+                    </td>
+                    <td>
+                        <span style="font-size:0.85rem;">
+                            ${p.Colores || '-'} <br> Tallas: ${p.Tallas || '-'}
+                        </span>
+                    </td>
+                    <td style="font-weight:bold;">${p.TotalStock || 0}</td>
+                    <td style="color:var(--success-color); font-weight:700;">$${Number(p.PrecioVenta || 0).toFixed(2)}</td>
+                    <td>
+                        <span class="badge ${isActive ? 'badge-activo' : 'badge-inactivo'}">
+                            ${p.Estado.toUpperCase()}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-cell">
+                            <a href="/crearProducto/editar/${p.Codigo}" class="btn-action btn-edit" title="Editar">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <button class="btn-action ${isActive ? 'btn-toggle-off' : 'btn-toggle-on'}"
+                                onclick="toggleEstado('${p.Codigo}','${p.Estado}')" 
+                                title="${isActive ? 'Desactivar' : 'Activar'}">
+                                <i class="fas ${isActive ? 'fa-ban' : 'fa-check'}"></i>
+                            </button>
+                        </div>
+                    </td>
+                `;
+        tbody.appendChild(tr);
       });
 
       renderPagination();
     }
 
+    // Paginación
     function renderPagination() {
-      const totalPages = Math.ceil(productos.length / itemsPerPage);
-      const pagination = document.getElementById('pagination');
-      pagination.innerHTML = '';
+      const container = document.getElementById('pagination');
+      container.innerHTML = '';
 
-      const prev = document.createElement('button');
-      prev.textContent = 'Anterior';
-      prev.disabled = currentPage === 1;
-      prev.onclick = () => {
-        if (currentPage > 1) {
-          currentPage--;
-          renderTable(currentPage);
-        }
-      };
-      pagination.appendChild(prev);
+      const totalPages = Math.ceil(productos.length / itemsPerPage);
+      if (totalPages <= 1) return;
 
       for (let i = 1; i <= totalPages; i++) {
-        const span = document.createElement(i === currentPage ? 'span' : 'button');
-        span.textContent = i;
-        if (i === currentPage) span.className = 'active';
-        else span.onclick = () => {
-          currentPage = i;
-          renderTable(currentPage);
-        };
-        pagination.appendChild(span);
+        const btn = document.createElement('button');
+        btn.textContent = i;
+        btn.className = `page-btn ${i === currentPage ? 'active' : ''}`;
+        btn.onclick = () => { currentPage = i; renderTable(i); };
+        container.appendChild(btn);
       }
-
-      const next = document.createElement('button');
-      next.textContent = 'Siguiente';
-      next.disabled = currentPage === totalPages;
-      next.onclick = () => {
-        if (currentPage < totalPages) {
-          currentPage++;
-          renderTable(currentPage);
-        }
-      };
-      pagination.appendChild(next);
     }
 
+    // Iniciar
     document.addEventListener('DOMContentLoaded', () => {
       renderTable(currentPage);
-
-      // menú móvil
-      const currentLocation = location.href;
-      const menuItems = document.querySelectorAll('.nav-link');
-      const toggleBtn = document.querySelector('.mobile-menu-toggle');
-      const navbar = document.querySelector('.navbar-vertical');
-      const overlay = document.querySelector('.overlay');
-
-      menuItems.forEach(item => {
-        if (item.href === currentLocation) item.classList.add('active');
-      });
-
-      function toggleMobileMenu() {
-        navbar.classList.toggle('active');
-        overlay.classList.toggle('active');
-        document.body.style.overflow = navbar.classList.contains('active') ? 'hidden' : '';
-      }
-
-      toggleBtn.addEventListener('click', toggleMobileMenu);
-      overlay.addEventListener('click', toggleMobileMenu);
     });
   </script>
 </body>
+
 </html>

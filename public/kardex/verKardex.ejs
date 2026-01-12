@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kardex de Producto - Botitas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        /* ================= ESTILOS PRO + ADN ================= */
+        :root {
+            --primary-color: #6a5acd;
+            --secondary-color: #7b68ee;
+            --background-color: #f4f6f9;
+            --text-color: #334155;
+            --white: #ffffff;
+            --danger-color: #ef4444;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --border-color: #e2e8f0;
+            --input-bg: #f8fafc;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+            margin: 0.5cm;
+            position: relative;
+        }
+
+        /* ===== LAYOUT ===== */
+        .container-fluid {
+            display: flex;
+            flex-grow: 1;
+            gap: 20px;
+            width: 100%;
+        }
+
+        /* ===== SIDEBAR & NAV ===== */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 1000;
+            background: var(--primary-color);
+            border: none;
+            color: var(--white);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+        }
+
+        .mobile-menu-toggle:hover {
+            transform: scale(1.05);
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 998;
+            backdrop-filter: blur(2px);
+        }
+
+        .navbar-vertical {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            width: 230px;
+            padding: 20px;
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            z-index: 999;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+            min-height: 80vh;
+        }
+
+        .nav-header {
+            text-align: center;
+            font-size: 1.4em;
+            margin-bottom: 25px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-menu {
+            list-style: none;
+            flex-grow: 1;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            color: var(--white);
+            text-decoration: none;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+        }
+
+        .nav-link i {
+            margin-right: 12px;
+            width: 22px;
+            text-align: center;
+            font-size: 1.1em;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.3);
+            font-weight: 600;
+            border-left: 4px solid #fff;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            flex-grow: 1;
+            background-color: var(--white);
+            border-radius: 15px;
+            padding: 30px;
+            overflow-x: hidden;
+            width: 100%;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, .05);
+        }
+
+        .logo {
+            max-width: 150px;
+            display: block;
+            margin: 0 auto 15px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            font-size: 1.8rem;
+            text-align: center;
+        }
+
+        /* ===== TARJETAS Y FILTROS ===== */
+        .card-box {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+            border: 1px solid var(--border-color);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            align-items: end;
+        }
+
+        label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #64748b;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            background: var(--input-bg);
+            transition: all 0.3s;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(106, 90, 205, 0.1);
+        }
+
+        button.btn-search {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+            transition: transform 0.2s;
+        }
+
+        button.btn-search:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+
+        /* ===== PRODUCTO INFO HEADER ===== */
+        .product-header {
+            background: linear-gradient(to right, #f8fafc, #fff);
+            border-left: 5px solid var(--primary-color);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: space-between;
+        }
+
+        .info-group {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .info-group small {
+            color: #64748b;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .info-group div {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        /* ===== KPI CARDS (RESUMEN) ===== */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .kpi-card {
+            background: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .kpi-card h4 {
+            margin: 0;
+            font-size: 0.8rem;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+
+        .kpi-card span {
+            font-size: 1.5rem;
+            font-weight: 800;
+            display: block;
+            margin-top: 5px;
+        }
+
+        .text-primary {
+            color: var(--primary-color);
+        }
+
+        .text-success {
+            color: var(--success-color);
+        }
+
+        .text-danger {
+            color: var(--danger-color);
+        }
+
+        .text-dark {
+            color: var(--text-color);
+        }
+
+        /* ===== TABLA ===== */
+        .table-responsive {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f1f5f9;
+            color: var(--primary-color);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            padding: 14px;
+            text-align: left;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        td {
+            padding: 14px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-color);
+            font-size: 0.95rem;
+        }
+
+        tr:hover {
+            background-color: #f8fafc;
+        }
+
+        .badge {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: inline-block;
+        }
+
+        .badge.in {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        /* Entrada */
+        .badge.out {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Salida */
+
+        .error-msg {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #fecaca;
+            text-align: center;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                margin: 0.2cm;
+            }
+
+            .container-fluid {
+                flex-direction: column;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .navbar-vertical {
+                position: fixed;
+                left: -260px;
+                top: 0;
+                bottom: 0;
+                margin: 10px;
+                height: calc(100vh - 20px);
+                overflow-y: auto;
+            }
+
+            .navbar-vertical.active {
+                left: 0;
+            }
+
+            .overlay.active {
+                display: block;
+            }
+
+            .main-content {
+                margin-top: 50px;
+                padding: 15px;
+            }
+
+            .table-responsive {
+                overflow-x: auto;
+            }
+
+            th,
+            td {
+                min-width: 100px;
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <button class="mobile-menu-toggle"><i class="fas fa-bars"></i></button>
+    <div class="overlay"></div>
+
+    <div class="container-fluid">
+        <nav class="navbar-vertical">
+            <div class="nav-header">Inventario Botitas</div>
+            <ul class="nav-menu">
+                <li><a href="/inventario/agregar" class="nav-link"><i class="fas fa-box-open"></i> Re-stock</a></li>
+                <li><a href="/stock" class="nav-link"><i class="fas fa-barcode"></i> Stock / QR</a></li>
+                <li><a href="/inventario" class="nav-link active"><i class="fas fa-clipboard-list"></i> Inventario /
+                        Kardex</a></li>
+                <li><a href="/admin-dashboard" class="nav-link"><i class="fas fa-arrow-left"></i> Regresar</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <img src="/imagenes/logo botitas.png" class="logo" alt="Logo Botitas">
+            <h1>Kardex de Producto</h1>
+
+            <% if (error) { %>
+                <div class="error-msg">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <%= error %>
+                </div>
+                <% } %>
+
+                    <div class="card-box">
+                        <form method="GET" action="/kardex">
+                            <div class="form-grid">
+                                <div>
+                                    <label><i class="fas fa-tag"></i> Código Producto</label>
+                                    <input name="codigo" value="<%= codigo || '' %>" placeholder="Ej: ZAP-001"
+                                        required />
+                                </div>
+
+                                <div>
+                                    <label><i class="fas fa-layer-group"></i> Variante</label>
+                                    <select name="varianteId">
+                                        <option value="">-- Selecciona Variante --</option>
+                                        <% (variantes || []).forEach(v=> { %>
+                                            <option value="<%= v.VarianteID %>">
+                                                <%= v.Talla %> | <%= v.Color %> | <%= v.Material %> (Stock: <%= v.Stock
+                                                                %>)
+                                            </option>
+                                            <% }) %>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label>Desde</label>
+                                    <input type="date" name="desde" value="<%= desde || '' %>" />
+                                </div>
+
+                                <div>
+                                    <label>Hasta</label>
+                                    <input type="date" name="hasta" value="<%= hasta || '' %>" />
+                                </div>
+
+                                <div>
+                                    <label>&nbsp;</label>
+                                    <button type="submit" class="btn-search">
+                                        <i class="fas fa-search"></i> Consultar
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <% if (varianteInfo) { %>
+
+                        <div class="card-box product-header">
+                            <div class="info-group">
+                                <small>Producto</small>
+                                <div>
+                                    <%= varianteInfo.Nombre %>
+                                </div>
+                            </div>
+                            <div class="info-group">
+                                <small>Código</small>
+                                <div>
+                                    <%= varianteInfo.Codigo %>
+                                </div>
+                            </div>
+                            <div class="info-group">
+                                <small>Variante</small>
+                                <div>
+                                    <%= varianteInfo.Talla %> - <%= varianteInfo.Color %>
+                                </div>
+                            </div>
+                            <div class="info-group">
+                                <small>Material</small>
+                                <div>
+                                    <%= varianteInfo.Material %>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="kpi-grid">
+                            <div class="kpi-card">
+                                <h4>Saldo Inicial</h4>
+                                <span class="text-primary">
+                                    <%= saldoInicial %>
+                                </span>
+                            </div>
+                            <div class="kpi-card">
+                                <h4>Entradas</h4>
+                                <span class="text-success"><i class="fas fa-arrow-up" style="font-size:0.7em;"></i>
+                                    <%= totalEntradas %>
+                                </span>
+                            </div>
+                            <div class="kpi-card">
+                                <h4>Salidas</h4>
+                                <span class="text-danger"><i class="fas fa-arrow-down" style="font-size:0.7em;"></i>
+                                    <%= totalSalidas %>
+                                </span>
+                            </div>
+                            <div class="kpi-card" style="background: #f8fafc; border-color: var(--primary-color);">
+                                <h4>Saldo Final</h4>
+                                <span class="text-dark">
+                                    <%= varianteInfo.Stock %>
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Fecha</th>
+                                        <th>Tipo Movimiento</th>
+                                        <th>Cantidad</th>
+                                        <th>Referencia</th>
+                                        <th>Saldo Acumulado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% if (movimientos && movimientos.length) { %>
+                                        <% movimientos.forEach(m=> { %>
+                                            <tr>
+                                                <td style="color: #64748b;">
+                                                    <i class="far fa-calendar-alt"></i>
+                                                    <%= new Date(m.Fecha).toLocaleString() %>
+                                                </td>
+                                                <td>
+                                                    <% if (m.Tipo==='ENTRADA' ) { %>
+                                                        <span class="badge in"><i class="fas fa-plus"></i>
+                                                            ENTRADA</span>
+                                                        <% } else { %>
+                                                            <span class="badge out"><i class="fas fa-minus"></i>
+                                                                SALIDA</span>
+                                                            <% } %>
+                                                </td>
+                                                <td style="font-weight: bold;">
+                                                    <%= m.Cantidad %>
+                                                </td>
+                                                <td>
+                                                    <%= m.Referencia || '-' %>
+                                                </td>
+                                                <td>
+                                                    <b style="color: var(--primary-color); font-size: 1.1em;">
+                                                        <%= m.SaldoAcumulado %>
+                                                    </b>
+                                                </td>
+                                            </tr>
+                                            <% }) %>
+                                                <% } else { %>
+                                                    <tr>
+                                                        <td colspan="5"
+                                                            style="text-align: center; padding: 30px; color: #94a3b8;">
+                                                            <i class="fas fa-box-open"
+                                                                style="font-size: 2rem; display: block; margin-bottom: 10px;"></i>
+                                                            No hay movimientos registrados en este periodo.
+                                                        </td>
+                                                    </tr>
+                                                    <% } %>
+                                </tbody>
+                            </table>
+                        </div>
+                        <% } %>
+
+        </main>
+    </div>
+
+    <script>
+        // --- Sidebar Logic ---
+        const menuToggle = document.querySelector('.mobile-menu-toggle');
+        const sidebar = document.querySelector('.navbar-vertical');
+        const overlay = document.querySelector('.overlay');
+
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        });
+
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+    </script>
+</body>
+
+</html>

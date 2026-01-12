@@ -1,5 +1,7 @@
+<!--no esta en uso-->
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -51,7 +53,7 @@
             height: 40px;
             border-radius: 50%;
             cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
         .overlay {
@@ -61,7 +63,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.5);
             z-index: 998;
         }
 
@@ -75,7 +77,7 @@
             border-radius: 12px;
             transition: all 0.3s ease;
             z-index: 999;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
         }
 
         .nav-header {
@@ -266,6 +268,7 @@
         }
     </style>
 </head>
+
 <body>
     <button class="mobile-menu-toggle">
         <i class="fas fa-bars"></i>
@@ -277,7 +280,8 @@
         <nav class="navbar-vertical">
             <div class="nav-header">Inventario Botitas</div>
             <ul class="nav-menu">
-                <li><a href="/inventario/agregar" class="nav-link"><i class="fas fa-box-open"></i> Agregar Producto</a></li>
+                <li><a href="/inventario/agregar" class="nav-link"><i class="fas fa-box-open"></i> Agregar Producto</a>
+                </li>
                 <li><a href="/stock" class="nav-link"><i class="fas fa-barcode"></i> Buscar por Código</a></li>
                 <li><a href="/admin-dashboard" class="nav-link"><i class="fas fa-arrow-left"></i> Regresar</a></li>
             </ul>
@@ -288,7 +292,8 @@
             <h1 style="margin-bottom: 20px;">Editar Producto</h1>
 
             <div class="alert">
-                Editar este producto puede afectar el control del inventario, a menos que se haya ingresado algún valor incorrecto.
+                Editar este producto puede afectar el control del inventario, a menos que se haya ingresado algún valor
+                incorrecto.
             </div>
 
             <form action="/inventario/editar/<%= producto.ProductoID %>" method="post">
@@ -323,9 +328,11 @@
                 <div class="form-group">
                     <label>Tipo de Tallas</label>
                     <div class="radio-group">
-                        <input type="radio" id="ninos" name="tipoTallas" value="ninos" onchange="toggleTallas()" <%= producto.tipoTallas === 'ninos' ? 'checked' : '' %>>
+                        <input type="radio" id="ninos" name="tipoTallas" value="ninos" onchange="toggleTallas()"
+                            <%=producto.tipoTallas==='ninos' ? 'checked' : '' %>>
                         <label for="ninos">Niños</label>
-                        <input type="radio" id="adultos" name="tipoTallas" value="adultos" onchange="toggleTallas()" <%= producto.tipoTallas === 'adultos' ? 'checked' : '' %>>
+                        <input type="radio" id="adultos" name="tipoTallas" value="adultos" onchange="toggleTallas()"
+                            <%=producto.tipoTallas==='adultos' ? 'checked' : '' %>>
                         <label for="adultos">Adultos</label>
                     </div>
                 </div>
@@ -333,12 +340,13 @@
                     <div class="form-group">
                         <label>Tallas y Cantidades (Niños)</label>
                         <div class="tallas-container">
-                            <% for (let i = 21; i <= 32; i++) { %>
+                            <% for (let i=21; i <=32; i++) { %>
                                 <div>
                                     <label for="talla<%= i %>">Talla <%= i %></label>
-                                    <input type="number" id="talla<%= i %>" name="tallas[Talla<%= i %>]" min="0" value="<%= producto['Talla' + i] || 0 %>" oninput="calculateInversionTotal()">
+                                    <input type="number" id="talla<%= i %>" name="tallas[Talla<%= i %>]" min="0"
+                                        value="<%= producto['Talla' + i] || 0 %>" oninput="calculateInversionTotal()">
                                 </div>
-                            <% } %>
+                                <% } %>
                         </div>
                     </div>
                 </div>
@@ -346,22 +354,25 @@
                     <div class="form-group">
                         <label>Tallas y Cantidades (Adultos)</label>
                         <div class="tallas-container">
-                            <% for (let i = 33; i <= 43; i++) { %>
+                            <% for (let i=33; i <=43; i++) { %>
                                 <div>
                                     <label for="talla<%= i %>">Talla <%= i %></label>
-                                    <input type="number" id="talla<%= i %>" name="tallas[Talla<%= i %>]" min="0" value="<%= producto['Talla' + i] || 0 %>" oninput="calculateInversionTotal()">
+                                    <input type="number" id="talla<%= i %>" name="tallas[Talla<%= i %>]" min="0"
+                                        value="<%= producto['Talla' + i] || 0 %>" oninput="calculateInversionTotal()">
                                 </div>
-                            <% } %>
+                                <% } %>
                         </div>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="PrecioCosto">Precio Costo</label>
-                    <input type="number" id="PrecioCosto" name="PrecioCosto" step="0.01" value="<%= producto.PrecioCosto %>" oninput="calculateInversionTotal()" required>
+                    <input type="number" id="PrecioCosto" name="PrecioCosto" step="0.01"
+                        value="<%= producto.PrecioCosto %>" oninput="calculateInversionTotal()" required>
                 </div>
                 <div class="form-group">
                     <label for="InversionTotal">Inversión Total</label>
-                    <input type="number" id="InversionTotal" name="InversionTotal" value="<%= producto.InversionTotal %>" readonly>
+                    <input type="number" id="InversionTotal" name="InversionTotal"
+                        value="<%= producto.InversionTotal %>" readonly>
                 </div>
                 <div class="form-group">
                     <label for="cantidad">Cantidad</label>
@@ -396,7 +407,7 @@
             calculateInversionTotal();
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
             const navbar = document.querySelector('.navbar-vertical');
             const overlay = document.querySelector('.overlay');
@@ -437,4 +448,5 @@
         });
     </script>
 </body>
+
 </html>

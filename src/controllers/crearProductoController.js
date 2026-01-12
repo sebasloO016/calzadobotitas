@@ -1,5 +1,8 @@
+// controllers/crearProductoController.js (código completo actualizado)
 const crearProductoModel = require('../models/crearProductoModel');
 const proveedorModel = require('../models/proveedorModel');
+const comprasModel = require('../models/comprasModel');
+
 
 // ======================================================
 // 🧱 RENDER FORMULARIO (trae todos los selects separados)
@@ -52,172 +55,168 @@ exports.crearProducto = (req, res) => {
         fotoFinal = req.body.Foto;
     }
     const body = req.body;
-    const tallas = Array.isArray(body.TallaID) ? body.TallaID.filter(x => x) : [];
-    const cantidades = Array.isArray(body.Cantidad) ? body.Cantidad.filter(x => x) : [];
+    const tallas = Array.isArray(body.TallaID) ? body.TallaID.filter(x => x) : (body.TallaID ? [body.TallaID] : []);
+    const cantidades = Array.isArray(body.Cantidad) ? body.Cantidad.filter(x => x) : (body.Cantidad ? [body.Cantidad] : []);
+    const ubicaciones = Array.isArray(body.UbicacionID) ? body.UbicacionID.filter(x => x) : (body.UbicacionID ? [body.UbicacionID] : []);
     const totalCompra = cantidades.reduce((a, b) => a + parseInt(b || 0), 0) * parseFloat(body.PrecioCosto);
 
-    // Paso 1: Buscar o crear la categoría combinada
-    crearProductoModel.findOrCreateCategoria(
-        body.TipoID,
-        body.MaterialID,
-        body.GeneroID,
-        body.ColorID,
-        (err, categoriaId) => {
-            if (err) return res.status(500).send('Error al obtener/crear categoría');
-
-            // 🔍 Verificar si existen productos duplicados antes de crear la compra
-            const codigosDuplicados = [];
-            let revisados = 0;
-
-            const verificarDuplicados = () => {
-                if (revisados >= tallas.length) {
-                    // Si existen duplicados, mostramos mensaje al usuario
-                    if (codigosDuplicados.length > 0) {
-                        return crearProductoModel.getAllTipos((err, tipos) => {
-                            if (err) return res.status(500).send('Error al obtener tipos');
-                            crearProductoModel.getAllMateriales((err, materiales) => {
-                                if (err) return res.status(500).send('Error al obtener materiales');
-                                crearProductoModel.getAllGeneros((err, generos) => {
-                                    if (err) return res.status(500).send('Error al obtener géneros');
-                                    crearProductoModel.getAllColores((err, colores) => {
-                                        if (err) return res.status(500).send('Error al obtener colores');
-                                        crearProductoModel.getAllTallas((err, tallasList) => {
-                                            if (err) return res.status(500).send('Error al obtener tallas');
-                                            crearProductoModel.getAllUbicaciones((err, ubicaciones) => {
-                                                if (err) return res.status(500).send('Error al obtener ubicaciones');
-                                                proveedorModel.getAll((err, proveedores) => {
-                                                    if (err) return res.status(500).send('Error al obtener proveedores');
-                                                    const errorMsg = `Los siguientes productos ya existen: ${codigosDuplicados.join(', ')}. 
-                                                    Si desea modificar stock o precio, use la opción "Re-Stock Producto".`;
-                                                    return res.render('crearProducto/crearProducto', {
-                                                        tipos,
-                                                        materiales,
-                                                        generos,
-                                                        colores,
-                                                        tallas: tallasList,
-                                                        ubicaciones,
-                                                        proveedores,
-                                                        error: errorMsg
-                                                    });
-                                                });
-                                            });
+    // Verificar si el código ya existe
+    crearProductoModel.getProductoByCodigo(body.Codigo, (err, existente) => {
+        if (err) return res.status(500).send('Error al verificar código');
+        if (existente) {
+            // Si existe, mostrar error
+            return crearProductoModel.getAllTipos((err, tipos) => {
+                if (err) return res.status(500).send('Error al obtener tipos');
+                crearProductoModel.getAllMateriales((err, materiales) => {
+                    if (err) return res.status(500).send('Error al obtener materiales');
+                    crearProductoModel.getAllGeneros((err, generos) => {
+                        if (err) return res.status(500).send('Error al obtener géneros');
+                        crearProductoModel.getAllColores((err, colores) => {
+                            if (err) return res.status(500).send('Error al obtener colores');
+                            crearProductoModel.getAllTallas((err, tallasList) => {
+                                if (err) return res.status(500).send('Error al obtener tallas');
+                                crearProductoModel.getAllUbicaciones((err, ubicaciones) => {
+                                    if (err) return res.status(500).send('Error al obtener ubicaciones');
+                                    proveedorModel.getAll((err, proveedores) => {
+                                        if (err) return res.status(500).send('Error al obtener proveedores');
+                                        const errorMsg = `El producto con código ${body.Codigo} ya existe. Si desea modificar stock o precio, use la opción "Re-Stock Producto".`;
+                                        return res.render('crearProducto/crearProducto', {
+                                            tipos,
+                                            materiales,
+                                            generos,
+                                            colores,
+                                            tallas: tallasList,
+                                            ubicaciones,
+                                            proveedores,
+                                            error: errorMsg
                                         });
                                     });
                                 });
                             });
                         });
-                    } else {
-                        // Si no hay duplicados, proceder con la creación
-                        return crearCompraYProductos(categoriaId);
-                    }
-                }
-            };
-
-            // Verificar duplicados uno por uno
-            if (tallas.length === 0) {
-                verificarDuplicados(); // No hay tallas
-            } else {
-                tallas.forEach((talla) => {
-                    const codigoActual = `${body.Codigo}-${talla}`;
-                    crearProductoModel.getProductoByCodigo(codigoActual, (err, existente) => {
-                        revisados++;
-                        if (existente) codigosDuplicados.push(codigoActual);
-                        verificarDuplicados();
                     });
                 });
-            }
+            });
+        }
 
-            // ===========================================
-            // FUNCIÓN: Crear compra y productos
-            // ===========================================
-            function crearCompraYProductos(categoriaId) {
-                const compra = {
-                    ProveedorID: body.ProveedorID,
-                    FechaCompra: body.FechaCompra || new Date().toISOString().split('T')[0],
-                    NumeroFactura: body.NumeroFactura || '',
-                    TotalCompra: totalCompra,
-                    EstadoPago: 'Pendiente'
+        // Paso 1: Buscar o crear la categoría combinada (solo Tipo y Genero)
+        crearProductoModel.findOrCreateCategoria(
+            body.TipoID,
+            body.GeneroID,
+            (err, categoriaId) => {
+                if (err) return res.status(500).send('Error al obtener/crear categoría');
+
+                // Crear el producto base
+                const producto = {
+                    Codigo: body.Codigo,
+                    Nombre: body.Nombre,
+                    CategoriaID: categoriaId,
+                    Detalle: body.Detalle,
+                    Foto: fotoFinal,
+                    PrecioCosto: body.PrecioCosto,
+                    PrecioVenta: body.PrecioVenta
                 };
 
-                crearProductoModel.crearCompraProveedor(compra, (err, result) => {
-                    if (err) return res.status(500).send('Error al crear compra proveedor');
-                    const compraId = result.insertId;
-
-                    // Si no hay tallas, crear producto único
-                    if (tallas.length === 0) {
-                        const producto = {
-                            Codigo: body.Codigo,
-                            Nombre: body.Nombre,
-                            CategoriaID: categoriaId,
-                            UbicacionID: body.UbicacionID,
-                            Detalle: body.Detalle,
-                            Foto: fotoFinal,
-                            PrecioCosto: body.PrecioCosto,
-                            PrecioVenta: body.PrecioVenta,
-                            Cantidad: body.Cantidad || 0,
-                            DetalleCompraID: null
-                        };
-                        return crearProductoModel.crearProducto(producto, (err) => {
-                            if (err) return res.status(500).send('Error al crear producto');
-                            res.redirect('/crearProducto/verTodos');
-                        });
+                crearProductoModel.crearProducto(producto, (err, result) => {
+                    if (err) {
+                        console.error(err);
+                        return res.status(500).send('Error al crear producto');
                     }
 
-                    // Crear un producto por cada talla
-                    const crearPorTalla = (i) => {
-                        if (i >= tallas.length) return res.redirect('/crearProducto/verTodos');
+                    const productoId = result.insertId;
 
-                        const detalle = {
-                            CompraProveedorID: compraId,
+                    // 🔒 array para construir el detalle de compra
+                    const variantesCreadas = [];
+
+                    const crearPorTalla = (i) => {
+                        if (i >= tallas.length) {
+                            // ✅ CUANDO YA SE CREARON TODAS LAS VARIANTES
+                            return comprasModel.crearCompraAutomatica({
+                                ProveedorID: body.ProveedorID,
+                                FechaCompra: body.FechaCompra || new Date().toISOString().split('T')[0],
+                                NumeroFactura: body.NumeroFactura || '',
+                                Detalle: variantesCreadas
+                            }, (err) => {
+                                if (err) {
+                                    console.error(err);
+                                    return res.status(500).send('Error al registrar compra automática');
+                                }
+
+                                return res.redirect('/crearProducto/verTodos');
+                            });
+                        }
+
+                        // 🧱 crear variante SIN stock inicial
+                        const variante = {
+                            ProductoID: productoId,
                             TallaID: tallas[i],
-                            Cantidad: cantidades[i],
-                            CostoUnitario: body.PrecioCosto
+                            ColorID: body.ColorID,
+                            MaterialID: body.MaterialID,
+                            UbicacionID: ubicaciones[i],
+                            Stock: 0, // 🔒 el stock entra SOLO por compras
+                            CostoUnitario: body.PrecioCosto,
+                            PrecioVentaVariante: body.PrecioVenta
                         };
 
-                        crearProductoModel.crearDetalleCompra(detalle, (err, dRes) => {
-                            if (err) return res.status(500).send('Error al crear detalle de compra');
+                        crearProductoModel.crearVariante(variante, (err, vResult) => {
+                            if (err) {
+                                console.error(err);
+                                return res.status(500).send('Error al crear variante');
+                            }
 
-                            const producto = {
-                                Codigo: `${body.Codigo}-${tallas[i]}`,
-                                Nombre: `${body.Nombre} Talla ${tallas[i]}`,
-                                CategoriaID: categoriaId,
+                            // 🔥 guardar info para el DETALLE de la compra
+                            variantesCreadas.push({
+                                VarianteID: vResult.insertId,
                                 TallaID: tallas[i],
-                                UbicacionID: body.UbicacionID,
-                                Detalle: body.Detalle,
-                                Foto: fotoFinal,
-                                PrecioCosto: body.PrecioCosto,
-                                PrecioVenta: body.PrecioVenta,
                                 Cantidad: cantidades[i],
-                                DetalleCompraID: dRes.insertId
-                            };
-
-                            crearProductoModel.crearProducto(producto, (err) => {
-                                if (err) return res.status(500).send('Error al crear producto');
-                                crearPorTalla(i + 1);
+                                CostoUnitario: body.PrecioCosto
                             });
+
+                            crearPorTalla(i + 1);
                         });
                     };
 
+                    // 🚀 iniciar creación por tallas
                     crearPorTalla(0);
                 });
+
             }
-        }
-    );
+        );
+    });
 };
 
 // ======================================================
 // 📋 VER TODOS LOS PRODUCTOS
 // ======================================================
+// controllers/crearProductoController.js
 exports.verTodosProductos = (req, res) => {
     crearProductoModel.getAllProductos((err, productos) => {
-        if (err) return res.status(500).send('Error al obtener los productos');
+        if (err) {
+            console.error('Error al obtener productos:', err);
+            return res.render('crearProducto/verProducto', {
+                productos: [],
+                error: 'Error al cargar los productos. Intenta de nuevo más tarde.'
+            });
+        }
 
         crearProductoModel.getAllDetalles((err, detalles) => {
-            if (err) return res.status(500).send('Error al obtener detalles');
-            res.render('crearProducto/verProducto', { productos, detalles });
+            if (err) {
+                console.error('Error al obtener detalles:', err);
+                return res.render('crearProducto/verProducto', {
+                    productos: productos || [],
+                    error: 'Error al cargar detalles adicionales.'
+                });
+            }
+
+            res.render('crearProducto/verProducto', {
+                productos: productos || [],
+                detalles: detalles || [],
+                error: null   // ← Esto soluciona el error principal
+            });
         });
     });
 };
+
 // ======================================================
 // ✏️ RENDER FORMULARIO DE EDICIÓN
 // ======================================================
@@ -229,28 +228,33 @@ exports.renderEditarProducto = (req, res) => {
             return res.status(404).send('Producto no encontrado');
         }
 
-        // Traer todas las tablas necesarias para los selects
-        crearProductoModel.getAllTipos((err, tipos) => {
-            if (err) return res.status(500).send('Error al obtener tipos');
-            crearProductoModel.getAllMateriales((err, materiales) => {
-                if (err) return res.status(500).send('Error al obtener materiales');
-                crearProductoModel.getAllGeneros((err, generos) => {
-                    if (err) return res.status(500).send('Error al obtener géneros');
-                    crearProductoModel.getAllColores((err, colores) => {
-                        if (err) return res.status(500).send('Error al obtener colores');
-                        crearProductoModel.getAllTallas((err, tallas) => {
-                            if (err) return res.status(500).send('Error al obtener tallas');
-                            crearProductoModel.getAllUbicaciones((err, ubicaciones) => {
-                                if (err) return res.status(500).send('Error al obtener ubicaciones');
-                                res.render('crearProducto/editarProducto', {
-                                    producto,
-                                    tipos,
-                                    materiales,
-                                    generos,
-                                    colores,
-                                    tallas,
-                                    ubicaciones,
-                                    error: null
+        crearProductoModel.getVariantesByProductoId(producto.ProductoID, (err, variantes) => {
+            if (err) return res.status(500).send('Error al obtener variantes');
+
+            // Traer todas las tablas necesarias para los selects
+            crearProductoModel.getAllTipos((err, tipos) => {
+                if (err) return res.status(500).send('Error al obtener tipos');
+                crearProductoModel.getAllMateriales((err, materiales) => {
+                    if (err) return res.status(500).send('Error al obtener materiales');
+                    crearProductoModel.getAllGeneros((err, generos) => {
+                        if (err) return res.status(500).send('Error al obtener géneros');
+                        crearProductoModel.getAllColores((err, colores) => {
+                            if (err) return res.status(500).send('Error al obtener colores');
+                            crearProductoModel.getAllTallas((err, tallas) => {
+                                if (err) return res.status(500).send('Error al obtener tallas');
+                                crearProductoModel.getAllUbicaciones((err, ubicaciones) => {
+                                    if (err) return res.status(500).send('Error al obtener ubicaciones');
+                                    res.render('crearProducto/editarProducto', {
+                                        producto,
+                                        variantes,
+                                        tipos,
+                                        materiales,
+                                        generos,
+                                        colores,
+                                        tallas,
+                                        ubicaciones,
+                                        error: null
+                                    });
                                 });
                             });
                         });
@@ -274,43 +278,107 @@ exports.editarProducto = (req, res) => {
         fotoFinal = `/uploads/productos/${req.file.filename}`;
     }
 
-    // Paso 1️⃣: buscar o crear la categoría combinada
-    crearProductoModel.findOrCreateCategoria(
-        body.TipoID,
-        body.MaterialID,
-        body.GeneroID,
-        body.ColorID,
-        (err, categoriaId) => {
-            if (err) {
-                console.error('❌ Error al buscar o crear categoría:', err);
-                return res.status(500).send('Error al obtener o crear la categoría');
-            }
+    // Obtener el producto actual para ID
+    crearProductoModel.getProductoByCodigo(codigo, (err, producto) => {
+        if (err || !producto) return res.status(404).send('Producto no encontrado');
+        const productoId = producto.ProductoID;
 
-            // Paso 2️⃣: construir el producto actualizado
-            const productoActualizado = {
-                Nombre: body.Nombre,
-                CategoriaID: categoriaId,
-                TallaID: body.TallaID,
-                UbicacionID: body.UbicacionID,
-                Detalle: body.Detalle,
-                PrecioCosto: body.PrecioCosto,
-                PrecioVenta: body.PrecioVenta,
-                Cantidad: body.Cantidad,
-                Foto: fotoFinal
-            };
-
-            // Paso 3️⃣: ejecutar la actualización
-            crearProductoModel.actualizarProducto(codigo, productoActualizado, (err) => {
+        // Paso 1️⃣: buscar o crear la categoría combinada (solo Tipo y Genero)
+        crearProductoModel.findOrCreateCategoria(
+            body.TipoID,
+            body.GeneroID,
+            (err, categoriaId) => {
                 if (err) {
-                    console.error("❌ Error al actualizar producto:", err);
-                    return res.status(500).send('Error al actualizar producto');
+                    console.error('❌ Error al buscar o crear categoría:', err);
+                    return res.status(500).send('Error al obtener o crear la categoría');
                 }
-                console.log(`✅ Producto ${codigo} actualizado correctamente`);
-                res.redirect('/crearProducto/verTodos');
-            });
-        }
-    );
+
+                // Paso 2️⃣: construir el producto actualizado
+                const productoActualizado = {
+                    Nombre: body.Nombre,
+                    CategoriaID: categoriaId,
+                    Detalle: body.Detalle,
+                    PrecioCosto: body.PrecioCosto,
+                    PrecioVenta: body.PrecioVenta,
+                    Foto: fotoFinal
+                };
+
+                // Paso 3️⃣: ejecutar la actualización del producto base
+                crearProductoModel.actualizarProducto(codigo, productoActualizado, (err) => {
+                    if (err) {
+                        console.error("❌ Error al actualizar producto:", err);
+                        return res.status(500).send('Error al actualizar producto');
+                    }
+
+                    // Obtener variantes actuales
+                    crearProductoModel.getVariantesByProductoId(productoId, (err, variantesActuales) => {
+                        if (err) return res.status(500).send('Error al obtener variantes actuales');
+
+                        const tallasNuevas = Array.isArray(body.TallaID) ? body.TallaID : (body.TallaID ? [body.TallaID] : []);
+                        const cantidadesNuevas = Array.isArray(body.Cantidad) ? body.Cantidad : (body.Cantidad ? [body.Cantidad] : []);
+                        const ubicacionesNuevas = Array.isArray(body.UbicacionID) ? body.UbicacionID : (body.UbicacionID ? [body.UbicacionID] : []);
+
+                        // Mapa de nuevas tallas para fácil búsqueda
+                        const nuevasMap = new Map();
+                        tallasNuevas.forEach((tallaId, index) => {
+                            nuevasMap.set(parseInt(tallaId), {
+                                Cantidad: cantidadesNuevas[index],
+                                UbicacionID: ubicacionesNuevas[index]
+                            });
+                        });
+
+                        // Actualizar o crear variantes
+                        // 🔒 EDITAR PRODUCTO: SOLO ACTUALIZA VARIANTES EXISTENTES
+                        const procesarVariantes = (i) => {
+
+                            // cuando ya se procesaron todas las variantes existentes
+                            if (i >= variantesActuales.length) {
+                                return res.redirect('/crearProducto/verTodos');
+                            }
+
+                            const varianteExistente = variantesActuales[i];
+
+                            // buscar el índice de esa talla en lo que viene del formulario
+                            const index = tallasNuevas.findIndex(
+                                t => parseInt(t) === varianteExistente.TallaID
+                            );
+
+                            // seguridad: si no se encuentra, se salta
+                            if (index === -1) {
+                                return procesarVariantes(i + 1);
+                            }
+
+                            const varianteData = {
+                                VarianteID: varianteExistente.VarianteID,
+                                MaterialID: body.MaterialID,
+                                UbicacionID: ubicacionesNuevas[index],
+                                Stock: cantidadesNuevas[index],
+                                CostoUnitario: body.PrecioCosto,
+                                PrecioVentaVariante: body.PrecioVenta
+                            };
+
+                            crearProductoModel.actualizarVariante(varianteData, (err) => {
+                                if (err) {
+                                    console.error(err);
+                                    return res.render('crearProducto/editarProducto', {
+                                        error: 'Error al actualizar variante'
+                                    });
+                                }
+
+                                // continuar con la siguiente variante
+                                procesarVariantes(i + 1);
+                            });
+                        };
+
+
+                        procesarVariantes(0);
+                    });
+                });
+            }
+        );
+    });
 };
+
 // ======================================================
 // 🔁 CAMBIAR ESTADO ACTIVO / INACTIVO
 // ======================================================
@@ -332,4 +400,3 @@ exports.cambiarEstadoProducto = (req, res) => {
         res.status(200).json({ success: true });
     });
 };
-

@@ -1,179 +1,188 @@
+// models/inventarioModel.js
 const db = require('../db/db');
+const crypto = require('crypto');
+
 const Inventario = {};
 
-// ======================================================
-// 📦 OBTENER PRODUCTO POR CÓDIGO
-// ======================================================
-Inventario.getProductoByCodigo = (codigo, callback) => {
-    const query = `
-        SELECT p.*, 
-               tp.Nombre AS Tipo, 
-               m.Nombre AS Material, 
-               g.Nombre AS Genero, 
-               c.Nombre AS Color,
-               t.Valor AS Talla,
-               u.Nombre AS Ubicacion
-        FROM productos p
-        LEFT JOIN categorias cat ON p.CategoriaID = cat.CategoriaID
-        LEFT JOIN tipos tp ON cat.TipoID = tp.TipoID
-        LEFT JOIN materiales m ON cat.MaterialID = m.MaterialID
-        LEFT JOIN generos g ON cat.GeneroID = g.GeneroID
-        LEFT JOIN colores c ON cat.ColorID = c.ColorID
-        LEFT JOIN tallas t ON p.TallaID = t.TallaID
-        LEFT JOIN ubicaciones u ON p.UbicacionID = u.UbicacionID
-        WHERE p.Codigo = ? LIMIT 1;
-    `;
-    db.query(query, [codigo], (err, results) => {
-        if (err) return callback(err);
-        callback(null, results.length > 0 ? results[0] : null);
-    });
-};
-
-// ======================================================
-// 📋 OBTENER TODOS LOS PRODUCTOS
-// ======================================================
-Inventario.getAllProductos = (callback) => {
-    const query = `
-        SELECT p.*, 
-               tp.Nombre AS Tipo, 
-               m.Nombre AS Material, 
-               g.Nombre AS Genero, 
-               c.Nombre AS Color,
-               t.Valor AS Talla,
-               u.Nombre AS Ubicacion
-        FROM productos p
-        LEFT JOIN categorias cat ON p.CategoriaID = cat.CategoriaID
-        LEFT JOIN tipos tp ON cat.TipoID = tp.TipoID
-        LEFT JOIN materiales m ON cat.MaterialID = m.MaterialID
-        LEFT JOIN generos g ON cat.GeneroID = g.GeneroID
-        LEFT JOIN colores c ON cat.ColorID = c.ColorID
-        LEFT JOIN tallas t ON p.TallaID = t.TallaID
-        LEFT JOIN ubicaciones u ON p.UbicacionID = u.UbicacionID;
-    `;
-    db.query(query, callback);
-};
-
-// ======================================================
-// 📏 OBTENER TODAS LAS TALLAS
-// ======================================================
-Inventario.getAllTallas = (callback) => {
-    db.query('SELECT * FROM tallas', callback);
-};
-
-// ======================================================
-// 🗺️ OBTENER TODAS LAS UBICACIONES
-// ======================================================
-Inventario.getAllUbicaciones = (callback) => {
-    db.query('SELECT * FROM ubicaciones', callback);
-};
-
-// ======================================================
-// 🔄 ACTUALIZAR STOCK DE VARIAS TALLAS
-// ======================================================
-Inventario.updateMultipleStocks = (productos, callback) => {
-  if (productos.length === 0) return callback(null);
-
-  const actualizar = (i = 0) => {
-    if (i >= productos.length) return callback(null);
-
-    const p = productos[i];
-    const cantidad = parseInt(p.CantidadAgregar) || 0;
-    const precio = parseFloat(p.PrecioCosto) || 0;
-
-    const query = `
-      UPDATE productos 
-      SET Cantidad = Cantidad + ?, PrecioCosto = ?
-      WHERE Codigo = ?;
-    `;
-
-    db.query(query, [cantidad, precio, p.Codigo], (err) => {
-      if (err) {
-        console.error(`❌ Error al actualizar ${p.Codigo}:`, err);
-        return callback(err);
-      }
-      actualizar(i + 1);
-    });
-  };
-
-  actualizar();
-};
-
-// ======================================================
-// 🔍 OBTENER PRODUCTOS POR CÓDIGO BASE (ej: "910")
-// ======================================================
-Inventario.getProductosByCodigoBase = (codigoBase, callback) => {
-  const query = `
+/* =====================================================
+   🔍 AUTOCOMPLETE PRODUCTOS + VARIANTES
+===================================================== */
+Inventario.autocompleteProductos = (texto, callback) => {
+  const sql = `
     SELECT 
+      p.ProductoID,
       p.Codigo,
       p.Nombre,
-      p.Cantidad,
+      p.Foto AS Foto,
+
+      v.VarianteID,
+      v.Stock,
+
+      t.TallaID,
       t.Valor AS Talla,
-      tp.Nombre AS Tipo,
+
+      c.ColorID,
+      c.Nombre AS Color,
+
+      m.MaterialID,
       m.Nombre AS Material,
-      g.Nombre AS Genero,
-      c.Nombre AS Color
+
+      u.UbicacionID,
+      u.Nombre AS Ubicacion
+
     FROM productos p
-    LEFT JOIN categorias cat ON p.CategoriaID = cat.CategoriaID
-    LEFT JOIN tipos tp ON cat.TipoID = tp.TipoID
-    LEFT JOIN materiales m ON cat.MaterialID = m.MaterialID
-    LEFT JOIN generos g ON cat.GeneroID = g.GeneroID
-    LEFT JOIN colores c ON cat.ColorID = c.ColorID
-    LEFT JOIN tallas t ON p.TallaID = t.TallaID
-    WHERE p.Codigo LIKE CONCAT(?, '-%');
+    LEFT JOIN variantes_producto v ON p.ProductoID = v.ProductoID
+    LEFT JOIN tallas t ON v.TallaID = t.TallaID
+    LEFT JOIN colores c ON v.ColorID = c.ColorID
+    LEFT JOIN materiales m ON v.MaterialID = m.MaterialID
+    LEFT JOIN ubicaciones u ON v.UbicacionID = u.UbicacionID
+
+    WHERE p.Codigo LIKE CONCAT('%', ?, '%')
+       OR p.Nombre LIKE CONCAT('%', ?, '%')
+
+    ORDER BY p.Codigo ASC
+    LIMIT 50
   `;
-  db.query(query, [codigoBase], callback);
+
+  db.query(sql, [texto, texto], callback);
 };
 
-// ======================================================
-// 🆕 CREAR NUEVA TALLA PARA PRODUCTO EXISTENTE
-// ======================================================
-Inventario.agregarNuevaTalla = (codigoBase, tallaID, cantidad, precioCosto, callback) => {
-    const queryBase = `
-        SELECT * FROM productos 
-        WHERE Codigo LIKE CONCAT(?, '-%') 
-        LIMIT 1;
-    `;
-    db.query(queryBase, [codigoBase], (err, results) => {
-        if (err) return callback(err);
-        if (results.length === 0) return callback(new Error('No se encontró el producto base.'));
+/* =====================================================
+   🔍 OBTENER PRODUCTO BASE POR CÓDIGO
+===================================================== */
+Inventario.getProductoByCodigo = (codigo, callback) => {
+  const sql = `
+    SELECT ProductoID, Codigo, Nombre
+    FROM productos
+    WHERE Codigo = ?
+    LIMIT 1
+  `;
+  db.query(sql, [codigo], (err, rows) => {
+    if (err) return callback(err);
+    callback(null, rows?.[0] || null);
+  });
+};
+/* =====================================================
+   🔍 OBTENER VARIANTES POR CÓDIGO DE PRODUCTO
+===================================================== */
+Inventario.obtenerVariantesPorCodigo = (codigo, callback) => {
+  const sql = `
+    SELECT 
+      v.VarianteID,
+      t.Valor AS Talla,
+      c.Nombre AS Color,
+      m.Nombre AS Material,
+      v.Stock
+    FROM variantes_producto v
+    JOIN productos p ON p.ProductoID = v.ProductoID
+    JOIN tallas t ON t.TallaID = v.TallaID
+    LEFT JOIN colores c ON c.ColorID = v.ColorID
+    LEFT JOIN materiales m ON m.MaterialID = v.MaterialID
+    WHERE p.Codigo = ?
+    ORDER BY t.Valor
+  `;
 
-        const base = results[0];
-        const nuevoCodigo = `${codigoBase}-${tallaID}`;
+  db.query(sql, [codigo], callback);
+};
+/* =====================================================
+   📦 INVENTARIO GENERAL ENRIQUECIDO
+===================================================== */
+Inventario.obtenerInventarioGeneral = (callback) => {
+  const sql = `
+    SELECT
+      p.ProductoID,
+      p.Codigo,
+      p.Nombre,
+      p.PrecioVenta,
+      p.Estado,
+      p.Foto AS Foto,
 
-        db.query(`SELECT Codigo FROM productos WHERE Codigo = ?`, [nuevoCodigo], (err2, res2) => {
-            if (err2) return callback(err2);
-            if (res2.length > 0) return callback(new Error('Esta talla ya existe.'));
+      tps.Nombre AS Tipo,
+      g.Nombre AS Genero,
 
-            const insertQuery = `
-                INSERT INTO productos 
-                (Codigo, Nombre, CategoriaID, TallaID, UbicacionID, Detalle, Foto, PrecioCosto, PrecioVenta, Cantidad, Estado)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'activo');
-            `;
+      v.VarianteID,
+      ta.Valor AS Talla,
+      c.Nombre AS Color,
+      m.Nombre AS Material,
+      u.Nombre AS Ubicacion,
+      v.Stock
 
-            const nuevoNombre = `${base.Nombre} Talla ${tallaID}`;
-            const values = [
-                nuevoCodigo,
-                nuevoNombre,
-                base.CategoriaID,
-                tallaID,
-                base.UbicacionID || null,
-                base.Detalle || '',
-                base.Foto || '',
-                precioCosto,
-                base.PrecioVenta,
-                cantidad
-            ];
+    FROM productos p
+    JOIN categorias cat ON cat.CategoriaID = p.CategoriaID
+    JOIN tipos tps ON tps.TipoID = cat.TipoID
+    JOIN generos g ON g.GeneroID = cat.GeneroID
 
-            db.query(insertQuery, values, callback);
-        });
-    });
+    LEFT JOIN variantes_producto v ON v.ProductoID = p.ProductoID
+    LEFT JOIN tallas ta ON ta.TallaID = v.TallaID
+    LEFT JOIN colores c ON c.ColorID = v.ColorID
+    LEFT JOIN materiales m ON m.MaterialID = v.MaterialID
+    LEFT JOIN ubicaciones u ON u.UbicacionID = v.UbicacionID
+
+    ORDER BY p.Codigo, ta.Valor
+  `;
+
+  db.query(sql, callback);
 };
 
-// ======================================================
-// 💡 MÉTODO GENÉRICO PARA CONSULTAS SQL LIBRES
-// ======================================================
-Inventario.query = (sql, params, callback) => {
-    db.query(sql, params, callback);
+
+/* =====================================================
+   🔍 BUSCAR VARIANTE EXISTENTE
+===================================================== */
+Inventario.getVarianteExistente = (data, callback) => {
+  const sql = `
+    SELECT VarianteID
+    FROM variantes_producto
+    WHERE ProductoID = ?
+      AND TallaID = ?
+      AND ColorID = ?
+      AND MaterialID = ?
+    LIMIT 1
+  `;
+  db.query(
+    sql,
+    [
+      data.ProductoID,
+      data.TallaID,
+      data.ColorID,
+      data.MaterialID
+    ],
+    (err, rows) => {
+      if (err) return callback(err);
+      callback(null, rows?.[0] || null);
+    }
+  );
+};
+
+
+/* =====================================================
+   ➕ CREAR NUEVA VARIANTE (SIN STOCK)
+===================================================== */
+Inventario.crearVariante = (data, callback) => {
+  const sql = `
+    INSERT INTO variantes_producto
+    (ProductoID, TallaID, ColorID, MaterialID, UbicacionID, Stock, QrCode, CostoUnitario, PrecioVentaVariante)
+    VALUES (?, ?, ?, ?, ?, 0, ?, ?, ?)
+  `;
+
+  const qrCode = crypto.randomBytes(16).toString('hex');
+
+  db.query(
+    sql,
+    [
+      data.ProductoID,
+      data.TallaID,
+      data.ColorID,
+      data.MaterialID,
+      data.UbicacionID || null,
+      qrCode,
+      data.CostoUnitario,
+      data.PrecioVentaVariante
+    ],
+    (err, result) => {
+      if (err) return callback(err);
+      callback(null, result.insertId);
+    }
+  );
 };
 
 module.exports = Inventario;

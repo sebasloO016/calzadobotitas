@@ -36,16 +36,7 @@ INVENTARIO_BOTITAS/
 │   │   ├── dashboard.ejs      
 │   └── imagenes/
 │       └── logo botitas.png
-│   ├── partials/
-│   │   ├── navbarInventario.ejs
-│   │   ├── navbarCrearProducto.ejs
-│   │   ├── navbarVentas.ejs
-│   │   ├── navbarClientes.ejs
-│   │   ├── navbarUsuarios.ejs
-│   │   ├── navbarStockUbicacion.ejs
-│   │   ├── navbarReportes.ejs  // Nuevo navbar para reportes
-│   │   └── navbar.ejs
-
+│ 
 ├── src/
 │   ├── index.js
 │   ├── routes/
@@ -56,6 +47,7 @@ INVENTARIO_BOTITAS/
 │   │   ├── ventasRoutes.js
 │   │   ├── clientesRoutes.js
 │   │   ├── usuariosRoutes.js
+│   │   ├── comprasRoutes.js
 │   │   ├── reportesRoutes.js  // Nueva ruta para reportes
 │   ├── controllers/
 │   │   ├── loginController.js
@@ -65,7 +57,8 @@ INVENTARIO_BOTITAS/
 │   │   ├── ventasController.js
 │   │   ├── clientesController.js
 │   │   ├── usuariosController.js
-│   │   ├── reportesController.js  
+│   │   ├── reportesController.js 
+│   │   ├── comprasController.js 
 │   ├── models/
 │   │   ├── userModel.js
 │   │   ├── inventarioModel.js
@@ -74,6 +67,7 @@ INVENTARIO_BOTITAS/
 │   │   ├── ventasModel.js
 │   │   ├── detalleVentasModel.js
 │   │   └── clientesModel.js
+│   │   └── comprasModel.js
 │   ├── db/
 │   │   └── db.js
 ├── db/

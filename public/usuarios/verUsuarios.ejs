@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -54,7 +55,7 @@
       height: 40px;
       border-radius: 50%;
       cursor: pointer;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     }
 
     .overlay {
@@ -64,7 +65,7 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0,0,0,0.5);
+      background: rgba(0, 0, 0, 0.5);
       z-index: 998;
     }
 
@@ -79,7 +80,7 @@
       border-radius: 12px;
       transition: all 0.3s ease;
       z-index: 999;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     }
 
     .nav-header {
@@ -131,7 +132,7 @@
       border-radius: 15px;
       padding: 25px;
       width: 100%;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
     }
 
     .main-content h1 {
@@ -161,16 +162,18 @@
       align-items: end;
     }
 
-    .form-control, .form-select {
+    .form-control,
+    .form-select {
       padding: 10px;
-      border: 1px solid rgba(0,0,0,0.1);
+      border: 1px solid rgba(0, 0, 0, 0.1);
       border-radius: 8px;
       font-size: 14px;
       width: 100%;
       transition: border-color 0.3s;
     }
 
-    .form-control:focus, .form-select:focus {
+    .form-control:focus,
+    .form-select:focus {
       border-color: var(--primary-color);
       outline: none;
     }
@@ -203,10 +206,11 @@
       border-collapse: collapse;
     }
 
-    th, td {
+    th,
+    td {
       text-align: left;
       padding: 10px;
-      border-bottom: 1px solid rgba(0,0,0,0.1);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
     }
 
     th {
@@ -216,10 +220,11 @@
     }
 
     tr:hover {
-      background-color: rgba(0,0,0,0.03);
+      background-color: rgba(0, 0, 0, 0.03);
     }
 
-    .btn-danger, .btn-save {
+    .btn-danger,
+    .btn-save {
       border: none;
       padding: 8px 10px;
       border-radius: 6px;
@@ -236,13 +241,16 @@
       background-color: var(--success-color);
     }
 
-    .btn-danger:hover, .btn-save:hover {
+    .btn-danger:hover,
+    .btn-save:hover {
       opacity: 0.9;
       transform: scale(1.05);
     }
 
     @media (max-width: 768px) {
-      body { margin: 0.2cm; }
+      body {
+        margin: 0.2cm;
+      }
 
       .container-fluid {
         flex-direction: column;
@@ -262,8 +270,13 @@
         overflow-y: auto;
       }
 
-      .navbar-vertical.active { left: 0; }
-      .overlay.active { display: block; }
+      .navbar-vertical.active {
+        left: 0;
+      }
+
+      .overlay.active {
+        display: block;
+      }
 
       .main-content {
         margin-top: 60px;
@@ -276,12 +289,23 @@
     }
 
     @media (max-width: 480px) {
-      .navbar-vertical { width: 200px; }
-      .nav-link { font-size: 0.9em; padding: 8px 10px; }
-      .nav-link i { margin-right: 10px; font-size: 1em; }
+      .navbar-vertical {
+        width: 200px;
+      }
+
+      .nav-link {
+        font-size: 0.9em;
+        padding: 8px 10px;
+      }
+
+      .nav-link i {
+        margin-right: 10px;
+        font-size: 1em;
+      }
     }
   </style>
 </head>
+
 <body>
   <button class="mobile-menu-toggle"><i class="fas fa-bars"></i></button>
   <div class="overlay"></div>
@@ -295,6 +319,7 @@
         <li><a href="/stock" class="nav-link"><i class="fas fa-barcode"></i> Stock</a></li>
         <li><a href="/usuarios" class="nav-link active"><i class="fas fa-users"></i> Usuarios</a></li>
         <li><a href="/logout" class="nav-link"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</a></li>
+        <li><a href="/admin-dashboard" class="nav-link"><i class="fas fa-arrow-left"></i> Regresar</a></li>
       </ul>
     </nav>
 
@@ -329,28 +354,39 @@
             </tr>
           </thead>
           <tbody>
-            <% usuarios.forEach(usuario => { %>
+            <% usuarios.forEach(usuario=> { %>
               <tr>
-                <td><%= usuario.UsuarioID %></td>
-                <td><%= usuario.Nombre %></td>
-                <td><%= usuario.Email %></td>
-                <td><%= usuario.Rol %></td>
+                <td>
+                  <%= usuario.UsuarioID %>
+                </td>
+                <td>
+                  <%= usuario.Nombre %>
+                </td>
+                <td>
+                  <%= usuario.Email %>
+                </td>
+                <td>
+                  <%= usuario.Rol %>
+                </td>
                 <td>
                   <form action="/usuarios/editar/<%= usuario.UsuarioID %>" method="post" style="display:inline;">
                     <input type="text" name="nombre" value="<%= usuario.Nombre %>" class="form-control" required>
                     <input type="email" name="email" value="<%= usuario.Email %>" class="form-control" required>
                     <select name="rol" class="form-select" required>
-                      <option value="Administrador" <%= usuario.Rol === 'Administrador' ? 'selected' : '' %>>Administrador</option>
-                      <option value="Empleado" <%= usuario.Rol === 'Empleado' ? 'selected' : '' %>>Empleado</option>
+                      <option value="Administrador" <%=usuario.Rol==='Administrador' ? 'selected' : '' %>>Administrador
+                      </option>
+                      <option value="Empleado" <%=usuario.Rol==='Empleado' ? 'selected' : '' %>>Empleado</option>
                     </select>
                     <button type="submit" class="btn-save"><i class="fas fa-save"></i></button>
                   </form>
                   <form action="/usuarios/eliminar/<%= usuario.UsuarioID %>" method="post" style="display:inline;">
-                    <button type="submit" class="btn-danger" onclick="return confirm('¿Eliminar a <%= usuario.Nombre %>?')"><i class="fas fa-trash"></i></button>
+                    <button type="submit" class="btn-danger"
+                      onclick="return confirm('¿Eliminar a <%= usuario.Nombre %>?')"><i
+                        class="fas fa-trash"></i></button>
                   </form>
                 </td>
               </tr>
-            <% }); %>
+              <% }); %>
           </tbody>
         </table>
       </div>
@@ -373,4 +409,5 @@
     });
   </script>
 </body>
+
 </html>

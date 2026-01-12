@@ -1,231 +1,668 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crear Producto - Botitas</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="crearProducto.css">
-</head>
-<body>
-    <button class="mobile-menu-toggle">
-        <i class="fas fa-bars"></i>
-    </button>
 
+    <style>
+        /* ================= ESTILOS PRO + ADN ================= */
+        :root {
+            --primary-color: #6a5acd;
+            --secondary-color: #7b68ee;
+            --background-color: #f4f6f9;
+            --text-color: #334155;
+            --white: #ffffff;
+            --danger-color: #ef4444;
+            --success-color: #10b981;
+            --border-color: #e2e8f0;
+            --input-bg: #f8fafc;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+            margin: 0.5cm;
+            position: relative;
+        }
+
+        /* ===== LAYOUT ===== */
+        .container-fluid {
+            display: flex;
+            flex-grow: 1;
+            gap: 20px;
+            width: 100%;
+        }
+
+        /* ===== SIDEBAR & NAV ===== */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 1000;
+            background: var(--primary-color);
+            border: none;
+            color: var(--white);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+        }
+
+        .mobile-menu-toggle:hover {
+            transform: scale(1.05);
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 998;
+            backdrop-filter: blur(2px);
+        }
+
+        .navbar-vertical {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            width: 230px;
+            padding: 20px;
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            z-index: 999;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+            min-height: 80vh;
+        }
+
+        .nav-header {
+            text-align: center;
+            font-size: 1.4em;
+            margin-bottom: 25px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-menu {
+            list-style: none;
+            flex-grow: 1;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            color: var(--white);
+            text-decoration: none;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+        }
+
+        .nav-link i {
+            margin-right: 12px;
+            width: 22px;
+            text-align: center;
+            font-size: 1.1em;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.3);
+            font-weight: 600;
+            border-left: 4px solid #fff;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            flex-grow: 1;
+            background-color: var(--white);
+            border-radius: 15px;
+            padding: 40px;
+            overflow-x: hidden;
+            width: 100%;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, .05);
+        }
+
+        .logo {
+            max-width: 150px;
+            display: block;
+            margin: 0 auto 20px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+            text-align: center;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 15px;
+        }
+
+        /* ===== FORMULARIO PRO ===== */
+        .form-section {
+            background: #fff;
+            margin-bottom: 20px;
+        }
+
+        .form-section h3 {
+            font-size: 1.1rem;
+            color: var(--text-color);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-section h3 i {
+            color: var(--primary-color);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #475569;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            background: var(--input-bg);
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            background: #fff;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(106, 90, 205, 0.15);
+            outline: none;
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* ===== SECCIÓN VARIANTES DINÁMICA ===== */
+        .variantes-section {
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 10px;
+        }
+
+        .talla-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr auto;
+            gap: 15px;
+            align-items: center;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            margin-bottom: 10px;
+            transition: transform 0.2s;
+        }
+
+        .talla-group:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+        }
+
+        /* ===== BOTONES ===== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 1rem;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #059669);
+            color: white;
+            box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            opacity: 0.95;
+        }
+
+        .btn-primary {
+            background: var(--primary-color);
+            color: white;
+            font-size: 0.9rem;
+            padding: 8px 16px;
+        }
+
+        .btn-primary:hover {
+            background: var(--secondary-color);
+        }
+
+        .btn-remove {
+            background: #fee2e2;
+            color: #ef4444;
+            padding: 10px;
+            border-radius: 8px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-remove:hover {
+            background: #fecaca;
+            color: #b91c1c;
+        }
+
+        /* Alert */
+        .alert {
+            padding: 15px;
+            background: #fee2e2;
+            color: #991b1b;
+            border-radius: 10px;
+            border: 1px solid #fecaca;
+            margin-bottom: 25px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Buscador Nav (Opcional si quieres mantenerlo) */
+        .nav-search {
+            padding: 0 20px 20px;
+        }
+
+        .nav-search input {
+            width: 100%;
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: none;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .nav-search input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .nav-search button {
+            width: 100%;
+            padding: 6px;
+            background: rgba(255, 255, 255, 0.3);
+            border: none;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .nav-search button:hover {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                margin: 0.2cm;
+            }
+
+            .container-fluid {
+                flex-direction: column;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .navbar-vertical {
+                position: fixed;
+                left: -260px;
+                top: 0;
+                bottom: 0;
+                margin: 10px;
+                height: calc(100vh - 20px);
+                overflow-y: auto;
+            }
+
+            .navbar-vertical.active {
+                left: 0;
+            }
+
+            .overlay.active {
+                display: block;
+            }
+
+            .main-content {
+                margin-top: 50px;
+                padding: 20px;
+            }
+
+            .talla-group {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .btn-remove {
+                width: 100%;
+                margin-top: 5px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <button class="mobile-menu-toggle"><i class="fas fa-bars"></i></button>
     <div class="overlay"></div>
 
     <div class="container-fluid">
         <nav class="navbar-vertical">
             <div class="nav-header">Inventario Botitas</div>
             <ul class="nav-menu">
-                <li><a href="/inventario/agregar" class="nav-link"><i class="fas fa-box-open"></i> Re-stock Producto</a></li>
-                <li><a href="/crearProducto/verTodos" class="nav-link"><i class="fas fa-list"></i> Ver Productos</a></li>
-                <li><a href="/crearProducto/crear" class="nav-link active"><i class="fas fa-box-open"></i> Crear nuevo Producto</a></li>
+                <li><a href="/inventario/agregar" class="nav-link"><i class="fas fa-box-open"></i> Re-stock Producto</a>
+                </li>
+                <li><a href="/crearProducto/verTodos" class="nav-link"><i class="fas fa-list"></i> Ver Productos</a>
+                </li>
+                <li><a href="/crearProducto/crear" class="nav-link active"><i class="fas fa-plus-circle"></i> Crear
+                        nuevo Producto</a></li>
                 <li><a href="/stock" class="nav-link"><i class="fas fa-barcode"></i> Buscar por Código</a></li>
-                <li><a href="/inventario" class="nav-link"><i class="fas fa-box-open"></i> Ver Inventario</a></li>
+                <li><a href="/inventario" class="nav-link"><i class="fas fa-clipboard-list"></i> Ver Inventario</a></li>
                 <li><a href="/admin-dashboard" class="nav-link"><i class="fas fa-arrow-left"></i> Regresar</a></li>
             </ul>
+
             <form class="nav-search" action="/crearProducto/buscar" method="GET">
-                <input type="search" placeholder="Buscar producto" name="query">
+                <input type="search" placeholder="Buscar producto..." name="query">
                 <button type="submit"><i class="fas fa-search"></i> Buscar</button>
             </form>
         </nav>
 
         <main class="main-content">
             <img src="/imagenes/logo botitas.png" alt="Logo Botitas" class="logo">
-            <h1 style="margin-bottom: 20px;">Crear Producto</h1>
+            <h1>Crear Nuevo Producto</h1>
 
-            <div id="alert-message" class="alert"></div>
             <% if (error) { %>
-                <div id="alert-message" class="alert alert-danger" style="display: block;"><%= error %></div>
-            <% } %>
+                <div class="alert">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <%= error %>
+                </div>
+                <% } %>
 
-            <form id="productoForm" action="/crearProducto/crear" method="POST" enctype="multipart/form-data">
-                <div class="form-section">
-                    <h3>Información del Producto</h3>
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label for="Codigo" class="form-label">Código</label>
-                            <input type="text" class="form-control" id="Codigo" name="Codigo" required>
-                            <div id="codigoError" class="invalid-feedback"></div>
-                        </div>
-                        <div class="form-group">
-                            <label for="Nombre" class="form-label">Nombre</label>
-                            <input type="text" class="form-control" id="Nombre" name="Nombre" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="ProveedorID" class="form-label">Proveedor</label>
-                            <select class="form-control" id="ProveedorID" name="ProveedorID" required>
-                                <option value="">Seleccione un proveedor</option>
-                                <% proveedores.forEach(proveedor => { %>
-                                    <option value="<%= proveedor.ProveedorID %>"><%= proveedor.Nombre %></option>
-                                <% }) %>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="FechaCompra" class="form-label">Fecha de Compra</label>
-                            <input type="date" class="form-control" id="FechaCompra" name="FechaCompra" value="<%= new Date().toISOString().split('T')[0] %>" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="NumeroFactura" class="form-label">Número de Factura</label>
-                            <input type="text" class="form-control" id="NumeroFactura" name="NumeroFactura">
-                        </div>
-                        <div class="form-group">
-                            <label for="TipoID" class="form-label">Tipo</label>
-                            <select class="form-control" id="TipoID" name="TipoID" required>
-                                <option value="">Seleccione un tipo</option>
-                                <% tipos.forEach(tipo => { %>
-                                    <option value="<%= tipo.TipoID %>"><%= tipo.Nombre %></option>
-                                <% }) %>
-                            </select>
-                        </div>
+                    <form id="productoForm" action="/crearProducto/crear" method="POST" enctype="multipart/form-data">
 
-                        <div class="form-group">
-                            <label for="MaterialID" class="form-label">Material</label>
-                            <select class="form-control" id="MaterialID" name="MaterialID" required>
-                                <option value="">Seleccione un material</option>
-                                <% materiales.forEach(material => { %>
-                                    <option value="<%= material.MaterialID %>"><%= material.Nombre %></option>
-                                <% }) %>
-                            </select>
-                        </div>
+                        <div class="form-section">
+                            <h3><i class="fas fa-info-circle"></i> Información General</h3>
 
-                        <div class="form-group">
-                            <label for="GeneroID" class="form-label">Género</label>
-                            <select class="form-control" id="GeneroID" name="GeneroID" required>
-                                <option value="">Seleccione un género</option>
-                                <% generos.forEach(genero => { %>
-                                    <option value="<%= genero.GeneroID %>"><%= genero.Nombre %></option>
-                                <% }) %>
-                            </select>
-                        </div>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="Codigo" class="form-label">Código</label>
+                                    <input type="text" class="form-control" id="Codigo" name="Codigo" required
+                                        placeholder="Ej: ZAP-001">
+                                </div>
 
-                        <div class="form-group">
-                            <label for="ColorID" class="form-label">Color</label>
-                            <select class="form-control" id="ColorID" name="ColorID" required>
-                                <option value="">Seleccione un color</option>
-                                <% colores.forEach(color => { %>
-                                    <option value="<%= color.ColorID %>"><%= color.Nombre %></option>
-                                <% }) %>
-                            </select>
-                        </div>
+                                <div class="form-group">
+                                    <label for="Nombre" class="form-label">Nombre del Producto</label>
+                                    <input type="text" class="form-control" id="Nombre" name="Nombre" required
+                                        placeholder="Ej: Zapatillas Urbanas">
+                                </div>
 
-                        <div class="form-group">
-                            <label class="form-label">Tallas y Cantidades</label>
-                            <div id="tallasContainer">
-                                <div class="talla-group">
-                                    <select class="form-control" name="TallaID[]">
-                                        <option value="">Seleccione una talla</option>
-                                        <% tallas.forEach(talla => { %>
-                                            <option value="<%= talla.TallaID %>"><%= talla.Valor %></option>
-                                        <% }) %>
+                                <div class="form-group">
+                                    <label for="ProveedorID" class="form-label">Proveedor</label>
+                                    <select class="form-control" id="ProveedorID" name="ProveedorID" required>
+                                        <option value="">Seleccione...</option>
+                                        <% proveedores.forEach(proveedor=> { %>
+                                            <option value="<%= proveedor.ProveedorID %>">
+                                                <%= proveedor.Nombre %>
+                                            </option>
+                                            <% }) %>
                                     </select>
-                                    <input type="number" class="form-control" name="Cantidad[]" placeholder="Cantidad" min="1">
-                                    <button type="button" class="btn btn-remove" onclick="removeTalla(this)">Eliminar</button>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="FechaCompra" class="form-label">Fecha de Compra</label>
+                                    <input type="date" class="form-control" id="FechaCompra" name="FechaCompra"
+                                        value="<%= new Date().toISOString().split('T')[0] %>" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="NumeroFactura" class="form-label">Número de Factura</label>
+                                    <input type="text" class="form-control" id="NumeroFactura" name="NumeroFactura"
+                                        placeholder="Opcional">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="TipoID" class="form-label">Tipo</label>
+                                    <select class="form-control" id="TipoID" name="TipoID" required>
+                                        <option value="">Seleccione...</option>
+                                        <% tipos.forEach(tipo=> { %>
+                                            <option value="<%= tipo.TipoID %>">
+                                                <%= tipo.Nombre %>
+                                            </option>
+                                            <% }) %>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="MaterialID" class="form-label">Material</label>
+                                    <select class="form-control" id="MaterialID" name="MaterialID" required>
+                                        <option value="">Seleccione...</option>
+                                        <% materiales.forEach(material=> { %>
+                                            <option value="<%= material.MaterialID %>">
+                                                <%= material.Nombre %>
+                                            </option>
+                                            <% }) %>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="GeneroID" class="form-label">Género</label>
+                                    <select class="form-control" id="GeneroID" name="GeneroID" required>
+                                        <option value="">Seleccione...</option>
+                                        <% generos.forEach(genero=> { %>
+                                            <option value="<%= genero.GeneroID %>">
+                                                <%= genero.Nombre %>
+                                            </option>
+                                            <% }) %>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="ColorID" class="form-label">Color Principal</label>
+                                    <select class="form-control" id="ColorID" name="ColorID" required>
+                                        <option value="">Seleccione...</option>
+                                        <% colores.forEach(color=> { %>
+                                            <option value="<%= color.ColorID %>">
+                                                <%= color.Nombre %>
+                                            </option>
+                                            <% }) %>
+                                    </select>
                                 </div>
                             </div>
-                            <button type="button" class="btn btn-success" style="margin-top: 10px;" onclick="addTalla()">Agregar Talla</button>
-                        </div>
-                        <div class="form-group">
-                            <label for="UbicacionID" class="form-label">Ubicación</label>
-                            <select class="form-control" id="UbicacionID" name="UbicacionID">
-                                <option value="">Seleccione una ubicación</option>
-                                <% ubicaciones.forEach(ubicacion => { %>
-                                    <option value="<%= ubicacion.UbicacionID %>"><%= ubicacion.Nombre %></option>
-                                <% }) %>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="Detalle" class="form-label">Detalle</label>
-                            <textarea class="form-control" id="Detalle" name="Detalle"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="Foto" class="form-label">Foto del producto</label>
-                            <p style="font-size: 0.9em; color: #555;">Puedes subir una imagen o pegar una URL (opcional)</p>
-                            <input type="file" class="form-control" id="FotoFile" name="FotoFile" accept="image/*">
-                            <br>
-                            <input type="text" class="form-control" id="Foto" name="Foto" placeholder="O pega aquí la URL de la foto">
                         </div>
 
-                        <div class="form-group">
-                            <label for="PrecioCosto" class="form-label">Precio Costo</label>
-                            <input type="number" step="0.01" class="form-control" id="PrecioCosto" name="PrecioCosto" required>
+                        <div class="form-section">
+                            <h3><i class="fas fa-tag"></i> Precios</h3>
+                            <div class="form-grid" style="grid-template-columns: 1fr 1fr;">
+                                <div class="form-group">
+                                    <label for="PrecioCosto" class="form-label">Precio Costo ($)</label>
+                                    <input type="number" step="0.01" class="form-control" id="PrecioCosto"
+                                        name="PrecioCosto" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="PrecioVenta" class="form-label">Precio Venta ($)</label>
+                                    <input type="number" step="0.01" class="form-control" id="PrecioVenta"
+                                        name="PrecioVenta" required>
+                                </div>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label for="PrecioVenta" class="form-label">Precio Venta</label>
-                            <input type="number" step="0.01" class="form-control" id="PrecioVenta" name="PrecioVenta" required>
-                        </div>
-                    </div>
-                </div>
 
-                <div class="form-group">
-                    <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Crear Producto</button>
-                </div>
-            </form>
+                        <div class="form-section">
+                            <h3><i class="fas fa-layer-group"></i> Configuración de Variantes</h3>
+                            <div class="variantes-section">
+                                <small style="display:block; color:#64748b; margin-bottom:15px;">
+                                    <i class="fas fa-info-circle"></i> Agrega cada talla con su cantidad y ubicación
+                                    específica.
+                                </small>
+
+                                <div id="tallasContainer">
+                                    <div class="talla-group">
+                                        <select class="form-control" name="TallaID[]" required>
+                                            <option value="">Seleccione Talla</option>
+                                            <% tallas.forEach(talla=> { %>
+                                                <option value="<%= talla.TallaID %>">
+                                                    <%= talla.Valor %>
+                                                </option>
+                                                <% }) %>
+                                        </select>
+                                        <input type="number" class="form-control" name="Cantidad[]"
+                                            placeholder="Cantidad" min="1" required>
+                                        <select class="form-control" name="UbicacionID[]" required>
+                                            <option value="">Seleccione Ubicación</option>
+                                            <% ubicaciones.forEach(ubicacion=> { %>
+                                                <option value="<%= ubicacion.UbicacionID %>">
+                                                    <%= ubicacion.Nombre %>
+                                                </option>
+                                                <% }) %>
+                                        </select>
+                                        <button type="button" class="btn btn-remove" onclick="removeTalla(this)"
+                                            title="Eliminar Fila">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <button type="button" class="btn btn-primary" onclick="addTalla()"
+                                    style="margin-top: 10px;">
+                                    <i class="fas fa-plus"></i> Agregar Otra Talla
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-section">
+                            <h3><i class="fas fa-image"></i> Detalles Adicionales</h3>
+                            <div class="form-grid">
+                                <div class="form-group" style="grid-column: span 2;">
+                                    <label for="Detalle" class="form-label">Descripción Detallada</label>
+                                    <textarea class="form-control" id="Detalle" name="Detalle"
+                                        placeholder="Características adicionales..."></textarea>
+                                </div>
+
+                                <div class="form-group">
+                                    <label class="form-label">Imagen del Producto</label>
+                                    <div
+                                        style="background: #f8fafc; padding: 15px; border-radius: 10px; border: 1px dashed #cbd5e1;">
+                                        <input type="file" class="form-control" id="FotoFile" name="FotoFile"
+                                            accept="image/*" style="margin-bottom: 10px;">
+                                        <div style="text-align: center; color: #94a3b8; font-size: 0.9rem;">— O —</div>
+                                        <input type="text" class="form-control" id="Foto" name="Foto"
+                                            placeholder="Pegar URL de la imagen" style="margin-top: 10px;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="text-align: center; margin-top: 30px;">
+                            <button type="submit" class="btn btn-success"
+                                style="width: 100%; max-width: 300px; padding: 15px; font-size: 1.1rem;">
+                                <i class="fas fa-save"></i> GUARDAR PRODUCTO
+                            </button>
+                        </div>
+
+                    </form>
         </main>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const currentLocation = location.href;
-            const menuItems = document.querySelectorAll('.nav-link');
-            const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
-            const navbar = document.querySelector('.navbar-vertical');
-            const overlay = document.querySelector('.overlay');
+        // --- Sidebar Logic ---
+        const menuToggle = document.querySelector('.mobile-menu-toggle');
+        const sidebar = document.querySelector('.navbar-vertical');
+        const overlay = document.querySelector('.overlay');
 
-            menuItems.forEach(item => {
-                if (item.href === currentLocation) {
-                    item.classList.add('active');
-                }
-            });
-
-            function toggleMobileMenu() {
-                navbar.classList.toggle('active');
-                overlay.classList.toggle('active');
-                document.body.style.overflow = navbar.classList.contains('active') ? 'hidden' : '';
-            }
-
-            mobileMenuToggle.addEventListener('click', toggleMobileMenu);
-            overlay.addEventListener('click', toggleMobileMenu);
-
-            menuItems.forEach(item => {
-                item.addEventListener('click', () => {
-                    if (window.innerWidth <= 768) {
-                        toggleMobileMenu();
-                    }
-                });
-            });
-
-            window.addEventListener('resize', () => {
-                if (window.innerWidth > 768) {
-                    navbar.classList.remove('active');
-                    overlay.classList.remove('active');
-                    document.body.style.overflow = '';
-                }
-            });
-
-            const alertMessage = document.getElementById('alert-message');
-            if (alertMessage && alertMessage.textContent.trim()) {
-                alertMessage.style.display = 'block';
-                setTimeout(() => {
-                    alertMessage.style.display = 'none';
-                }, 3000);
-            }
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
         });
 
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+
+        // --- Agregar Variantes Dinámicas ---
         function addTalla() {
             const container = document.getElementById('tallasContainer');
             const tallaGroup = document.createElement('div');
             tallaGroup.className = 'talla-group';
+            // Efecto de entrada suave
+            tallaGroup.style.animation = 'fadeIn 0.3s ease';
+
             tallaGroup.innerHTML = `
-                <select class="form-control" name="TallaID[]">
-                    <option value="">Seleccione una talla</option>
+                <select class="form-control" name="TallaID[]" required>
+                    <option value="">Seleccione Talla</option>
                     <% tallas.forEach(talla => { %>
                         <option value="<%= talla.TallaID %>"><%= talla.Valor %></option>
                     <% }) %>
                 </select>
-                <input type="number" class="form-control" name="Cantidad[]" placeholder="Cantidad" min="1">
-                <button type="button" class="btn btn-remove" onclick="removeTalla(this)">Eliminar</button>
+                <input type="number" class="form-control" name="Cantidad[]" placeholder="Cantidad" min="1" required>
+                <select class="form-control" name="UbicacionID[]" required>
+                    <option value="">Seleccione Ubicación</option>
+                    <% ubicaciones.forEach(ubicacion => { %>
+                        <option value="<%= ubicacion.UbicacionID %>"><%= ubicacion.Nombre %></option>
+                    <% }) %>
+                </select>
+                <button type="button" class="btn btn-remove" onclick="removeTalla(this)" title="Eliminar Fila">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
             `;
             container.appendChild(tallaGroup);
         }
@@ -233,11 +670,28 @@
         function removeTalla(button) {
             const container = document.getElementById('tallasContainer');
             if (container.children.length > 1) {
-                button.parentElement.remove();
+                const group = button.parentElement;
+                // Efecto salida (opcional)
+                group.style.opacity = '0';
+                setTimeout(() => group.remove(), 200);
+            } else {
+                alert("Debe haber al menos una variante.");
             }
         }
-
-
     </script>
+    <style>
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
 </body>
+
 </html>

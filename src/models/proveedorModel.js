@@ -41,25 +41,27 @@ Proveedor.findById = (id, callback) => {
 // ======================================================
 // ➕ AGREGAR NUEVO PROVEEDOR
 // ======================================================
-Proveedor.add = (nombre, contacto, telefono, email, direccion, callback) => {
+Proveedor.add = (nombre, contacto, telefono, email, direccion, ruc, callback) => {
   const sql = `
-    INSERT INTO proveedores (Nombre, Contacto, Telefono, Email, Direccion)
-    VALUES (?, ?, ?, ?, ?);
+    INSERT INTO proveedores (Nombre, Contacto, Telefono, Email, Direccion, RUC)
+    VALUES (?, ?, ?, ?, ?, ?);
   `;
-  db.query(sql, [nombre, contacto, telefono, email, direccion], callback);
+  db.query(sql, [nombre, contacto, telefono, email, direccion, ruc], callback);
 };
+
 
 // ======================================================
 // ✏️ ACTUALIZAR PROVEEDOR
 // ======================================================
-Proveedor.update = (id, nombre, contacto, telefono, email, direccion, callback) => {
+Proveedor.update = (id, nombre, contacto, telefono, email, direccion, ruc, callback) => {
   const sql = `
     UPDATE proveedores
-    SET Nombre = ?, Contacto = ?, Telefono = ?, Email = ?, Direccion = ?
+    SET Nombre = ?, Contacto = ?, Telefono = ?, Email = ?, Direccion = ?, RUC = ?
     WHERE ProveedorID = ?;
   `;
-  db.query(sql, [nombre, contacto, telefono, email, direccion, id], callback);
+  db.query(sql, [nombre, contacto, telefono, email, direccion, ruc, id], callback);
 };
+
 
 // ======================================================
 // ❌ ELIMINAR PROVEEDOR

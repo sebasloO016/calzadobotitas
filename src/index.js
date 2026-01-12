@@ -11,6 +11,8 @@ const ventasRoutes = require('./routes/ventasRoutes');
 const clientesRoutes = require('./routes/clientesRoutes');
 const usuariosRoutes = require('./routes/usuariosRoutes');
 const reportesRoutes = require('./routes/reportesRoutes');
+const comprasRoutes = require('./routes/comprasRoutes');
+const kardexRoutes = require('./routes/kardexRoutes');
 
 const app = express();
 const port = 3000;
@@ -38,6 +40,8 @@ app.use('/ventas', ventasRoutes);
 app.use('/clientes', clientesRoutes);
 app.use('/usuarios', usuariosRoutes);
 app.use('/reportes', reportesRoutes);
+app.use('/compras', comprasRoutes);
+app.use('/kardex', kardexRoutes);
 
 // Serve static files (after routes to avoid conflicts)
 app.use(express.static(path.join(__dirname, '../public')));

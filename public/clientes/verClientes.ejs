@@ -1,24 +1,33 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Clientes - Botitas</title>
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
     <style>
+        /* ================= ESTILOS PRO + ADN ================= */
         :root {
             --primary-color: #6a5acd;
             --secondary-color: #7b68ee;
             --background-color: #f4f6f9;
-            --text-color: #333;
+            --text-color: #334155;
             --white: #ffffff;
+            --danger-color: #ef4444;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --border-color: #e2e8f0;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
 
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
+            font-family: 'Segoe UI', system-ui, sans-serif;
         }
 
         body {
@@ -31,6 +40,7 @@
             position: relative;
         }
 
+        /* ===== LAYOUT ===== */
         .container-fluid {
             display: flex;
             flex-grow: 1;
@@ -38,6 +48,7 @@
             width: 100%;
         }
 
+        /* ===== SIDEBAR & NAV ===== */
         .mobile-menu-toggle {
             display: none;
             position: fixed;
@@ -51,7 +62,12 @@
             height: 40px;
             border-radius: 50%;
             cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s;
+        }
+
+        .mobile-menu-toggle:hover {
+            transform: scale(1.05);
         }
 
         .overlay {
@@ -61,8 +77,9 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.5);
             z-index: 998;
+            backdrop-filter: blur(2px);
         }
 
         .navbar-vertical {
@@ -75,13 +92,15 @@
             border-radius: 12px;
             transition: all 0.3s ease;
             z-index: 999;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+            min-height: 80vh;
         }
 
         .nav-header {
             text-align: center;
             font-size: 1.4em;
-            margin-bottom: 15px;
+            margin-bottom: 25px;
             font-weight: bold;
             letter-spacing: 0.5px;
         }
@@ -96,9 +115,9 @@
             align-items: center;
             color: var(--white);
             text-decoration: none;
-            padding: 10px 12px;
-            margin-bottom: 8px;
-            border-radius: 6px;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
             background-color: rgba(255, 255, 255, 0.1);
             transition: all 0.3s ease;
             font-size: 0.95em;
@@ -113,137 +132,174 @@
 
         .nav-link:hover {
             background-color: rgba(255, 255, 255, 0.2);
-            transform: translateX(8px);
+            transform: translateX(5px);
         }
 
         .nav-link.active {
             background-color: rgba(255, 255, 255, 0.3);
-            font-weight: 500;
+            font-weight: 600;
+            border-left: 4px solid #fff;
         }
 
+        /* ===== MAIN CONTENT ===== */
         .main-content {
             flex-grow: 1;
             background-color: var(--white);
             border-radius: 15px;
-            padding: 20px;
+            padding: 30px;
+            overflow-x: hidden;
             width: 100%;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, .05);
         }
 
         .logo {
-            max-width: 200px;
-            margin: 20px auto 30px;
+            max-width: 150px;
             display: block;
-            height: auto;
+            margin: 0 auto 15px;
         }
 
-        .header-container {
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 0;
+            font-size: 1.8rem;
+        }
+
+        /* ===== HEADER ACTIONS ===== */
+        .page-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
         }
 
-        .search-form {
+        .search-container {
             display: flex;
             gap: 10px;
-            align-items: center;
+            background: #f8fafc;
+            padding: 8px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            flex: 1;
+            max-width: 400px;
         }
 
-        .search-form input {
-            padding: 10px;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            font-size: 14px;
-            width: 250px;
+        .search-container input {
+            border: none;
+            background: transparent;
+            outline: none;
+            width: 100%;
+            padding: 5px 10px;
+            font-size: 0.95rem;
+            color: var(--text-color);
         }
 
-        .search-button {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+        .btn-search {
+            background: var(--primary-color);
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 8px 15px;
             border-radius: 8px;
             cursor: pointer;
-            transition: opacity 0.3s, transform 0.3s;
-            font-size: 14px;
+            transition: all 0.2s;
         }
 
-        .search-button:hover {
-            opacity: 0.9;
-            transform: translateY(-2px);
+        .btn-search:hover {
+            background: var(--secondary-color);
         }
 
-        .table-responsive {
-            overflow-x: auto;
-            margin-top: 20px;
+        .btn-add {
+            background: linear-gradient(135deg, var(--success-color), #059669);
+            color: white;
+            text-decoration: none;
+            padding: 10px 20px;
             border-radius: 10px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
+            transition: all 0.2s;
+        }
+
+        .btn-add:hover {
+            transform: translateY(-2px);
+            opacity: 0.95;
+        }
+
+        /* ===== TABLA PRO ===== */
+        .table-responsive {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--card-shadow);
         }
 
         table {
             width: 100%;
             border-collapse: collapse;
-            background: white;
         }
 
-        th, td {
-            padding: 12px 15px;
+        thead th {
+            background: #f1f5f9;
+            color: var(--primary-color);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 16px;
             text-align: left;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
-            white-space: nowrap;
+            border-bottom: 2px solid var(--border-color);
+            letter-spacing: 0.5px;
         }
 
-        th {
-            background-color: var(--background-color);
-            font-weight: 600;
+        tbody td {
+            padding: 16px;
+            border-bottom: 1px solid var(--border-color);
             color: var(--text-color);
-            position: sticky;
-            top: 0;
-            z-index: 10;
+            vertical-align: middle;
+            font-size: 0.95rem;
         }
 
         tbody tr:hover {
-            background-color: rgba(106, 90, 205, 0.05);
+            background-color: #f8fafc;
         }
 
+        /* ===== PAGINACIÓN ===== */
         .pagination {
             display: flex;
             justify-content: center;
-            align-items: center;
-            gap: 10px;
-            margin-top: 20px;
+            gap: 8px;
+            margin-top: 25px;
         }
 
-        .pagination button {
-            padding: 8px 12px;
-            border-radius: 6px;
-            background-color: var(--background-color);
-            color: var(--text-color);
-            border: none;
-            font-size: 0.9em;
+        .page-btn {
+            padding: 8px 14px;
+            border: 1px solid var(--border-color);
+            background: white;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background-color 0.3s, transform 0.3s;
+            color: var(--text-color);
+            transition: 0.2s;
         }
 
-        .pagination button:hover {
-            background-color: var(--primary-color);
-            color: var(--white);
-            transform: translateY(-2px);
+        .page-btn:hover {
+            background: #f1f5f9;
         }
 
-        .pagination button.active {
-            background-color: var(--primary-color);
-            color: var(--white);
-            font-weight: 600;
+        .page-btn.active {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
         }
 
-        .pagination button.disabled {
-            background-color: #ddd;
-            color: #666;
+        .page-btn:disabled {
+            opacity: 0.5;
             cursor: not-allowed;
-            transform: none;
         }
 
+        /* Responsive */
         @media (max-width: 768px) {
             body {
                 margin: 0.2cm;
@@ -276,81 +332,33 @@
             }
 
             .main-content {
-                width: 100%;
-                margin-top: 60px;
-                padding: 15px;
+                margin-top: 50px;
+                padding: 20px;
             }
 
-            .logo {
-                max-width: 150px;
-                margin: 10px auto 20px;
-            }
-
-            .header-container {
+            .page-header {
                 flex-direction: column;
-                align-items: flex-start;
-                gap: 15px;
+                align-items: stretch;
             }
 
-            .search-form {
-                width: 100%;
+            .search-container {
+                max-width: 100%;
             }
 
-            .search-form input {
-                width: 100%;
+            .table-responsive {
+                overflow-x: auto;
             }
 
-            th, td {
-                padding: 8px 10px;
-                font-size: 14px;
+            th,
+            td {
+                white-space: nowrap;
             }
-
-            .pagination button {
-                padding: 6px 10px;
-                font-size: 0.85em;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .navbar-vertical {
-                width: 200px;
-            }
-
-            .nav-link {
-                font-size: 0.9em;
-                padding: 8px 10px;
-            }
-
-            .nav-link i {
-                margin-right: 10px;
-                font-size: 1em;
-            }
-        }
-
-        .table-responsive::-webkit-scrollbar {
-            height: 8px;
-        }
-
-        .table-responsive::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 4px;
-        }
-
-        .table-responsive::-webkit-scrollbar-thumb {
-            background: var(--primary-color);
-            border-radius: 4px;
-        }
-
-        .table-responsive::-webkit-scrollbar-thumb:hover {
-            background: var(--secondary-color);
         }
     </style>
 </head>
-<body>
-    <button class="mobile-menu-toggle">
-        <i class="fas fa-bars"></i>
-    </button>
 
+<body>
+    <button class="mobile-menu-toggle"><i class="fas fa-bars"></i></button>
     <div class="overlay"></div>
 
     <div class="container-fluid">
@@ -358,198 +366,142 @@
             <div class="nav-header">Clientes Botitas</div>
             <ul class="nav-menu">
                 <li><a href="/clientes" class="nav-link active"><i class="fas fa-users"></i> Lista de Clientes</a></li>
-                <li><a href="/clientes/agregar" class="nav-link"><i class="fas fa-user-plus"></i> Agregar Cliente</a></li>
+                <li><a href="/clientes/agregar" class="nav-link"><i class="fas fa-user-plus"></i> Agregar Cliente</a>
+                </li>
                 <li><a href="/admin-dashboard" class="nav-link"><i class="fas fa-arrow-left"></i> Regresar</a></li>
             </ul>
         </nav>
 
         <main class="main-content">
             <img src="/imagenes/logo botitas.png" alt="Logo Botitas" class="logo">
-            <div class="header-container">
-                <h1>Clientes</h1>
-                <form class="search-form" action="/clientes/buscar" method="get">
-                    <input type="search" name="termino" placeholder="Buscar cliente" aria-label="Buscar" value="<%= typeof termino !== 'undefined' ? termino : '' %>">
-                    <button type="submit" class="search-button">
-                        <i class="fas fa-search"></i> Buscar
+
+            <div class="page-header">
+                <h1>Cartera de Clientes</h1>
+
+                <form class="search-container" action="/clientes/buscar" method="get">
+                    <input type="search" name="termino" placeholder="Buscar por nombre, cédula o email..."
+                        value="<%= typeof termino !== 'undefined' ? termino : '' %>">
+                    <button type="submit" class="btn-search">
+                        <i class="fas fa-search"></i>
                     </button>
                 </form>
+
+                <a href="/clientes/agregar" class="btn-add">
+                    <i class="fas fa-plus"></i> Nuevo Cliente
+                </a>
             </div>
 
             <div class="table-responsive">
                 <table>
                     <thead>
                         <tr>
-                            <th>ID Cliente</th>
+                            <th>ID</th>
                             <th>Nombre</th>
                             <th>Celular</th>
                             <th>Email</th>
-                            <th>Tipo Identificación</th>
+                            <th>Tipo ID</th>
                             <th>Identificación</th>
                             <th>Dirección</th>
                         </tr>
                     </thead>
                     <tbody id="client-table-body">
-                        <!-- Populated by JavaScript -->
                     </tbody>
                 </table>
             </div>
 
-            <div class="pagination" id="pagination-controls">
-                <!-- Populated by JavaScript -->
-            </div>
+            <div class="pagination" id="pagination-controls"></div>
         </main>
     </div>
 
-    <!-- Define clients in a separate script tag to avoid EJS rendering issues -->
     <script id="clients-data" type="application/json">
         <%- JSON.stringify(clientes || []) %>
     </script>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Mobile menu toggle functionality
-            const mobileMenuToggle = document.querySelector('.mobile-menu-toggle');
-            const navbar = document.querySelector('.navbar-vertical');
+        document.addEventListener('DOMContentLoaded', () => {
+            // Sidebar Logic
+            const btn = document.querySelector('.mobile-menu-toggle');
+            const nav = document.querySelector('.navbar-vertical');
             const overlay = document.querySelector('.overlay');
-            const menuItems = document.querySelectorAll('.nav-link');
 
-            function toggleMobileMenu() {
-                navbar.classList.toggle('active');
+            const toggle = () => {
+                nav.classList.toggle('active');
                 overlay.classList.toggle('active');
-                document.body.style.overflow = navbar.classList.contains('active') ? 'hidden' : '';
-            }
+            };
+            btn.addEventListener('click', toggle);
+            overlay.addEventListener('click', toggle);
 
-            mobileMenuToggle.addEventListener('click', toggleMobileMenu);
-            overlay.addEventListener('click', toggleMobileMenu);
-
-            menuItems.forEach(item => {
-                item.addEventListener('click', () => {
-                    if (window.innerWidth <= 768) {
-                        toggleMobileMenu();
-                    }
-                });
-            });
-
-            window.addEventListener('resize', () => {
-                if (window.innerWidth > 768) {
-                    navbar.classList.remove('active');
-                    overlay.classList.remove('active');
-                    document.body.style.overflow = '';
-                }
-            });
-
-            // Highlight active nav link
-            const currentLocation = location.href;
-            menuItems.forEach(item => {
-                if (item.href === currentLocation) {
-                    item.classList.add('active');
-                } else {
-                    item.classList.remove('active');
-                }
-            });
-
-            // Client-side pagination
-            let clients;
-            try {
-                const clientsData = document.getElementById('clients-data').textContent;
-                clients = JSON.parse(clientsData);
-                console.log('Clients:', clients); // Debug: Check clients array
-            } catch (e) {
-                console.error('Error parsing clients:', e);
-                clients = [];
-            }
-
-            const perPage = 7;
+            // Table Logic
+            const clients = JSON.parse(document.getElementById('clients-data').textContent || '[]');
+            const perPage = 10;
             let currentPage = 1;
-            const totalPages = clients.length > 0 ? Math.ceil(clients.length / perPage) : 1;
+            const totalPages = Math.max(1, Math.ceil(clients.length / perPage));
 
             function renderTable(page) {
-                const start = (page - 1) * perPage;
-                const end = start + perPage;
-                const pageClients = clients.slice(start, end);
-
                 const tbody = document.getElementById('client-table-body');
-                tbody.innerHTML = ''; // Clear existing rows
+                tbody.innerHTML = '';
+                const slice = clients.slice((page - 1) * perPage, page * perPage);
 
-                if (!pageClients || pageClients.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="7" class="text-center">No se encontraron clientes.</td></tr>';
+                if (slice.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:30px; color:#94a3b8;">No se encontraron clientes registrados.</td></tr>';
                     return;
                 }
 
-                pageClients.forEach(cliente => {
-                    const row = document.createElement('tr');
-                    // Safe property access with fallbacks
-                    const clienteID = cliente.ClienteID || '';
-                    const nombre = cliente.Nombre || '';
-                    const celular = cliente.Celular || 'N/A';
-                    const email = cliente.Email || 'N/A';
-                    const tipoIdentificacion = cliente.TipoIdentificacion || '';
-                    const identificacion = cliente.Identificacion || '';
-                    const direccion = cliente.Direccion || 'N/A';
-
-                    row.innerHTML = `
-                        <td>${clienteID}</td>
-                        <td>${nombre}</td>
-                        <td>${celular}</td>
-                        <td>${email}</td>
-                        <td>${tipoIdentificacion}</td>
-                        <td>${identificacion}</td>
-                        <td>${direccion}</td>
+                slice.forEach(c => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td style="font-weight:bold; color:var(--primary-color);">${c.ClienteID || ''}</td>
+                        <td style="font-weight:600;">${c.Nombre || ''}</td>
+                        <td>${c.Celular || '<span style="color:#cbd5e1">N/A</span>'}</td>
+                        <td>${c.Email || '<span style="color:#cbd5e1">N/A</span>'}</td>
+                        <td><span style="font-size:0.85rem; background:#f1f5f9; padding:2px 6px; border-radius:4px;">${c.TipoIdentificacion || ''}</span></td>
+                        <td style="font-family:monospace;">${c.Identificacion || ''}</td>
+                        <td><small style="color:#64748b;">${c.Direccion || 'N/A'}</small></td>
                     `;
-                    tbody.appendChild(row);
+                    tbody.appendChild(tr);
                 });
             }
 
             function renderPagination() {
-                const pagination = document.getElementById('pagination-controls');
-                pagination.innerHTML = '';
+                const p = document.getElementById('pagination-controls');
+                p.innerHTML = '';
 
-                // Previous button
-                const prevButton = document.createElement('button');
-                prevButton.textContent = 'Anterior';
-                prevButton.className = currentPage === 1 ? 'disabled' : '';
-                prevButton.disabled = currentPage === 1;
-                prevButton.addEventListener('click', () => {
-                    if (currentPage > 1) {
-                        currentPage--;
-                        renderTable(currentPage);
-                        renderPagination();
-                    }
-                });
-                pagination.appendChild(prevButton);
+                if (totalPages <= 1) return;
 
-                // Page numbers
+                // Prev
+                const prev = document.createElement('button');
+                prev.innerHTML = '<i class="fas fa-chevron-left"></i>';
+                prev.className = 'page-btn';
+                prev.disabled = currentPage === 1;
+                prev.onclick = () => { if (currentPage > 1) { currentPage--; updateUI(); } };
+                p.appendChild(prev);
+
+                // Numbers
                 for (let i = 1; i <= totalPages; i++) {
-                    const pageButton = document.createElement('button');
-                    pageButton.textContent = i;
-                    pageButton.className = currentPage === i ? 'active' : '';
-                    pageButton.addEventListener('click', () => {
-                        currentPage = i;
-                        renderTable(currentPage);
-                        renderPagination();
-                    });
-                    pagination.appendChild(pageButton);
+                    const b = document.createElement('button');
+                    b.textContent = i;
+                    b.className = `page-btn ${i === currentPage ? 'active' : ''}`;
+                    b.onclick = () => { currentPage = i; updateUI(); };
+                    p.appendChild(b);
                 }
 
-                // Next button
-                const nextButton = document.createElement('button');
-                nextButton.textContent = 'Siguiente';
-                nextButton.className = currentPage === totalPages ? 'disabled' : '';
-                nextButton.disabled = currentPage === totalPages;
-                nextButton.addEventListener('click', () => {
-                    if (currentPage < totalPages) {
-                        currentPage++;
-                        renderTable(currentPage);
-                        renderPagination();
-                    }
-                });
-                pagination.appendChild(nextButton);
+                // Next
+                const next = document.createElement('button');
+                next.innerHTML = '<i class="fas fa-chevron-right"></i>';
+                next.className = 'page-btn';
+                next.disabled = currentPage === totalPages;
+                next.onclick = () => { if (currentPage < totalPages) { currentPage++; updateUI(); } };
+                p.appendChild(next);
             }
 
-            // Initial render
-            renderTable(currentPage);
-            renderPagination();
+            function updateUI() {
+                renderTable(currentPage);
+                renderPagination();
+            }
+
+            updateUI();
         });
     </script>
 </body>
+
 </html>

@@ -1,31 +1,45 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Nueva Venta - Botitas</title>
+
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
   <style>
+    /* ================= ESTILOS BASE (ADN stockUbicacion) ================= */
     :root {
-      --primary: #6a5acd;
-      --secondary: #7b68ee;
-      --bg: #f4f6f9;
-      --white: #fff;
-      --danger: #dc3545;
-      --success: #28a745;
-      --text: #333;
+      --primary-color: #6a5acd;
+      --secondary-color: #7b68ee;
+      --background-color: #f4f6f9;
+      --text-color: #334155;
+      --white: #ffffff;
+      --danger-color: #dc3545;
+      --success-color: #28a745;
+      --warning-color: #f59e0b;
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
 
     body {
-      background: var(--bg);
+      background-color: var(--background-color);
+      color: var(--text-color);
+      line-height: 1.6;
       display: flex;
       min-height: 100vh;
-      margin: .5cm;
+      margin: 0.5cm;
+      position: relative;
     }
 
+    /* ===== LAYOUT PRINCIPAL (Flexbox) ===== */
     .container-fluid {
       display: flex;
       flex-grow: 1;
@@ -33,333 +47,677 @@
       width: 100%;
     }
 
-    /* ===== NAVBAR ===== */
+    /* ===== SIDEBAR & NAV ===== */
+    .mobile-menu-toggle {
+      display: none;
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      z-index: 1000;
+      background: var(--primary-color);
+      border: none;
+      color: var(--white);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 998;
+    }
+
     .navbar-vertical {
-      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
       width: 230px;
       padding: 20px;
       color: var(--white);
-      border-radius: 15px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
       display: flex;
       flex-direction: column;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      z-index: 999;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+
+      height: 100%;
+      /* 👈 ocupa toda la altura visible */
     }
 
-    .nav-header { text-align: center; font-weight: 700; margin-bottom: 20px; }
+
+    .nav-header {
+      text-align: center;
+      font-size: 1.4em;
+      margin-bottom: 25px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-menu {
+      list-style: none;
+      flex-grow: 1;
+    }
 
     .nav-link {
       display: flex;
       align-items: center;
-      padding: 10px 12px;
-      margin-bottom: 10px;
       color: var(--white);
       text-decoration: none;
+      padding: 12px 15px;
+      margin-bottom: 10px;
       border-radius: 8px;
-      transition: 0.3s;
-      background-color: rgba(255,255,255,0.1);
+      background-color: rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+      font-size: 0.95em;
     }
 
-    .nav-link i { margin-right: 10px; }
+    .nav-link i {
+      margin-right: 12px;
+      width: 22px;
+      text-align: center;
+      font-size: 1.1em;
+    }
 
-    .nav-link:hover { background-color: rgba(255,255,255,0.25); transform: translateX(8px); }
-    .nav-link.active { background-color: rgba(255,255,255,0.3); }
+    .nav-link:hover {
+      background-color: rgba(255, 255, 255, 0.2);
+      transform: translateX(5px);
+    }
 
-    /* ===== MAIN ===== */
+    .nav-link.active {
+      background-color: rgba(255, 255, 255, 0.3);
+      font-weight: 600;
+      border-left: 4px solid #fff;
+    }
+
+    /* ===== CONTENIDO PRINCIPAL ===== */
     .main-content {
       flex-grow: 1;
-      background: var(--white);
+      background-color: var(--white);
       border-radius: 15px;
-      padding: 30px 40px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      padding: 30px;
+      overflow-x: hidden;
+      width: 100%;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, .05);
+    }
+
+    .logo {
+      max-width: 150px;
+      display: block;
+      margin: 0 auto 15px;
     }
 
     h1 {
-      color: var(--primary);
       text-align: center;
-      margin-bottom: 25px;
+      color: var(--primary-color);
+      margin-bottom: 30px;
     }
 
-    fieldset {
-      background: var(--bg);
-      border: 1px solid rgba(0,0,0,0.1);
-      border-radius: 12px;
-      padding: 25px;
-      margin-bottom: 25px;
+    /* ===== SECCIONES DEL FORMULARIO ===== */
+    .section {
+      background: #f8fafc;
+      border-radius: 18px;
+      padding: 24px;
+      margin-bottom: 26px;
+      border: 1px solid #e5e7eb;
     }
 
-    legend {
-      color: var(--primary);
-      font-weight: 600;
-      padding: 0 10px;
+    .section h2 {
+      margin-bottom: 20px;
+      color: var(--primary-color);
+      font-size: 1.15rem;
+      border-bottom: 2px solid #e2e8f0;
+      padding-bottom: 10px;
     }
 
-    .form-grid {
+    /* ===== GRID & INPUTS ===== */
+    .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
-      gap: 20px;
+      gap: 18px;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    }
+
+    label {
+      font-size: .85rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+      display: block;
+      color: #475569;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      font-size: 14px;
+      transition: all 0.3s;
+    }
+
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(106, 90, 205, .25);
+    }
+
+    /* ===== BOTONES ===== */
+    button {
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+      border-radius: 10px;
+      padding: 12px 20px;
+      transition: .2s;
+    }
+
+    button:hover {
+      opacity: .9;
+      transform: translateY(-2px);
+    }
+
+    #btnBuscarProducto {
+      background: var(--primary-color);
+      color: white;
+      width: 100%;
+      margin-top: 6px;
+    }
+
+    #btnAgregarCarrito {
+      background: linear-gradient(135deg, var(--success-color), #4ade80);
+      color: white;
+      width: 100%;
+      font-size: 1rem;
+    }
+
+    .btn-main {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      font-size: 1.05rem;
+      padding: 16px 32px;
+      border-radius: 12px;
+      width: 100%;
       margin-top: 10px;
     }
 
-    label { font-weight: 500; margin-bottom: 6px; display: block; }
-    input, select {
+    /* ===== TABLA CARRITO ===== */
+    table {
       width: 100%;
-      padding: 10px;
-      border: 1px solid rgba(0,0,0,0.1);
-      border-radius: 10px;
-      font-size: 14px;
-      transition: border-color 0.3s;
+      border-collapse: collapse;
+      margin-top: 10px;
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
     }
 
-    input:focus, select:focus {
-      border-color: var(--primary);
-      outline: none;
+    th {
+      background: #f1f5f9;
+      padding: 14px;
+      text-transform: uppercase;
+      font-size: 12px;
+      color: #475569;
+      border-bottom: 2px solid #e2e8f0;
+      text-align: center;
     }
 
-    .producto {
-      background: var(--white);
-      border-radius: 10px;
-      padding: 15px 20px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-      margin-bottom: 15px;
+    td {
+      padding: 14px;
+      border-bottom: 1px solid #e2e8f0;
+      text-align: center;
+      font-size: 0.95rem;
     }
 
-    .btn {
-      border: none;
+    tr:hover {
+      background: #f8fafc;
+    }
+
+    .total-row td {
+      font-weight: 700;
+      font-size: 1.1rem;
+      background-color: #f8fafc;
+      color: var(--primary-color);
+    }
+
+    img.product-img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
       border-radius: 8px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: all 0.3s;
-      padding: 10px 18px;
+      border: 1px solid #ddd;
     }
 
-    .btn:hover { opacity: 0.9; transform: translateY(-2px); }
-
-    .btn-primary { background: linear-gradient(135deg, var(--primary), var(--secondary)); color: var(--white); }
-    .btn-success { background: linear-gradient(135deg, #28a745, #5dd17a); color: var(--white); }
-    .btn-danger { background: var(--danger); color: var(--white); }
-    .btn-secondary { background: #777; color: var(--white); }
-
-    .acciones {
-      display: flex;
-      justify-content: center;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-top: 25px;
-    }
-
-    /* === PRODUCTOS === */
-    .producto .form-grid { gap: 15px; }
-    .producto .btn-danger { width: 100%; }
-
-    /* === RESPONSIVE === */
+    /* ===== MEDIA QUERIES (RESPONSIVE) ===== */
     @media (max-width: 768px) {
-      .container-fluid { flex-direction: column; }
-      .navbar-vertical { width: 100%; border-radius: 10px; }
-      .main-content { padding: 20px; }
+      body {
+        margin: 0.2cm;
+      }
+
+      .container-fluid {
+        flex-direction: column;
+      }
+
+      .mobile-menu-toggle {
+        display: block;
+      }
+
+      .navbar-vertical {
+        position: fixed;
+        left: -260px;
+        top: 0;
+        bottom: 0;
+        margin: 10px;
+        height: calc(100vh - 20px);
+        overflow-y: auto;
+      }
+
+      .navbar-vertical.active {
+        left: 0;
+      }
+
+      .overlay.active {
+        display: block;
+      }
+
+      .main-content {
+        width: 100%;
+        margin-top: 50px;
+        padding: 15px;
+      }
+
+      .logo {
+        max-width: 120px;
+      }
+
+      /* Ajustes Tabla Móvil */
+      table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+
+      /* Grid adjustments for mobile */
+      .grid[style*="grid-template-columns"] {
+        grid-template-columns: 1fr !important;
+      }
     }
   </style>
 </head>
+
 <body>
+  <button class="mobile-menu-toggle"><i class="fas fa-bars"></i></button>
+  <div class="overlay"></div>
+
   <div class="container-fluid">
-    <!-- NAVBAR -->
     <nav class="navbar-vertical">
-      <div class="nav-header">Panel Botitas</div>
+      <div class="nav-header">Ventas Botitas</div>
       <ul class="nav-menu">
-        <li><a href="/admin-dashboard" class="nav-link"><i class="fas fa-home"></i> Dashboard</a></li>
-        <li><a href="/inventario" class="nav-link"><i class="fas fa-boxes"></i> Inventario</a></li>
-        <li><a href="/clientes" class="nav-link"><i class="fas fa-users"></i> Clientes</a></li>
-        <li><a href="/proveedores" class="nav-link"><i class="fas fa-truck"></i> Proveedores</a></li>
-        <li><a href="/ventas/nueva" class="nav-link active"><i class="fas fa-cash-register"></i> Nueva Venta</a></li>
-        <li><a href="/ventas/historial" class="nav-link"><i class="fas fa-list"></i> Historial</a></li>
-        <li><a href="/logout" class="nav-link"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</a></li>
+        <li>
+          <a href="/ventas/nueva" class="nav-link active">
+            <i class="fas fa-cash-register"></i> Nueva Venta
+          </a>
+        </li>
+        <li>
+          <a href="/ventas/historial" class="nav-link">
+            <i class="fas fa-history"></i> Historial
+          </a>
+        </li>
+        <li>
+          <a href="/admin-dashboard" class="nav-link">
+            <i class="fas fa-arrow-left"></i> Regresar
+          </a>
+        </li>
       </ul>
     </nav>
 
-    <!-- CONTENIDO PRINCIPAL -->
     <main class="main-content">
-      <h1>🧾 Nueva Venta</h1>
+      <img src="/imagenes/logo botitas.png" class="logo" alt="Logo Botitas">
+      <h1>🛒 Nueva Venta</h1>
 
       <form id="ventaForm">
-        <!-- DATOS CLIENTE -->
-        <fieldset>
-          <legend>Datos del Cliente</legend>
-          <div class="form-grid">
+
+        <div class="section">
+          <h2>Datos del Cliente</h2>
+
+          <div class="grid">
             <div>
-              <label>Tipo de Identificación</label>
-              <select id="tipoIdentificacion" required>
-                <option value="">Seleccione...</option>
-                <option value="Cédula">Cédula</option>
+              <label>Identificación</label>
+              <input type="text" id="identificacion" placeholder="Busque por cédula..." required>
+            </div>
+
+            <div>
+              <label>Nombre Completo</label>
+              <input type="text" id="nombre" required>
+            </div>
+
+            <div>
+              <label>Tipo</label>
+              <select id="tipoIdentificacion">
+                <option value="Cedula">Cédula</option>
                 <option value="RUC">RUC</option>
                 <option value="Pasaporte">Pasaporte</option>
               </select>
             </div>
-            <div>
-              <label>Identificación</label>
-              <div style="display:flex; gap:8px;">
-                <input type="text" id="identificacion" required style="flex:1;">
-                <button type="button" class="btn btn-primary" id="buscarCliente">Buscar</button>
-              </div>
-            </div>
-            <div><label>Nombre</label><input type="text" id="nombre" required></div>
-            <div><label>Celular</label><input type="text" id="celular"></div>
-            <div><label>Correo</label><input type="email" id="email"></div>
-            <div><label>Dirección</label><input type="text" id="direccion"></div>
-          </div>
-        </fieldset>
 
-        <!-- DATOS VENTA -->
-        <fieldset>
-          <legend>Datos de la Venta</legend>
-          <div class="form-grid">
             <div>
-              <label>Forma de Pago</label>
-              <select id="formaDePago" required>
-                <option value="">Seleccione...</option>
-                <option value="Tarjeta de Crédito">Tarjeta de Crédito</option>
-                <option value="Tarjeta de Débito">Tarjeta de Débito</option>
-                <option value="Efectivo/Transferencia">Efectivo/Transferencia</option>
+              <label>Celular</label>
+              <input type="text" id="celular">
+            </div>
+
+            <div>
+              <label>Email</label>
+              <input type="email" id="email">
+            </div>
+
+            <div>
+              <label>Dirección</label>
+              <input type="text" id="direccion">
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <h2>Agregar Productos</h2>
+
+          <div class="grid" style="grid-template-columns: 1fr 2fr auto 1fr;">
+            <div>
+              <label>Código Producto</label>
+              <input type="text" id="codigoBusqueda" placeholder="Ej: ZAP-001">
+              <button type="button" id="btnBuscarProducto">🔍 Buscar</button>
+            </div>
+
+            <div>
+              <label>Variante</label>
+              <select id="varianteSelect">
+                <option value="">Busque un producto primero...</option>
               </select>
             </div>
-          </div>
-        </fieldset>
 
-        <!-- PRODUCTOS -->
-        <fieldset>
-          <legend>Productos</legend>
-          <div id="productos">
-            <div class="producto">
-              <div class="form-grid">
-                <div>
-                  <label>Código</label>
-                  <div style="display:flex; gap:8px;">
-                    <input type="text" class="codigo" required style="flex:1;">
-                    <button type="button" class="btn btn-primary buscarProducto">Buscar</button>
-                  </div>
-                </div>
-                <div><label>Producto</label><input type="text" class="nombreProducto" readonly></div>
-                <div><label>Cantidad</label><input type="number" class="cantidad" min="1" required></div>
-                <div><label>Precio ($)</label><input type="number" class="precio" min="0" required></div>
-                <div><label>Descuento ($)</label><input type="number" class="descuento" value="0"></div>
-                <div style="display:flex; align-items:end;">
-                  <button type="button" class="btn btn-danger eliminarProducto">Eliminar</button>
-                </div>
-              </div>
+            <div style="text-align:center;">
+              <label>Foto</label><br>
+              <img id="imgPreview" src="/img/placeholder.png" class="product-img">
+            </div>
+
+            <div>
+              <label>Precio Final</label>
+              <input type="number" id="precioFinal" step="0.01">
             </div>
           </div>
-          <div class="acciones">
-            <button type="button" class="btn btn-success" id="agregarProducto">
-              <i class="fas fa-plus"></i> Agregar Producto
-            </button>
-          </div>
-        </fieldset>
 
-        <!-- RESUMEN -->
-        <fieldset>
-          <legend>Resumen</legend>
-          <div class="form-grid">
-            <div><label>Subtotal</label><input type="text" id="subtotal" readonly></div>
-            <div><label>IVA (15%)</label><input type="text" id="iva" readonly></div>
-            <div><label>Total</label><input type="text" id="total" readonly></div>
-          </div>
-        </fieldset>
+          <div class="grid" style="grid-template-columns: 1fr 1fr 1fr; margin-top: 16px;">
+            <div>
+              <label>Cantidad</label>
+              <input type="number" id="cantidad" value="1" min="1">
+            </div>
 
-        <div class="acciones">
-          <button type="submit" class="btn btn-primary">
-            <i class="fas fa-cash-register"></i> Registrar Venta
-          </button>
-          <a href="/admin-dashboard" class="btn btn-secondary">
-            <i class="fas fa-arrow-left"></i> Cancelar
-          </a>
+            <div>
+              <label>IVA</label>
+              <select id="ivaSelect">
+                <% ivas.forEach(iva=> { %>
+                  <option value="<%= iva.IvaID %>" data-porcentaje="<%= iva.Porcentaje %>">
+                    <%= iva.Descripcion %> (<%= iva.Porcentaje %>%)
+                  </option>
+                  <% }); %>
+              </select>
+            </div>
+
+            <div style="display:flex;align-items:flex-end;">
+              <button type="button" id="btnAgregarCarrito">➕ Agregar al Carrito</button>
+            </div>
+          </div>
         </div>
+
+        <div class="section">
+          <table id="tablaCarrito">
+            <thead>
+              <tr>
+                <th>Foto</th>
+                <th>Producto</th>
+                <th>Cant.</th>
+                <th>Precio</th>
+                <th>IVA %</th>
+                <th>Base</th>
+                <th>IVA</th>
+                <th>Total</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+            <tfoot>
+              <tr class="total-row">
+                <td colspan="7" style="text-align:right;">TOTAL A PAGAR:</td>
+                <td id="totalGlobal">$ 0.00</td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <div class="section">
+          <label>Forma de Pago</label>
+          <select id="formaPago" style="max-width:300px;">
+            <option value="Efectivo">💵 Efectivo</option>
+            <option value="Transferencia">🏦 Transferencia</option>
+            <option value="Tarjeta Debito">💳 Débito</option>
+            <option value="Tarjeta Credito">💳 Crédito</option>
+          </select>
+
+          <br><br>
+
+          <button type="submit" class="btn-main">✅ FINALIZAR Y REGISTRAR VENTA</button>
+        </div>
+
       </form>
     </main>
   </div>
 
   <script>
-    $(function() {
-      $('#buscarCliente').click(() => {
-        const id = $('#identificacion').val().trim();
-        if (!id) return alert('Ingrese una identificación.');
-        $.get(`/ventas/buscarCliente/${id}`)
-          .done(data => {
-            $('#nombre').val(data.Nombre);
-            $('#celular').val(data.Celular);
-            $('#email').val(data.Email);
-            $('#direccion').val(data.Direccion);
-          })
-          .fail(() => alert('Cliente no encontrado.'));
-      });
+    // --- LÓGICA DEL SIDEBAR RESPONSIVO ---
+    const menuToggle = document.querySelector('.mobile-menu-toggle');
+    const sidebar = document.querySelector('.navbar-vertical');
+    const overlay = document.querySelector('.overlay');
 
-      $(document).on('click', '.buscarProducto', function() {
-        const div = $(this).closest('.producto');
-        const codigo = div.find('.codigo').val();
-        if (!codigo) return alert('Ingrese un código de producto.');
-        $.get(`/ventas/buscarProducto/${codigo}`)
-          .done(data => {
-            div.find('.nombreProducto').val(data.Nombre);
-            div.find('.precio').val(data.PrecioVenta);
-          })
-          .fail(() => alert('Producto no encontrado.'));
-      });
+    menuToggle.addEventListener('click', () => {
+      sidebar.classList.toggle('active');
+      overlay.classList.toggle('active');
+    });
 
-      $('#agregarProducto').click(() => {
-        const nuevo = $('.producto').first().clone();
-        nuevo.find('input').val('');
-        $('#productos').append(nuevo);
-      });
+    overlay.addEventListener('click', () => {
+      sidebar.classList.remove('active');
+      overlay.classList.remove('active');
+    });
 
-      $(document).on('click', '.eliminarProducto', function() {
-        if ($('.producto').length > 1) $(this).closest('.producto').remove();
-        calcularTotales();
-      });
+    // --- LÓGICA DE VENTAS (Original) ---
+    let carrito = [];
 
-      $(document).on('input', '.cantidad, .precio, .descuento', calcularTotales);
+    // --- LÓGICA DE CLIENTE ---
+    document.getElementById('identificacion').addEventListener('blur', async (e) => {
+      const cedula = e.target.value.trim();
+      if (cedula.length < 5) return;
 
-      function calcularTotales() {
-        let subtotal = 0;
-        $('.producto').each(function() {
-          const cantidad = parseFloat($(this).find('.cantidad').val()) || 0;
-          const precio = parseFloat($(this).find('.precio').val()) || 0;
-          const descuento = parseFloat($(this).find('.descuento').val()) || 0;
-          subtotal += (precio - descuento) * cantidad;
+      try {
+        const res = await fetch(`/ventas/buscarCliente/${cedula}`);
+        if (res.ok) {
+          const cliente = await res.json();
+          document.getElementById('nombre').value = cliente.Nombre;
+          document.getElementById('celular').value = cliente.Celular || '';
+          document.getElementById('email').value = cliente.Email || '';
+          document.getElementById('direccion').value = cliente.Direccion || '';
+          document.getElementById('tipoIdentificacion').value = cliente.TipoIdentificacion;
+          document.getElementById('codigoBusqueda').focus();
+        }
+      } catch (err) { console.error("Error buscando cliente:", err); }
+    });
+
+    // --- LÓGICA DE PRODUCTO ---
+    document.getElementById('btnBuscarProducto').addEventListener('click', buscarProducto);
+    document.getElementById('codigoBusqueda').addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); buscarProducto(); }
+    });
+
+    async function buscarProducto() {
+      const codigo = document.getElementById('codigoBusqueda').value.trim();
+      const selectV = document.getElementById('varianteSelect');
+      const imgPrev = document.getElementById('imgPreview');
+
+      if (!codigo) return;
+      try {
+        const res = await fetch(`/ventas/buscarProducto/${codigo}`);
+        const data = await res.json();
+        if (!res.ok) {
+          imgPrev.src = "/img/placeholder.png";
+          return alert(data.error || "No encontrado");
+        }
+
+        selectV.innerHTML = "";
+        const fotoUrl = data[0].Foto ? `/${data[0].Foto.replace(/^\//, '')}` : "/img/placeholder.png";
+        imgPrev.src = fotoUrl;
+
+        data.forEach(v => {
+          const opt = document.createElement('option');
+          opt.value = v.VarianteID;
+          opt.dataset.precio = v.PrecioVentaVariante || v.PrecioBase;
+          opt.dataset.nombre = v.Producto;
+          opt.dataset.stock = v.Stock;
+          opt.dataset.talla = v.Talla;
+          opt.dataset.foto = v.Foto || '';
+          opt.textContent = `${v.Producto} - Talla: ${v.Talla} (${v.Color}) - Stock: ${v.Stock}`;
+          selectV.appendChild(opt);
         });
-        const iva = subtotal * 0.15;
-        const total = subtotal + iva;
-        $('#subtotal').val(subtotal.toFixed(2));
-        $('#iva').val(iva.toFixed(2));
-        $('#total').val(total.toFixed(2));
+        document.getElementById('precioFinal').value = selectV.options[0].dataset.precio;
+        document.getElementById('cantidad').focus();
+
+      } catch (err) {
+        console.error(err);
+        imgPrev.src = "/img/placeholder.png";
+        alert("Error al buscar producto");
+      }
+    }
+
+    // --- CARRITO ---
+    document.getElementById('btnAgregarCarrito').addEventListener('click', () => {
+      const selectV = document.getElementById('varianteSelect');
+      if (!selectV.value) return alert("Seleccione un producto");
+
+      const opt = selectV.options[selectV.selectedIndex];
+      const varianteId = opt.value;
+      const cantidadSolicitada = parseInt(document.getElementById('cantidad').value);
+      const stockDisponible = parseInt(opt.dataset.stock);
+
+      const cantidadEnCarrito = carrito
+        .filter(item => item.varianteId === varianteId)
+        .reduce((total, item) => total + item.cantidad, 0);
+
+      if ((cantidadSolicitada + cantidadEnCarrito) > stockDisponible) {
+        return alert(`⚠️ Stock insuficiente.\nDisponible: ${stockDisponible}\nEn carrito: ${cantidadEnCarrito}\nNo puedes agregar ${cantidadSolicitada} más.`);
       }
 
-      $('#ventaForm').submit(function(e) {
-        e.preventDefault();
-        const cliente = {
-          tipoIdentificacion: $('#tipoIdentificacion').val(),
-          identificacion: $('#identificacion').val(),
-          nombre: $('#nombre').val(),
-          celular: $('#celular').val(),
-          email: $('#email').val(),
-          direccion: $('#direccion').val()
-        };
-        const formaDePago = $('#formaDePago').val();
-        const productos = [];
-        $('.producto').each(function() {
-          productos.push({
-            codigo: $(this).find('.codigo').val(),
-            cantidad: parseFloat($(this).find('.cantidad').val()) || 0,
-            precio: parseFloat($(this).find('.precio').val()) || 0,
-            descuento: parseFloat($(this).find('.descuento').val()) || 0
-          });
-        });
-        $.ajax({
-          url: '/ventas/nueva',
-          method: 'POST',
-          contentType: 'application/json',
-          data: JSON.stringify({ cliente, formaDePago, productos }),
-          success: res => { alert(res.success); window.location.href = '/ventas/historial'; },
-          error: err => alert(err.responseJSON?.error || 'Error al registrar la venta.')
-        });
+      const item = {
+        varianteId: varianteId,
+        nombre: opt.dataset.nombre,
+        talla: opt.dataset.talla,
+        foto: opt.dataset.foto,
+        cantidad: cantidadSolicitada,
+        precioFinal: parseFloat(document.getElementById('precioFinal').value),
+        ivaId: document.getElementById('ivaSelect').value,
+        ivaPorcentaje: parseFloat(document.getElementById('ivaSelect').selectedOptions[0].dataset.porcentaje)
+      };
+      carrito.push(item);
+      renderCarrito();
+
+      document.getElementById('codigoBusqueda').value = "";
+      document.getElementById('codigoBusqueda').focus();
+      document.getElementById('imgPreview').src = "/img/placeholder.png";
+    });
+
+    function renderCarrito() {
+      const body = document.querySelector('#tablaCarrito tbody');
+      body.innerHTML = "";
+      let totalGeneral = 0;
+
+      carrito.forEach((item, index) => {
+        const subtotalLinea = (item.precioFinal * item.cantidad) / (1 + (item.ivaPorcentaje / 100));
+        const ivaValor = (item.precioFinal * item.cantidad) - subtotalLinea;
+        const totalLinea = item.precioFinal * item.cantidad;
+        totalGeneral += totalLinea;
+
+        const imgUrl = item.foto ? `/${item.foto.replace(/^\//, '')}` : "/img/placeholder.png";
+        body.innerHTML += `
+            <tr>
+                <td>
+                    <img src="${imgUrl}" style="width: 40px; height: 40px; object-fit: cover; border-radius: 4px;">
+                </td>
+                <td>${item.nombre} (T:${item.talla})</td>
+                <td>${item.cantidad}</td>
+                <td>$${item.precioFinal.toFixed(2)}</td>
+                <td>${item.ivaPorcentaje}%</td>
+                <td>$${subtotalLinea.toFixed(2)}</td>
+                <td>$${ivaValor.toFixed(2)}</td>
+                <td>$${totalLinea.toFixed(2)}</td>
+                <td><button type="button" onclick="eliminarItem(${index})" style="background:none; color:var(--danger-color); padding:0;">❌</button></td>
+            </tr>
+        `;
       });
+
+      document.getElementById('totalGlobal').textContent = `$ ${totalGeneral.toFixed(2)}`;
+    }
+
+    function eliminarItem(index) {
+      carrito.splice(index, 1);
+      renderCarrito();
+    }
+
+    document.getElementById('ventaForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (carrito.length === 0) return alert("El carrito está vacío");
+
+      const btnSubmit = e.target.querySelector('button[type="submit"]');
+      btnSubmit.disabled = true;
+      btnSubmit.textContent = "Procesando...";
+
+      const payload = {
+        cliente: {
+          identificacion: document.getElementById('identificacion').value,
+          nombre: document.getElementById('nombre').value,
+          celular: document.getElementById('celular').value,
+          email: document.getElementById('email').value,
+          direccion: document.getElementById('direccion').value,
+          tipoIdentificacion: document.getElementById('tipoIdentificacion').value
+        },
+        formaPago: document.getElementById('formaPago').value,
+        productos: carrito
+      };
+
+      try {
+        const res = await fetch('/ventas/nueva', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const result = await res.json();
+
+        if (res.ok) {
+          alert(`✅ VENTA EXITOSA\n\n📄 Factura: ${result.factura}\n🔑 Clave: ${result.claveAcceso}\n\nEl stock ha sido actualizado.`);
+          window.open(`/ventas/imprimir/${result.ventaId}`, '_blank');
+          window.location.href = "/ventas/historial";
+        } else {
+          alert("❌ Error: " + result.error);
+          btnSubmit.disabled = false;
+          btnSubmit.textContent = "✅ FINALIZAR Y REGISTRAR VENTA";
+        }
+      } catch (err) {
+        alert("Error de conexión con el servidor");
+        btnSubmit.disabled = false;
+      }
     });
   </script>
+
 </body>
+
 </html>

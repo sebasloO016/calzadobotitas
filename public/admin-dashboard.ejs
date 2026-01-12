@@ -120,6 +120,7 @@
 -->
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -171,7 +172,7 @@
             height: 40px;
             border-radius: 50%;
             cursor: pointer;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
 
         .overlay {
@@ -181,7 +182,7 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0, 0, 0, 0.5);
             z-index: 998;
         }
 
@@ -385,6 +386,7 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Mobile Menu Toggle -->
     <button class="mobile-menu-toggle">
@@ -396,60 +398,91 @@
 
     <div class="container-fluid">
         <nav class="navbar-vertical">
-            <div class="nav-header">Dashboard Administrador</div>
-            <div id="user-name" class="user-name"><%= userName %></div>
+            <div class="nav-header">Menu Administrador</div>
+            <div id="user-name" class="user-name">
+                <%= userName %>
+            </div>
             <ul class="nav-menu">
                 <li><a href="/reportes/dashboard" class="nav-link"><i class="fas fa-chart-line"></i> Dashboard</a></li>
                 <li><a href="/stock" class="nav-link"><i class="fas fa-barcode"></i> Buscar por código</a></li>
                 <li><a href="/ventas/nueva" class="nav-link"><i class="fas fa-cash-register"></i> Nueva Venta</a></li>
-                <li><a href="/inventario/agregar" class="nav-link"><i class="fas fa-box-open"></i> Agregar Producto</a></li>
-                <li><a href="/crearProducto/crear" class="nav-link"><i class="fas fa-plus-circle"></i> Crear Productos</a></li>
+                <li><a href="/inventario/agregar" class="nav-link"><i class="fas fa-box-open"></i> Agregar Producto</a>
+                </li>
+                <li><a href="/crearProducto/crear" class="nav-link"><i class="fas fa-plus-circle"></i> Crear
+                        Productos</a></li>
                 <li><a href="proveedores/crear" class="nav-link"><i class="fas fa-truck"></i> Crear Proveedor</a></li>
-                <li class="logout"><a href="/auth/logout" class="nav-link"><i class="fas fa-sign-out-alt"></i> Salir</a></li>
+                <li class="logout"><a href="/auth/logout" class="nav-link"><i class="fas fa-sign-out-alt"></i> Salir</a>
+                </li>
             </ul>
         </nav>
 
         <main class="main-content">
             <img src="imagenes/logo botitas.png" alt="Logo Botitas" class="logo">
+
             <div class="button-grid">
+
                 <a href="/inventario" class="menu-button">
                     <i class="fas fa-warehouse"></i>
                     <span>Inventario</span>
                 </a>
+
                 <a href="/ventas/nueva" class="menu-button">
                     <i class="fas fa-shopping-cart"></i>
                     <span>Ventas</span>
                 </a>
+
                 <a href="/clientes" class="menu-button">
                     <i class="fas fa-users"></i>
                     <span>Clientes</span>
                 </a>
+
                 <a href="/proveedores" class="menu-button">
                     <i class="fas fa-truck-loading"></i>
                     <span>Proveedores</span>
                 </a>
+
                 <a href="/reportes/dashboard" class="menu-button">
                     <i class="fas fa-chart-pie"></i>
                     <span>Reportes</span>
                 </a>
+
                 <a href="/usuarios" class="menu-button">
                     <i class="fas fa-user-cog"></i>
                     <span>Control Usuarios</span>
                 </a>
+
                 <a href="/crearProducto/crear" class="menu-button">
                     <i class="fas fa-plus-square"></i>
                     <span>Crear Producto</span>
                 </a>
+
                 <a href="/stock" class="menu-button">
                     <i class="fas fa-map-marker-alt"></i>
                     <span>Stock y Ubicación</span>
                 </a>
+
+                <a href="/compras" class="menu-button">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <span>Compras</span>
+                </a>
+
+                <a href="/kardex" class="menu-button">
+                    <i class="fas fa-exchange-alt"></i>
+                    <span>Kardex</span>
+                </a>
+
+                <a href="/ventas/historial" class="menu-button">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>Historial de Ventas</span>
+                </a>
+
             </div>
         </main>
+
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Active link functionality
             const currentLocation = location.href;
             const menuItems = document.querySelectorAll('.nav-link');
@@ -493,4 +526,5 @@
         });
     </script>
 </body>
+
 </html>

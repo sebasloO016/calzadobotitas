@@ -1,37 +1,45 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Agregar Cliente - Botitas</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
   <style>
+    /* ================= ESTILOS PRO + ADN ================= */
     :root {
       --primary-color: #6a5acd;
       --secondary-color: #7b68ee;
       --background-color: #f4f6f9;
-      --text-color: #333;
+      --text-color: #334155;
       --white: #ffffff;
-      --danger-color: #dc3545;
-      --success-color: #28a745;
+      --danger-color: #ef4444;
+      --success-color: #10b981;
+      --border-color: #e2e8f0;
+      --input-bg: #f8fafc;
+      --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     }
 
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: 'Arial', sans-serif;
+      font-family: 'Segoe UI', system-ui, sans-serif;
     }
 
     body {
       background-color: var(--background-color);
       color: var(--text-color);
+      line-height: 1.6;
       display: flex;
       min-height: 100vh;
       margin: 0.5cm;
       position: relative;
     }
 
+    /* ===== LAYOUT ===== */
     .container-fluid {
       display: flex;
       flex-grow: 1;
@@ -39,7 +47,7 @@
       width: 100%;
     }
 
-    /* ===== BOTÓN MÓVIL ===== */
+    /* ===== SIDEBAR & NAV ===== */
     .mobile-menu-toggle {
       display: none;
       position: fixed;
@@ -53,7 +61,12 @@
       height: 40px;
       border-radius: 50%;
       cursor: pointer;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      transition: transform 0.2s;
+    }
+
+    .mobile-menu-toggle:hover {
+      transform: scale(1.05);
     }
 
     .overlay {
@@ -63,11 +76,11 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background: rgba(0,0,0,0.5);
+      background: rgba(0, 0, 0, 0.5);
       z-index: 998;
+      backdrop-filter: blur(2px);
     }
 
-    /* ===== NAVBAR ===== */
     .navbar-vertical {
       background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
       width: 230px;
@@ -78,14 +91,17 @@
       border-radius: 12px;
       transition: all 0.3s ease;
       z-index: 999;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      height: fit-content;
+      min-height: 80vh;
     }
 
     .nav-header {
       text-align: center;
       font-size: 1.4em;
-      margin-bottom: 15px;
+      margin-bottom: 25px;
       font-weight: bold;
+      letter-spacing: 0.5px;
     }
 
     .nav-menu {
@@ -98,9 +114,9 @@
       align-items: center;
       color: var(--white);
       text-decoration: none;
-      padding: 10px 12px;
-      margin-bottom: 8px;
-      border-radius: 6px;
+      padding: 12px 15px;
+      margin-bottom: 10px;
+      border-radius: 8px;
       background-color: rgba(255, 255, 255, 0.1);
       transition: all 0.3s ease;
       font-size: 0.95em;
@@ -115,12 +131,13 @@
 
     .nav-link:hover {
       background-color: rgba(255, 255, 255, 0.2);
-      transform: translateX(8px);
+      transform: translateX(5px);
     }
 
     .nav-link.active {
       background-color: rgba(255, 255, 255, 0.3);
-      font-weight: 500;
+      font-weight: 600;
+      border-left: 4px solid #fff;
     }
 
     /* ===== MAIN CONTENT ===== */
@@ -128,107 +145,152 @@
       flex-grow: 1;
       background-color: var(--white);
       border-radius: 15px;
-      padding: 25px;
+      padding: 40px;
+      overflow-x: hidden;
       width: 100%;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      box-shadow: 0 15px 40px rgba(0, 0, 0, .05);
     }
 
     .logo {
-      max-width: 180px;
-      margin: 10px auto 20px;
+      max-width: 150px;
       display: block;
+      margin: 0 auto 20px;
     }
 
     h1 {
       color: var(--primary-color);
+      margin-bottom: 30px;
+      font-size: 1.8rem;
       text-align: center;
-      margin-bottom: 25px;
+      border-bottom: 2px solid #f1f5f9;
+      padding-bottom: 15px;
     }
 
-    /* ===== FORM ===== */
+    /* ===== FORMULARIO PRO ===== */
     .form-section {
-      background: var(--background-color);
-      border-radius: 10px;
-      padding: 20px;
-      max-width: 900px;
+      background: #fff;
+      max-width: 800px;
       margin: 0 auto;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
     }
 
     .form-section h3 {
-      font-size: 1.2em;
-      margin-bottom: 20px;
+      font-size: 1.1rem;
+      color: var(--text-color);
+      margin-bottom: 25px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .form-section h3 i {
       color: var(--primary-color);
-      text-align: center;
     }
 
     .form-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 15px;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
     }
 
     .form-group {
-      display: flex;
-      flex-direction: column;
+      margin-bottom: 15px;
     }
 
-    label {
-      font-weight: 500;
-      margin-bottom: 5px;
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #475569;
     }
 
-    .form-control, .form-select {
-      padding: 10px;
-      border: 1px solid rgba(0,0,0,0.1);
-      border-radius: 8px;
-      font-size: 14px;
-      transition: border-color 0.3s;
+    .form-control {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      background: var(--input-bg);
+      font-size: 0.95rem;
+      transition: all 0.3s;
     }
 
-    .form-control:focus, .form-select:focus {
+    .form-control:focus {
+      background: #fff;
       border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(106, 90, 205, 0.15);
       outline: none;
     }
 
-    .btn {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 14px;
-      transition: all 0.3s ease;
+    /* ===== BOTONES ===== */
+    .btn-container {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 30px;
     }
 
-    .btn:hover {
-      opacity: 0.9;
-      transform: translateY(-2px);
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 12px 30px;
+      border-radius: 10px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 1rem;
+      text-decoration: none;
     }
 
     .btn-success {
-      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-      color: var(--white);
+      background: linear-gradient(135deg, var(--success-color), #059669);
+      color: white;
+      box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
+    }
+
+    .btn-success:hover {
+      transform: translateY(-2px);
+      opacity: 0.95;
     }
 
     .btn-secondary {
-      background: #777;
-      color: var(--white);
+      background: white;
+      border: 1px solid #cbd5e1;
+      color: #475569;
     }
 
+    .btn-secondary:hover {
+      background: #f1f5f9;
+      border-color: #94a3b8;
+    }
+
+    /* Alert */
     .alert {
-      background: #f8d7da;
-      color: #721c24;
-      border: 1px solid #f5c6cb;
-      padding: 10px;
-      border-radius: 8px;
-      margin-bottom: 15px;
+      padding: 15px;
+      background: #fee2e2;
+      color: #991b1b;
+      border-radius: 10px;
+      border: 1px solid #fecaca;
+      margin-bottom: 25px;
       text-align: center;
     }
 
+    /* Responsive */
     @media (max-width: 768px) {
-      body { margin: 0.2cm; }
-      .container-fluid { flex-direction: column; }
-      .mobile-menu-toggle { display: block; }
+      body {
+        margin: 0.2cm;
+      }
+
+      .container-fluid {
+        flex-direction: column;
+      }
+
+      .mobile-menu-toggle {
+        display: block;
+      }
+
       .navbar-vertical {
         position: fixed;
         left: -260px;
@@ -238,96 +300,121 @@
         height: calc(100vh - 20px);
         overflow-y: auto;
       }
-      .navbar-vertical.active { left: 0; }
-      .overlay.active { display: block; }
-      .main-content { width: 100%; margin-top: 60px; padding: 15px; }
-      .form-grid { grid-template-columns: 1fr; }
-    }
 
-    @media (max-width: 480px) {
-      .navbar-vertical { width: 200px; }
-      .nav-link { font-size: 0.9em; padding: 8px 10px; }
-      .nav-link i { margin-right: 10px; font-size: 1em; }
+      .navbar-vertical.active {
+        left: 0;
+      }
+
+      .overlay.active {
+        display: block;
+      }
+
+      .main-content {
+        margin-top: 50px;
+        padding: 20px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .btn-container {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+      }
     }
   </style>
 </head>
+
 <body>
   <button class="mobile-menu-toggle"><i class="fas fa-bars"></i></button>
   <div class="overlay"></div>
 
   <div class="container-fluid">
-    <!-- NAVBAR -->
     <nav class="navbar-vertical">
-      <div class="nav-header">Panel Botitas</div>
+      <div class="nav-header">Clientes Botitas</div>
       <ul class="nav-menu">
-        <li><a href="/admin-dashboard" class="nav-link"><i class="fas fa-home"></i> Dashboard</a></li>
-        <li><a href="/inventario" class="nav-link"><i class="fas fa-boxes"></i> Inventario</a></li>
-        <li><a href="/stock" class="nav-link"><i class="fas fa-barcode"></i> Stock</a></li>
-        <li><a href="/usuarios" class="nav-link"><i class="fas fa-users"></i> Usuarios</a></li>
-        <li><a href="/proveedores" class="nav-link"><i class="fas fa-truck"></i> Proveedores</a></li>
-        <li><a href="/clientes" class="nav-link active"><i class="fas fa-user-plus"></i> Clientes</a></li>
-        <li><a href="/logout" class="nav-link"><i class="fas fa-sign-out-alt"></i> Cerrar sesión</a></li>
+        <li><a href="/clientes" class="nav-link"><i class="fas fa-users"></i> Lista de Clientes</a></li>
+        <li><a href="/clientes/agregar" class="nav-link active"><i class="fas fa-user-plus"></i> Agregar Cliente</a>
+        </li>
+        <li><a href="/admin-dashboard" class="nav-link"><i class="fas fa-arrow-left"></i> Regresar</a></li>
       </ul>
     </nav>
 
-    <!-- MAIN CONTENT -->
     <main class="main-content">
       <img src="/imagenes/logo botitas.png" alt="Logo Botitas" class="logo">
       <h1>Agregar Nuevo Cliente</h1>
 
       <% if (error) { %>
-        <div class="alert"><%= error %></div>
-      <% } %>
+        <div class="alert">
+          <i class="fas fa-exclamation-circle"></i>
+          <%= error %>
+        </div>
+        <% } %>
 
-      <div class="form-section">
-        <form action="/clientes/agregar" method="POST" onsubmit="return validarFormulario(event)">
-          <div class="form-grid">
-            <div class="form-group">
-              <label for="nombre">Nombre completo *</label>
-              <input type="text" id="nombre" name="nombre" class="form-control" required>
-            </div>
+          <div class="form-section">
+            <h3><i class="fas fa-user-tag"></i> Datos Personales</h3>
 
-            <div class="form-group">
-              <label for="celular">Celular</label>
-              <input type="text" id="celular" name="celular" class="form-control" placeholder="0999999999">
-            </div>
+            <form action="/clientes/agregar" method="POST" onsubmit="return validarFormulario(event)">
+              <div class="form-grid">
 
-            <div class="form-group">
-              <label for="email">Correo electrónico</label>
-              <input type="email" id="email" name="email" class="form-control" placeholder="cliente@correo.com">
-            </div>
+                <div class="form-group">
+                  <label for="nombre" class="form-label">Nombre Completo *</label>
+                  <input type="text" id="nombre" name="nombre" class="form-control" required
+                    placeholder="Ej: Juan Pérez">
+                </div>
 
-            <div class="form-group">
-              <label for="tipoIdentificacion">Tipo Identificación</label>
-              <select id="tipoIdentificacion" name="tipoIdentificacion" class="form-select" required>
-                <option value="">Seleccione...</option>
-                <option value="Cédula">Cédula</option>
-                <option value="RUC">RUC</option>
-                <option value="Pasaporte">Pasaporte</option>
-              </select>
-            </div>
+                <div class="form-group">
+                  <label for="tipoIdentificacion" class="form-label">Tipo de Identificación *</label>
+                  <select id="tipoIdentificacion" name="tipoIdentificacion" class="form-control" required>
+                    <option value="Cedula">Cédula</option>
+                    <option value="RUC">RUC</option>
+                    <option value="Pasaporte">Pasaporte</option>
+                  </select>
+                </div>
 
-            <div class="form-group">
-              <label for="identificacion">Identificación</label>
-              <input type="text" id="identificacion" name="identificacion" class="form-control" placeholder="Número de identificación" required>
-            </div>
+                <div class="form-group">
+                  <label for="identificacion" class="form-label">Número de Identificación *</label>
+                  <input type="text" id="identificacion" name="identificacion" class="form-control" required
+                    placeholder="Ej: 1804...">
+                </div>
 
-            <div class="form-group" style="grid-column: span 2;">
-              <label for="direccion">Dirección</label>
-              <input type="text" id="direccion" name="direccion" class="form-control" placeholder="Calle Principal, Ciudad">
-            </div>
+                <div class="form-group">
+                  <label for="celular" class="form-label">Celular</label>
+                  <input type="text" id="celular" name="celular" class="form-control" placeholder="Ej: 099...">
+                </div>
+
+                <div class="form-group">
+                  <label for="email" class="form-label">Correo Electrónico</label>
+                  <input type="email" id="email" name="email" class="form-control" placeholder="cliente@email.com">
+                </div>
+
+                <div class="form-group">
+                  <label for="direccion" class="form-label">Dirección</label>
+                  <input type="text" id="direccion" name="direccion" class="form-control"
+                    placeholder="Calle principal y secundaria">
+                </div>
+
+              </div>
+
+              <div class="btn-container">
+                <a href="/clientes" class="btn btn-secondary">
+                  <i class="fas fa-times"></i> Cancelar
+                </a>
+                <button type="submit" class="btn btn-success">
+                  <i class="fas fa-save"></i> Guardar Cliente
+                </button>
+              </div>
+            </form>
           </div>
-
-          <div style="display:flex; gap:10px; justify-content:center; margin-top:20px;">
-            <button type="submit" class="btn btn-success"><i class="fas fa-save"></i> Guardar Cliente</button>
-            <a href="/clientes" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Cancelar</a>
-          </div>
-        </form>
-      </div>
     </main>
   </div>
 
   <script>
+    // --- Sidebar Logic ---
     const toggle = document.querySelector('.mobile-menu-toggle');
     const navbar = document.querySelector('.navbar-vertical');
     const overlay = document.querySelector('.overlay');
@@ -342,21 +429,20 @@
       overlay.classList.remove('active');
     });
 
-    // Validación simple
+    // --- Validación Simple ---
     function validarFormulario(event) {
       const nombre = document.getElementById('nombre').value.trim();
-      const tipo = document.getElementById('tipoIdentificacion').value;
       const id = document.getElementById('identificacion').value.trim();
 
-      if (!nombre || !tipo || !id) {
+      if (!nombre || !id) {
         event.preventDefault();
-        alert('Por favor, completa todos los campos obligatorios.');
+        alert('⚠️ Por favor, completa los campos obligatorios (Nombre e Identificación).');
         return false;
       }
 
       if (id.length < 8) {
         event.preventDefault();
-        alert('La identificación debe tener al menos 8 caracteres.');
+        alert('⚠️ La identificación parece demasiado corta.');
         return false;
       }
 
@@ -364,5 +450,5 @@
     }
   </script>
 </body>
-</html>
 
+</html>

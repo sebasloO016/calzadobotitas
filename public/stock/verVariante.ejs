@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle de Variante - Botitas</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* ================= ESTILOS PRO + ADN ================= */
+        :root {
+            --primary-color: #6a5acd;
+            --secondary-color: #7b68ee;
+            --background-color: #f4f6f9;
+            --text-color: #334155;
+            --white: #ffffff;
+            --danger-color: #ef4444;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --border-color: #e2e8f0;
+            --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        body {
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            display: flex;
+            min-height: 100vh;
+            margin: 0.5cm;
+            position: relative;
+        }
+
+        /* ===== LAYOUT ===== */
+        .container-fluid {
+            display: flex;
+            flex-grow: 1;
+            gap: 20px;
+            width: 100%;
+        }
+
+        /* ===== SIDEBAR & NAV ===== */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            z-index: 1000;
+            background: var(--primary-color);
+            border: none;
+            color: var(--white);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+        }
+
+        .mobile-menu-toggle:hover {
+            transform: scale(1.05);
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 998;
+            backdrop-filter: blur(2px);
+        }
+
+        .navbar-vertical {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            width: 230px;
+            padding: 20px;
+            color: var(--white);
+            display: flex;
+            flex-direction: column;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            z-index: 999;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+            min-height: 80vh;
+        }
+
+        .nav-header {
+            text-align: center;
+            font-size: 1.4em;
+            margin-bottom: 25px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-menu {
+            list-style: none;
+            flex-grow: 1;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            color: var(--white);
+            text-decoration: none;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+        }
+
+        .nav-link i {
+            margin-right: 12px;
+            width: 22px;
+            text-align: center;
+            font-size: 1.1em;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        .nav-link.active {
+            background-color: rgba(255, 255, 255, 0.3);
+            font-weight: 600;
+            border-left: 4px solid #fff;
+        }
+
+        /* ===== MAIN CONTENT ===== */
+        .main-content {
+            flex-grow: 1;
+            background-color: var(--white);
+            border-radius: 15px;
+            padding: 30px;
+            overflow-x: hidden;
+            width: 100%;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, .05);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            /* Centrar contenido */
+        }
+
+        .logo {
+            max-width: 150px;
+            display: block;
+            margin: 0 auto 20px;
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            font-size: 1.8rem;
+            text-align: center;
+        }
+
+        /* ===== TARJETA DE DETALLE PRO ===== */
+        .detail-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            max-width: 700px;
+            width: 100%;
+            animation: slideUp 0.4s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card-header-bg {
+            background: linear-gradient(135deg, #f8fafc, #eff6ff);
+            padding: 30px;
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .product-img {
+            width: 140px;
+            height: 140px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 4px solid white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-titles h2 {
+            font-size: 1.6rem;
+            color: var(--text-color);
+            margin-bottom: 5px;
+            line-height: 1.2;
+        }
+
+        .badge-code {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            font-family: monospace;
+            margin-top: 5px;
+        }
+
+        /* GRID DE ATRIBUTOS */
+        .attributes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 20px;
+            padding: 30px;
+        }
+
+        .attr-box {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s;
+        }
+
+        .attr-box:hover {
+            transform: translateY(-3px);
+            border-color: var(--secondary-color);
+            background: #fbfbfe;
+        }
+
+        .attr-icon {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .attr-label {
+            font-size: 0.85rem;
+            color: #64748b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .attr-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-color);
+        }
+
+        /* UBICACION DESTACADA */
+        .attr-box.location-box {
+            background: #eff6ff;
+            border-color: #bfdbfe;
+        }
+
+        .attr-box.location-box .attr-icon {
+            color: #2563eb;
+        }
+
+        /* STOCK DESTACADO */
+        .stock-section {
+            padding: 20px 30px;
+            background: #fff;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stock-indicator {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .stock-number {
+            font-size: 2.5rem;
+            font-weight: 800;
+            line-height: 1;
+        }
+
+        .stock-text {
+            font-size: 0.9rem;
+            color: #64748b;
+            line-height: 1.2;
+        }
+
+        /* Colores dinámicos para el stock */
+        .text-success {
+            color: var(--success-color);
+        }
+
+        .text-danger {
+            color: var(--danger-color);
+        }
+
+        .text-warning {
+            color: var(--warning-color);
+        }
+
+        /* BOTONES DE ACCIÓN */
+        .actions-footer {
+            padding: 25px 30px;
+            background: #f8fafc;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 15px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            box-shadow: 0 4px 6px rgba(106, 90, 205, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            opacity: 0.95;
+        }
+
+        .btn-outline {
+            background: white;
+            border: 1px solid #cbd5e1;
+            color: #475569;
+        }
+
+        .btn-outline:hover {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+
+        /* Mensaje Error */
+        .error-card {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #fecaca;
+            text-align: center;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 700px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            body {
+                margin: 0.2cm;
+            }
+
+            .container-fluid {
+                flex-direction: column;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .navbar-vertical {
+                position: fixed;
+                left: -260px;
+                top: 0;
+                bottom: 0;
+                margin: 10px;
+                height: calc(100vh - 20px);
+                overflow-y: auto;
+            }
+
+            .navbar-vertical.active {
+                left: 0;
+            }
+
+            .overlay.active {
+                display: block;
+            }
+
+            .main-content {
+                margin-top: 50px;
+                padding: 15px;
+            }
+
+            .card-header-bg {
+                flex-direction: column;
+                text-align: center;
+                padding: 20px;
+            }
+
+            .actions-footer {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .stock-section {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <button class="mobile-menu-toggle"><i class="fas fa-bars"></i></button>
+    <div class="overlay"></div>
+
+    <div class="container-fluid">
+        <nav class="navbar-vertical">
+            <div class="nav-header">Inventario Botitas</div>
+            <ul class="nav-menu">
+                <li><a href="/inventario/agregar" class="nav-link"><i class="fas fa-box-open"></i> Re-stock</a></li>
+                <li><a href="/stock" class="nav-link active"><i class="fas fa-barcode"></i> Stock / QR</a></li>
+                <li><a href="/inventario" class="nav-link"><i class="fas fa-clipboard-list"></i> Inventario</a></li>
+                <li><a href="/admin-dashboard" class="nav-link"><i class="fas fa-arrow-left"></i> Regresar</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <img src="/imagenes/logo botitas.png" class="logo" alt="Logo Botitas">
+            <h1><i class="fas fa-qrcode"></i> Detalle de Variante</h1>
+
+            <% if (error) { %>
+                <div class="error-card">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <%= error %>
+                </div>
+                <% } %>
+
+                    <% if (producto) { %>
+                        <div class="detail-card">
+
+                            <div class="card-header-bg">
+                                <img src="<%= producto.Foto || '/imagenes/no-image.png' %>" class="product-img"
+                                    alt="Producto">
+                                <div class="product-titles">
+                                    <h2>
+                                        <%= producto.Nombre %>
+                                    </h2>
+                                    <span class="badge-code"><i class="fas fa-tag"></i>
+                                        <%= producto.Codigo %>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div class="attributes-grid">
+                                <div class="attr-box">
+                                    <i class="fas fa-ruler-vertical attr-icon"></i>
+                                    <span class="attr-label">Talla</span>
+                                    <span class="attr-value">
+                                        <%= producto.Talla || '-' %>
+                                    </span>
+                                </div>
+
+                                <div class="attr-box">
+                                    <i class="fas fa-palette attr-icon"></i>
+                                    <span class="attr-label">Color</span>
+                                    <span class="attr-value">
+                                        <%= producto.Color || '-' %>
+                                    </span>
+                                </div>
+
+                                <div class="attr-box">
+                                    <i class="fas fa-shoe-prints attr-icon"></i>
+                                    <span class="attr-label">Material</span>
+                                    <span class="attr-value">
+                                        <%= producto.Material || '-' %>
+                                    </span>
+                                </div>
+
+                                <div class="attr-box location-box">
+                                    <i class="fas fa-map-marker-alt attr-icon"></i>
+                                    <span class="attr-label">Ubicación</span>
+                                    <span class="attr-value">
+                                        <%= producto.Ubicacion || 'Sin asignar' %>
+                                    </span>
+                                </div>
+                            </div>
+
+                            <% let stockClass='text-success' ; let stockMsg='Unidades Disponibles' ; if
+                                (producto.Stock==0) { stockClass='text-danger' ; stockMsg='Agotado' ; } else if
+                                (producto.Stock < 5) { stockClass='text-warning' ; stockMsg='Stock Bajo' ; } %>
+                                <div class="stock-section">
+                                    <div class="stock-indicator">
+                                        <div class="stock-number <%= stockClass %>">
+                                            <%= producto.Stock %>
+                                        </div>
+                                        <div class="stock-text">
+                                            <strong>
+                                                <%= stockMsg %>
+                                            </strong><br>
+                                            en inventario
+                                        </div>
+                                    </div>
+
+                                </div>
+
+                                <div class="actions-footer">
+                                    <a href="/stock" class="btn btn-outline">
+                                        <i class="fas fa-arrow-left"></i> Volver al Buscador
+                                    </a>
+
+                                    <% if (producto.Stock> 0) { %>
+                                        <a href="/ventas/nueva?qr=<%= producto.QrCode %>" class="btn btn-primary">
+                                            <i class="fas fa-shopping-cart"></i> Vender Ahora
+                                        </a>
+                                        <% } else { %>
+                                            <button class="btn btn-outline" disabled
+                                                style="opacity: 0.5; cursor: not-allowed;">
+                                                <i class="fas fa-ban"></i> Sin Stock para Venta
+                                            </button>
+                                            <% } %>
+                                </div>
+
+                        </div>
+                        <% } %>
+        </main>
+    </div>
+
+    <script>
+        // Lógica del Sidebar Móvil
+        const menuToggle = document.querySelector('.mobile-menu-toggle');
+        const sidebar = document.querySelector('.navbar-vertical');
+        const overlay = document.querySelector('.overlay');
+
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+        });
+
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+    </script>
+</body>
+
+</html>

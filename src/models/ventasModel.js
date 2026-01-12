@@ -2,12 +2,28 @@
 const db = require('../db/db');
 
 const ventasModel = {
-  // 🔹 Buscar cliente por identificación
-  findClienteByIdentificacion: (identificacion, callback) => {
-    db.query('SELECT * FROM clientes WHERE Identificacion = ?', [identificacion], callback);
+
+  // ==============================================================
+  // 🟢 SECCIÓN: DATOS MAESTROS (IVA, CONFIG)
+  // ==============================================================
+
+  // Obtener tarifas de IVA activas para el select del frontend
+  getIvaRates: (callback) => {
+    const query = "SELECT IvaID, Porcentaje, Descripcion FROM iva WHERE Estado = 'activo'";
+    db.query(query, callback);
   },
 
-  // 🔹 Crear nuevo cliente
+  // ==============================================================
+  // 🟢 SECCIÓN: CLIENTES (Búsqueda, Creación y Edición)
+  // ==============================================================
+
+  // Buscar cliente por Identificación (Cédula/RUC)
+  findClienteByIdentificacion: (identificacion, callback) => {
+    const query = 'SELECT * FROM clientes WHERE Identificacion = ?';
+    db.query(query, [identificacion], callback);
+  },
+
+  // Crear nuevo cliente
   createCliente: (cliente, callback) => {
     const query = `
       INSERT INTO clientes (Nombre, Celular, Email, TipoIdentificacion, Identificacion, Direccion)
@@ -24,80 +40,119 @@ const ventasModel = {
     db.query(query, values, callback);
   },
 
-  // 🔹 Crear nueva venta
-  createVenta: (clienteId, formaDePago, callback) => {
-    const query = 'INSERT INTO ventas (ClienteID, EmpresaID, FormaDePago) VALUES (?, 1, ?)';
-    db.query(query, [clienteId, formaDePago], callback);
-  },
-
-  // 🔹 Buscar producto por código
-  findProductoByCodigo: (codigo, callback) => {
-    db.query('SELECT * FROM productos WHERE Codigo = ?', [codigo], callback);
-  },
-
-  // 🔹 Insertar detalle de venta
-  createDetalleVenta: (detalle, callback) => {
+  // 🔹 Actualizar cliente existente (Para edición en caliente)
+  updateCliente: (id, cliente, callback) => {
     const query = `
-      INSERT INTO detalleventas (VentaID, ProductoID, Cantidad, Precio, Descuento, IvaID, IvaValor)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      UPDATE clientes 
+      SET Nombre = ?, Celular = ?, Email = ?, Direccion = ?, TipoIdentificacion = ?
+      WHERE ClienteID = ?
     `;
     const values = [
-      detalle.VentaID,
-      detalle.ProductoID,
-      detalle.Cantidad,
-      detalle.Precio,
-      detalle.Descuento,
-      detalle.IvaID,
-      detalle.IvaValor
+      cliente.nombre,
+      cliente.celular,
+      cliente.email,
+      cliente.direccion,
+      cliente.tipoIdentificacion,
+      id
     ];
     db.query(query, values, callback);
   },
 
-  // 🔹 Actualizar stock del producto
-  updateStock: (productoId, nuevaCantidad, callback) => {
-    db.query('UPDATE productos SET Cantidad = ? WHERE ProductoID = ?', [nuevaCantidad, productoId], callback);
+  // ==============================================================
+  // 🟢 SECCIÓN: PRODUCTOS (Búsqueda para el Carrito)
+  // ==============================================================
+
+  // Buscar producto y sus variantes por código de barras/manual
+  findProductoByCodigo: (codigo, callback) => {
+    // 📸 AÑADIDO: p.Foto para la previsualización en el buscador
+    const sql = `
+      SELECT 
+        p.ProductoID,
+        p.Nombre AS Producto,
+        p.Codigo,
+        p.Foto,  
+        p.PrecioVenta AS PrecioBase,
+        v.VarianteID,
+        v.Stock,
+        v.PrecioVentaVariante,
+        t.Valor AS Talla,
+        c.Nombre AS Color,
+        m.Nombre AS Material
+      FROM productos p
+      JOIN variantes_producto v ON p.ProductoID = v.ProductoID
+      LEFT JOIN tallas t ON v.TallaID = t.TallaID
+      LEFT JOIN colores c ON v.ColorID = c.ColorID
+      LEFT JOIN materiales m ON v.MaterialID = m.MaterialID
+      WHERE p.Codigo = ? AND p.Estado = 'activo'
+    `;
+    db.query(sql, [codigo], callback);
   },
 
-  // 🔹 Obtener historial con cédula y totales
+  // ==============================================================
+  // 🟢 SECCIÓN: HISTORIAL Y REPORTES
+  // ==============================================================
+
+  // Obtener historial de ventas (Resumen)
   getHistorialVentas: (callback) => {
+    // 📸 AÑADIDO: Subconsulta para traer la FotoPrincipal del primer producto vendido
     const query = `
       SELECT 
-        v.VentaID,
-        v.Fecha,
-        v.FormaDePago,
-        c.Nombre AS Cliente,
-        c.Identificacion,
-        COALESCE(SUM(dv.ValorTotal), 0) AS ValorTotal
-      FROM ventas v
-      LEFT JOIN clientes c ON v.ClienteID = c.ClienteID
-      LEFT JOIN detalleventas dv ON v.VentaID = dv.VentaID
-      GROUP BY v.VentaID, v.Fecha, v.FormaDePago, c.Nombre, c.Identificacion
-      ORDER BY v.Fecha DESC;
+  v.VentaID,
+  v.Fecha,
+  v.FormaDePago,
+  v.TotalVenta,
+  v.Estado,
+  v.NumeroFacturaSri,
+  c.Nombre AS Cliente,
+  c.Identificacion,
+  u.Nombre AS Vendedor,
+  (SELECT p.Foto 
+   FROM detalleventas dv 
+   JOIN productos p ON dv.ProductoID = p.ProductoID 
+   WHERE dv.VentaID = v.VentaID 
+   LIMIT 1) AS FotoPrincipal
+FROM ventas v
+LEFT JOIN clientes c ON v.ClienteID = c.ClienteID
+LEFT JOIN usuarios u ON v.UsuarioID = u.UsuarioID
+ORDER BY v.Fecha DESC;
+
     `;
     db.query(query, callback);
   },
 
-  // 🔹 Obtener detalle de una venta
+  // Obtener detalle completo de una venta específica (Encabezado + Productos)
   getDetalleVenta: (ventaId, callback) => {
     const queryVenta = `
-      SELECT 
-        v.VentaID, v.Fecha, v.FormaDePago,
-        c.Nombre AS Cliente, c.Identificacion
-      FROM ventas v
-      LEFT JOIN clientes c ON v.ClienteID = c.ClienteID
-      WHERE v.VentaID = ?;
-    `;
+  SELECT 
+    v.VentaID, v.Fecha, v.FormaDePago, v.TotalVenta, v.Estado, 
+    v.NumeroFacturaSri, v.Subtotal, v.IvaValor, v.DescuentoTotal,
+    c.Nombre AS Cliente, c.Identificacion, c.Direccion, c.Email, c.Celular,
+    u.Nombre AS Vendedor
+  FROM ventas v
+  LEFT JOIN clientes c ON v.ClienteID = c.ClienteID
+  LEFT JOIN usuarios u ON v.UsuarioID = u.UsuarioID
+  WHERE v.VentaID = ?;
+`;
 
+
+    // 📸 AÑADIDO: p.Foto para mostrar miniaturas en el modal de detalles
     const queryDetalles = `
       SELECT 
         p.Nombre AS Producto,
+        p.Codigo,
+        p.Foto, 
+        t.Valor AS Talla,
+        c.Nombre AS Color,
         dv.Cantidad,
-        dv.Precio,
+        dv.PrecioUnitario,
         dv.Descuento,
-        dv.SubtotalSinImpuestos AS Subtotal,
+        dv.IvaValor,
         dv.ValorTotal
       FROM detalleventas dv
+      JOIN variantes_producto vp ON dv.VarianteID = vp.VarianteID
       JOIN productos p ON dv.ProductoID = p.ProductoID
+      LEFT JOIN tallas t ON vp.TallaID = t.TallaID
+      LEFT JOIN colores c ON vp.ColorID = c.ColorID
       WHERE dv.VentaID = ?;
     `;
 
@@ -112,40 +167,72 @@ const ventasModel = {
     });
   },
 
-  // 🔹 Anular venta (elimina venta y devuelve stock)
-  anularVenta: (ventaId, callback) => {
-    db.beginTransaction(err => {
-      if (err) return callback(err);
+  // ==============================================================
+  // 🟢 SECCIÓN: ANULACIÓN (Lógica Transaccional)
+  // ==============================================================
 
-      const qDetalles = 'SELECT ProductoID, Cantidad FROM detalleventas WHERE VentaID = ?';
-      db.query(qDetalles, [ventaId], (err, detalles) => {
-        if (err) return db.rollback(() => callback(err));
+  anularVenta: async (ventaId, callback) => {
+    let connection;
 
-        const promises = detalles.map(d => {
-          return new Promise((resolve, reject) => {
-            db.query(
-              'UPDATE productos SET Cantidad = Cantidad + ? WHERE ProductoID = ?',
-              [d.Cantidad, d.ProductoID],
-              (err) => err ? reject(err) : resolve()
-            );
-          });
-        });
+    try {
+      // 1️⃣ Obtener conexión real
+      connection = await db.promise().getConnection();
+      await connection.beginTransaction();
 
-        Promise.all(promises)
-          .then(() => {
-            db.query('DELETE FROM detalleventas WHERE VentaID = ?', [ventaId], (err) => {
-              if (err) return db.rollback(() => callback(err));
+      // 2️⃣ Verificar estado de la venta (bloqueo)
+      const [ventaRows] = await connection.query(
+        'SELECT Estado FROM ventas WHERE VentaID = ? FOR UPDATE',
+        [ventaId]
+      );
 
-              db.query('DELETE FROM ventas WHERE VentaID = ?', [ventaId], (err) => {
-                if (err) return db.rollback(() => callback(err));
-                db.commit(callback);
-              });
-            });
-          })
-          .catch(err => db.rollback(() => callback(err)));
-      });
-    });
+      if (!ventaRows.length) {
+        throw new Error('Venta no encontrada');
+      }
+
+      if (ventaRows[0].Estado === 'Anulada') {
+        throw new Error('La venta ya está anulada');
+      }
+
+      // 3️⃣ Obtener detalles
+      const [detalles] = await connection.query(
+        'SELECT VarianteID, Cantidad FROM detalleventas WHERE VentaID = ?',
+        [ventaId]
+      );
+
+      // 4️⃣ Devolver stock + kardex
+      for (const d of detalles) {
+        await connection.query(
+          'UPDATE variantes_producto SET Stock = Stock + ? WHERE VarianteID = ?',
+          [d.Cantidad, d.VarianteID]
+        );
+
+        await connection.query(
+          `INSERT INTO movimientos_stock 
+         (VarianteID, Tipo, Cantidad, Referencia)
+         VALUES (?, 'ENTRADA', ?, ?)`,
+          [d.VarianteID, d.Cantidad, `ANULACIÓN VENTA #${ventaId}`]
+        );
+      }
+
+      // 5️⃣ Cambiar estado
+      await connection.query(
+        "UPDATE ventas SET Estado = 'Anulada' WHERE VentaID = ?",
+        [ventaId]
+      );
+
+      // 6️⃣ Confirmar
+      await connection.commit();
+      callback(null, { success: true });
+
+    } catch (error) {
+      if (connection) await connection.rollback();
+      callback(error);
+    } finally {
+      if (connection) connection.release();
+    }
   }
+
+
 };
 
 module.exports = ventasModel;

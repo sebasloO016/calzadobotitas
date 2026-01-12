@@ -25,21 +25,31 @@ exports.getCrearProveedorPage = (req, res) => {
 // 💾 CREAR PROVEEDOR
 // ======================================================
 exports.addProveedor = (req, res) => {
-  const { nombre, contacto, telefono, email, direccion } = req.body;
+  const { nombre, contacto, telefono, email, direccion, ruc } = req.body;
 
   if (!nombre) {
-    return res.status(400).send('El nombre del proveedor es obligatorio.');
+    return res.render('proveedores/crearProveedor', {
+      error: 'El nombre del proveedor es obligatorio.'
+    });
   }
 
-  Proveedor.add(nombre, contacto, telefono, email, direccion, (err) => {
+  Proveedor.add(nombre, contacto, telefono, email, direccion, ruc, (err) => {
     if (err) {
-      console.error('❌ Error al crear proveedor:', err);
-      return res.status(500).send('Error al crear proveedor.');
+      console.error(err);
+
+      if (err.code === 'ER_DUP_ENTRY') {
+        return res.render('proveedores/crearProveedor', {
+          error: 'El correo o el RUC ya están registrados.'
+        });
+      }
+
+      return res.status(500).send('Error interno al crear proveedor.');
     }
-    console.log(`✅ Nuevo proveedor agregado: ${nombre}`);
+
     res.redirect('/proveedores');
   });
 };
+
 
 // ======================================================
 // ✏️ FORMULARIO EDITAR PROVEEDOR
@@ -59,17 +69,26 @@ exports.getEditarProveedorPage = (req, res) => {
 // ======================================================
 exports.editProveedor = (req, res) => {
   const id = req.params.id;
-  const { nombre, contacto, telefono, email, direccion } = req.body;
+  const { nombre, contacto, telefono, email, direccion, ruc } = req.body;
 
-  Proveedor.update(id, nombre, contacto, telefono, email, direccion, (err) => {
+  Proveedor.update(id, nombre, contacto, telefono, email, direccion, ruc, (err) => {
     if (err) {
-      console.error('❌ Error al actualizar proveedor:', err);
+      console.error(err);
+
+      if (err.code === 'ER_DUP_ENTRY') {
+        return res.render('proveedores/editarProveedor', {
+          proveedor: { ProveedorID: id, nombre, contacto, telefono, email, direccion, ruc },
+          error: 'El correo o el RUC ya pertenecen a otro proveedor.'
+        });
+      }
+
       return res.status(500).send('Error al actualizar proveedor.');
     }
-    console.log(`✅ Proveedor actualizado ID: ${id}`);
+
     res.redirect('/proveedores');
   });
 };
+
 
 // ======================================================
 // ❌ ELIMINAR PROVEEDOR
