@@ -49,7 +49,6 @@ Compras.getById = (id, callback) => {
 
 // ===============================
 // Obtener detalle compra
-// (incluye subtotal calculado)
 // ===============================
 Compras.getDetalle = (id, callback) => {
   const sql = `
@@ -70,6 +69,7 @@ Compras.getDetalle = (id, callback) => {
 
 // ===============================
 // Buscar compra existente por factura
+// (Nota: Se mantiene para usos simples fuera de transacción)
 // ===============================
 Compras.findByFactura = (ProveedorID, NumeroFactura, callback) => {
   const sql = `
@@ -85,129 +85,120 @@ Compras.findByFactura = (ProveedorID, NumeroFactura, callback) => {
 };
 
 // ===============================
-// Crear compra automática UNIFICADA
-// (si existe factura, reutiliza compra)
-// + inserta detalle + stock + movimiento
-// + suma TotalCompra
+// Crear compra automática UNIFICADA - CORREGIDO
 // ===============================
 Compras.crearCompraAutomatica = (data, callback) => {
   const { ProveedorID, FechaCompra, NumeroFactura, Detalle } = data;
 
-  db.beginTransaction(err => {
+  // 1. Obtener conexión del pool
+  db.getConnection((err, conn) => {
     if (err) return callback(err);
 
-    Compras.findByFactura(ProveedorID, NumeroFactura, (err, compraID) => {
-      if (err) return db.rollback(() => callback(err));
+    // 2. Iniciar transacción en la conexión
+    conn.beginTransaction(err => {
+      if (err) {
+        conn.release();
+        return callback(err);
+      }
 
-      const crearNuevaCompra = (done) => {
-        const sql = `
-          INSERT INTO compras_proveedor
-          (ProveedorID, FechaCompra, NumeroFactura, TotalCompra)
-          VALUES (?, ?, ?, 0)
-        `;
-        db.query(sql, [ProveedorID, FechaCompra, NumeroFactura], (err, result) => {
-          if (err) return db.rollback(() => callback(err));
-          done(result.insertId);
-        });
-      };
+      // Buscar si existe la factura (Usando conn, NO db)
+      conn.query(
+        `SELECT CompraProveedorID FROM compras_proveedor WHERE ProveedorID = ? AND NumeroFactura = ? LIMIT 1`,
+        [ProveedorID, NumeroFactura],
+        (err, rows) => {
+          if (err) return conn.rollback(() => { conn.release(); callback(err); });
 
-      const continuarConCompra = (id) => insertarDetalleYSumarTotal(id);
+          const compraIDExistente = rows.length ? rows[0].CompraProveedorID : null;
 
-      if (compraID) continuarConCompra(compraID);
-      else crearNuevaCompra(continuarConCompra);
-
-      function insertarDetalleYSumarTotal(compraIDFinal) {
-        if (!Array.isArray(Detalle) || Detalle.length === 0) {
-          return db.rollback(() => callback(new Error('Detalle vacío')));
-        }
-
-        const sqlGetTalla = `
-    SELECT TallaID
-    FROM variantes_producto
-    WHERE VarianteID = ?
-    LIMIT 1
-  `;
-
-        const sqlDetalle = `
-    INSERT INTO detalle_compras
-    (CompraProveedorID, TallaID, Cantidad, CostoUnitario)
-    VALUES (?, ?, ?, ?)
-  `;
-
-        const sqlStock = `
-    UPDATE variantes_producto
-    SET Stock = Stock + ?
-    WHERE VarianteID = ?
-  `;
-
-        const sqlMov = `
-    INSERT INTO movimientos_stock
-    (VarianteID, Tipo, Cantidad, Referencia)
-    VALUES (?, 'ENTRADA', ?, ?)
-  `;
-
-        let totalSumar = 0;
-        let pendientes = Detalle.length;
-
-        Detalle.forEach(d => {
-          totalSumar += (d.Cantidad * d.CostoUnitario);
-
-          // 🔥 1. Obtener TallaID desde VarianteID
-          db.query(sqlGetTalla, [d.VarianteID], (err, rows) => {
-            if (err) return db.rollback(() => callback(err));
-            if (!rows.length) {
-              return db.rollback(() =>
-                callback(new Error(`Variante ${d.VarianteID} no encontrada`))
-              );
+          const procesarDetalle = (compraIDFinal) => {
+            if (!Array.isArray(Detalle) || Detalle.length === 0) {
+              return conn.rollback(() => { conn.release(); callback(new Error('Detalle vacío')); });
             }
 
-            const tallaID = rows[0].TallaID;
+            // Preparamos los queries
+            const sqlGetTalla = `SELECT TallaID FROM variantes_producto WHERE VarianteID = ? LIMIT 1`;
+            const sqlDetalle = `INSERT INTO detalle_compras (CompraProveedorID, TallaID, Cantidad, CostoUnitario) VALUES (?, ?, ?, ?)`;
+            const sqlStock = `UPDATE variantes_producto SET Stock = Stock + ? WHERE VarianteID = ?`;
+            const sqlMov = `INSERT INTO movimientos_stock (VarianteID, Tipo, Cantidad, Referencia) VALUES (?, 'ENTRADA', ?, ?)`;
 
-            // 🔥 2. Insertar detalle_compra con TallaID correcto
-            db.query(
-              sqlDetalle,
-              [compraIDFinal, tallaID, d.Cantidad, d.CostoUnitario],
-              (err) => {
-                if (err) return db.rollback(() => callback(err));
+            let totalSumar = 0;
+            let pendientes = Detalle.length;
+            let huboError = false;
 
-                // 🔥 3. Actualizar stock
-                db.query(sqlStock, [d.Cantidad, d.VarianteID], (err) => {
-                  if (err) return db.rollback(() => callback(err));
+            Detalle.forEach(d => {
+              if (huboError) return;
 
-                  // 🔥 4. Registrar movimiento
-                  db.query(
-                    sqlMov,
-                    [d.VarianteID, d.Cantidad, `FACTURA ${NumeroFactura}`],
-                    (err) => {
-                      if (err) return db.rollback(() => callback(err));
+              totalSumar += (d.Cantidad * d.CostoUnitario);
+
+              // 1. Obtener Talla
+              conn.query(sqlGetTalla, [d.VarianteID], (err, tRows) => {
+                if (err || !tRows.length) {
+                  huboError = true;
+                  return conn.rollback(() => { conn.release(); callback(err || new Error(`Variante ${d.VarianteID} no encontrada`)); });
+                }
+                const tallaID = tRows[0].TallaID;
+
+                // 2. Insertar Detalle
+                conn.query(sqlDetalle, [compraIDFinal, tallaID, d.Cantidad, d.CostoUnitario], (err) => {
+                  if (err && !huboError) {
+                    huboError = true;
+                    return conn.rollback(() => { conn.release(); callback(err); });
+                  }
+
+                  // 3. Actualizar Stock
+                  conn.query(sqlStock, [d.Cantidad, d.VarianteID], (err) => {
+                    if (err && !huboError) {
+                      huboError = true;
+                      return conn.rollback(() => { conn.release(); callback(err); });
+                    }
+
+                    // 4. Registrar Movimiento
+                    conn.query(sqlMov, [d.VarianteID, d.Cantidad, `FACTURA ${NumeroFactura}`], (err) => {
+                      if (err && !huboError) {
+                        huboError = true;
+                        return conn.rollback(() => { conn.release(); callback(err); });
+                      }
 
                       pendientes--;
-
-                      if (pendientes === 0) {
-                        db.query(
-                          `
-                    UPDATE compras_proveedor
-                    SET TotalCompra = TotalCompra + ?
-                    WHERE CompraProveedorID = ?
-                    `,
+                      if (pendientes === 0 && !huboError) {
+                        // Actualizar total final
+                        conn.query(
+                          `UPDATE compras_proveedor SET TotalCompra = TotalCompra + ? WHERE CompraProveedorID = ?`,
                           [totalSumar, compraIDFinal],
                           (err) => {
-                            if (err) return db.rollback(() => callback(err));
-                            db.commit(err =>
-                              err ? callback(err) : callback(null)
-                            );
+                            if (err) return conn.rollback(() => { conn.release(); callback(err); });
+
+                            // EXITO FINAL
+                            conn.commit(err => {
+                              if (err) return conn.rollback(() => { conn.release(); callback(err); });
+                              conn.release();
+                              callback(null);
+                            });
                           }
                         );
                       }
-                    }
-                  );
+                    });
+                  });
                 });
+              });
+            });
+          };
+
+          if (compraIDExistente) {
+            procesarDetalle(compraIDExistente);
+          } else {
+            // Crear nueva compra
+            conn.query(
+              `INSERT INTO compras_proveedor (ProveedorID, FechaCompra, NumeroFactura, TotalCompra) VALUES (?, ?, ?, 0)`,
+              [ProveedorID, FechaCompra, NumeroFactura],
+              (err, result) => {
+                if (err) return conn.rollback(() => { conn.release(); callback(err); });
+                procesarDetalle(result.insertId);
               }
             );
-          });
-        });
-      }
-
+          }
+        }
+      );
     });
   });
 };
@@ -226,84 +217,85 @@ Compras.getPagos = (CompraProveedorID, callback) => {
 };
 
 // ===============================
-// Pagos: insertar pago y actualizar EstadoPago
-// (con validación de saldo)
+// Pagos: insertar pago y actualizar EstadoPago - CORREGIDO
 // ===============================
 Compras.registrarPago = (data, callback) => {
   const { CompraProveedorID, FechaPago, MontoPagado, MetodoPago, Referencia } = data;
 
-  db.beginTransaction(err => {
+  // 1. Obtener conexión
+  db.getConnection((err, conn) => {
     if (err) return callback(err);
 
-    // 1️⃣ Obtener total de la compra
-    db.query(
-      `SELECT TotalCompra FROM compras_proveedor WHERE CompraProveedorID = ?`,
-      [CompraProveedorID],
-      (err, rows) => {
-        if (err) return db.rollback(() => callback(err));
-        const totalCompra = Number(rows?.[0]?.TotalCompra || 0);
+    // 2. Transacción
+    conn.beginTransaction(err => {
+      if (err) {
+        conn.release();
+        return callback(err);
+      }
 
-        // 2️⃣ Obtener total ya pagado
-        db.query(
-          `SELECT COALESCE(SUM(MontoPagado),0) AS TotalPagado
-           FROM pagos_proveedores
-           WHERE CompraProveedorID = ?`,
-          [CompraProveedorID],
-          (err, rows2) => {
-            if (err) return db.rollback(() => callback(err));
-            const totalPagado = Number(rows2?.[0]?.TotalPagado || 0);
+      // Obtener TotalCompra
+      conn.query(
+        `SELECT TotalCompra FROM compras_proveedor WHERE CompraProveedorID = ?`,
+        [CompraProveedorID],
+        (err, rows) => {
+          if (err) return conn.rollback(() => { conn.release(); callback(err); });
 
-            const saldoActual = totalCompra - totalPagado;
+          const totalCompra = Number(rows?.[0]?.TotalCompra || 0);
 
-            // 🔒 VALIDACIÓN CRÍTICA
-            if (MontoPagado > saldoActual) {
-              return db.rollback(() =>
-                callback(
-                  new Error(
-                    `El monto excede el saldo pendiente. Saldo actual: $${saldoActual.toFixed(2)}`
-                  )
-                )
+          // Obtener TotalPagado
+          conn.query(
+            `SELECT COALESCE(SUM(MontoPagado),0) AS TotalPagado FROM pagos_proveedores WHERE CompraProveedorID = ?`,
+            [CompraProveedorID],
+            (err, rows2) => {
+              if (err) return conn.rollback(() => { conn.release(); callback(err); });
+
+              const totalPagado = Number(rows2?.[0]?.TotalPagado || 0);
+              const saldoActual = totalCompra - totalPagado;
+
+              if (MontoPagado > saldoActual + 0.01) { // Pequeña tolerancia de centavos
+                return conn.rollback(() => {
+                  conn.release();
+                  callback(new Error(`El monto excede el saldo pendiente ($${saldoActual.toFixed(2)})`));
+                });
+              }
+
+              // Insertar Pago
+              conn.query(
+                `INSERT INTO pagos_proveedores (CompraProveedorID, FechaPago, MontoPagado, MetodoPago, Referencia) VALUES (?, ?, ?, ?, ?)`,
+                [CompraProveedorID, FechaPago, MontoPagado, MetodoPago, Referencia],
+                (err) => {
+                  if (err) return conn.rollback(() => { conn.release(); callback(err); });
+
+                  const nuevoTotalPagado = totalPagado + MontoPagado;
+                  let nuevoEstado = 'Pendiente';
+
+                  if (nuevoTotalPagado <= 0) nuevoEstado = 'Pendiente';
+                  else if (nuevoTotalPagado + 0.01 >= totalCompra) nuevoEstado = 'Pagado';
+                  else nuevoEstado = 'Parcial';
+
+                  // Actualizar Estado
+                  conn.query(
+                    `UPDATE compras_proveedor SET EstadoPago = ? WHERE CompraProveedorID = ?`,
+                    [nuevoEstado, CompraProveedorID],
+                    (err) => {
+                      if (err) return conn.rollback(() => { conn.release(); callback(err); });
+
+                      // EXITO
+                      conn.commit(err => {
+                        if (err) return conn.rollback(() => { conn.release(); callback(err); });
+                        conn.release();
+                        callback(null);
+                      });
+                    }
+                  );
+                }
               );
             }
-
-            // 3️⃣ Insertar pago
-            const sqlPago = `
-              INSERT INTO pagos_proveedores
-              (CompraProveedorID, FechaPago, MontoPagado, MetodoPago, Referencia)
-              VALUES (?, ?, ?, ?, ?)
-            `;
-            db.query(
-              sqlPago,
-              [CompraProveedorID, FechaPago, MontoPagado, MetodoPago, Referencia],
-              (err) => {
-                if (err) return db.rollback(() => callback(err));
-
-                const nuevoTotalPagado = totalPagado + MontoPagado;
-
-                let nuevoEstado = 'Pendiente';
-                if (nuevoTotalPagado <= 0) nuevoEstado = 'Pendiente';
-                else if (nuevoTotalPagado + 0.00001 >= totalCompra) nuevoEstado = 'Pagado';
-                else nuevoEstado = 'Parcial';
-
-                // 4️⃣ Actualizar estado
-                db.query(
-                  `UPDATE compras_proveedor
-                   SET EstadoPago = ?
-                   WHERE CompraProveedorID = ?`,
-                  [nuevoEstado, CompraProveedorID],
-                  (err) => {
-                    if (err) return db.rollback(() => callback(err));
-                    db.commit(err => (err ? callback(err) : callback(null)));
-                  }
-                );
-              }
-            );
-          }
-        );
-      }
-    );
+          );
+        }
+      );
+    });
   });
 };
-
 
 module.exports = Compras;
