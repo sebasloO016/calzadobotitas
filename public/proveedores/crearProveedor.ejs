@@ -92,7 +92,7 @@
       transition: all 0.3s ease;
       z-index: 999;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      height: fit-content;
+      height: 100%;
       min-height: 80vh;
     }
 
@@ -326,6 +326,124 @@
         width: 100%;
       }
     }
+
+    /* --- Estilos Generales para Validaciones --- */
+    .is-invalid {
+      border-color: #dc3545 !important;
+      background-color: #fff8f8;
+    }
+
+    .error-message {
+      color: #dc3545;
+      font-size: 0.85em;
+      margin-top: 4px;
+      display: none;
+    }
+
+    .is-invalid+.error-message {
+      display: block;
+    }
+
+    /* Mostrar error debajo del grupo de teléfono si falla */
+    .phone-group.is-invalid~.error-message {
+      display: block;
+    }
+
+    /* --- Estilos para el Teléfono con Bandera (Visual Hack) --- */
+    .phone-group {
+      display: flex;
+      align-items: center;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      overflow: hidden;
+      background-color: #fff;
+    }
+
+    .phone-prefix {
+      background-color: #e9ecef;
+      padding: 0.6rem 0.75rem;
+      /* Ajustado para alineación vertical */
+      border-right: 1px solid #ced4da;
+      color: #495057;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+      font-size: 1rem;
+    }
+
+    /* El input del teléfono sin bordes para integrarse */
+    .phone-group input {
+      border: none !important;
+      outline: none !important;
+      box-shadow: none !important;
+      flex: 1;
+      padding: 10px;
+      /* Padding interno para que coincida con los otros inputs */
+    }
+
+    /* Si hay error en el grupo del teléfono */
+    .phone-group.is-invalid {
+      border-color: #dc3545 !important;
+    }
+
+    /* --- Estilos Generales para Validaciones --- */
+    .is-invalid {
+      border-color: #dc3545 !important;
+      background-color: #fff8f8;
+    }
+
+    .error-message {
+      color: #dc3545;
+      font-size: 0.85em;
+      margin-top: 4px;
+      display: none;
+    }
+
+    .is-invalid+.error-message {
+      display: block;
+    }
+
+    /* Mostrar error debajo del grupo de teléfono si falla */
+    .phone-group.is-invalid~.error-message {
+      display: block;
+    }
+
+    /* --- Estilos para el Teléfono con Bandera --- */
+    .phone-group {
+      display: flex;
+      align-items: center;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+      overflow: hidden;
+      background-color: #fff;
+    }
+
+    .phone-prefix {
+      background-color: #e9ecef;
+      padding: 0.6rem 0.75rem;
+      border-right: 1px solid #ced4da;
+      color: #495057;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+      font-size: 1rem;
+    }
+
+    .phone-group input {
+      border: none !important;
+      outline: none !important;
+      box-shadow: none !important;
+      flex: 1;
+      padding: 10px;
+    }
+
+    .phone-group.is-invalid {
+      border-color: #dc3545 !important;
+    }
   </style>
 </head>
 
@@ -358,39 +476,52 @@
           <div class="form-section">
             <h3><i class="fas fa-handshake"></i> Registro de Proveedor</h3>
 
-            <form action="/proveedores/crear" method="POST">
+            <form action="/proveedores/crear" method="POST" id="formProveedor" novalidate>
               <div class="form-grid">
 
                 <div class="form-group">
                   <label for="nombre" class="form-label">Nombre Empresa / Proveedor *</label>
-                  <input type="text" id="nombre" name="nombre" class="form-control" required
-                    placeholder="Ej: Distribuidora XYZ">
+                  <input type="text" id="nombre" name="nombre" class="form-control" placeholder="Ej: Distribuidora XYZ">
+                  <div class="error-message">El nombre de la empresa es obligatorio.</div>
                 </div>
 
                 <div class="form-group">
-                  <label for="contacto" class="form-label">Persona de Contacto</label>
-                  <input type="text" id="contacto" name="contacto" class="form-control" placeholder="Ej: María López">
+                  <label for="contacto" class="form-label">Persona de Contacto *</label>
+                  <input type="text" id="contacto" name="contacto" class="form-control" placeholder="Ej: María López"
+                    oninput="this.value = this.value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '')">
+                  <div class="error-message">Este campo es obligatorio (Solo letras).</div>
                 </div>
 
                 <div class="form-group">
-                  <label for="telefono" class="form-label">Teléfono</label>
-                  <input type="text" id="telefono" name="telefono" class="form-control" placeholder="Ej: 099...">
+                  <label for="telefono" class="form-label">Teléfono Móvil *</label>
+                  <div class="phone-group" id="phoneContainer">
+                    <span class="phone-prefix">
+                      🇪🇨 +593
+                    </span>
+                    <input type="text" id="telefono" name="telefono" placeholder="912345678" maxlength="9"
+                      oninput="this.value = this.value.replace(/\D/g, '')">
+                  </div>
+                  <div class="error-message" id="msgTelefono">El teléfono es obligatorio (9 dígitos).</div>
                 </div>
 
                 <div class="form-group">
-                  <label for="email" class="form-label">Correo Electrónico</label>
+                  <label for="email" class="form-label">Correo Electrónico *</label>
                   <input type="email" id="email" name="email" class="form-control" placeholder="contacto@empresa.com">
+                  <div class="error-message" id="msgEmail">El correo es obligatorio.</div>
                 </div>
 
                 <div class="form-group">
-                  <label for="ruc" class="form-label">RUC / Identificación</label>
-                  <input type="text" id="ruc" name="ruc" class="form-control" placeholder="170...">
+                  <label for="ruc" class="form-label">RUC / Identificación *</label>
+                  <input type="text" id="ruc" name="ruc" class="form-control" placeholder="170..."
+                    oninput="this.value = this.value.replace(/\D/g, '')">
+                  <div class="error-message">El RUC es obligatorio.</div>
                 </div>
 
                 <div class="form-group">
-                  <label for="direccion" class="form-label">Dirección</label>
+                  <label for="direccion" class="form-label">Dirección *</label>
                   <input type="text" id="direccion" name="direccion" class="form-control"
                     placeholder="Ubicación de la bodega/oficina">
+                  <div class="error-message">La dirección es obligatoria.</div>
                 </div>
 
               </div>
@@ -414,14 +545,89 @@
     const navbar = document.querySelector('.navbar-vertical');
     const overlay = document.querySelector('.overlay');
 
-    toggle.addEventListener('click', () => {
-      navbar.classList.toggle('active');
-      overlay.classList.toggle('active');
-    });
+    if (toggle) { toggle.addEventListener('click', () => { navbar.classList.toggle('active'); overlay.classList.toggle('active'); }); }
+    if (overlay) { overlay.addEventListener('click', () => { navbar.classList.remove('active'); overlay.classList.remove('active'); }); }
 
-    overlay.addEventListener('click', () => {
-      navbar.classList.remove('active');
-      overlay.classList.remove('active');
+    // --- LÓGICA DE VALIDACIÓN COMPLETA (CAJA NEGRA) ---
+    const form = document.getElementById('formProveedor');
+
+    // Referencias a los inputs
+    const nombreInput = document.getElementById('nombre');
+    const contactoInput = document.getElementById('contacto');
+    const phoneInput = document.getElementById('telefono');
+    const phoneContainer = document.getElementById('phoneContainer');
+    const emailInput = document.getElementById('email');
+    const rucInput = document.getElementById('ruc');
+    const direccionInput = document.getElementById('direccion');
+
+    // Referencias a mensajes dinámicos
+    const msgTelefono = document.getElementById('msgTelefono');
+    const msgEmail = document.getElementById('msgEmail');
+
+    form.addEventListener('submit', function (e) {
+      let isValid = true;
+
+      // 1. Limpiar errores visuales previos
+      document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+      phoneContainer.classList.remove('is-invalid');
+
+      // --- VALIDACIONES DE CAMPOS OBLIGATORIOS ---
+
+      // Nombre
+      if (nombreInput.value.trim() === '') {
+        nombreInput.classList.add('is-invalid');
+        isValid = false;
+      }
+
+      // Contacto
+      if (contactoInput.value.trim() === '') {
+        contactoInput.classList.add('is-invalid');
+        isValid = false;
+      }
+
+      // RUC
+      if (rucInput.value.trim() === '') {
+        rucInput.classList.add('is-invalid');
+        isValid = false;
+      }
+
+      // Dirección
+      if (direccionInput.value.trim() === '') {
+        direccionInput.classList.add('is-invalid');
+        isValid = false;
+      }
+
+      // --- VALIDACIONES COMPLEJAS (Obligatorio + Formato) ---
+
+      // Teléfono: Obligatorio Y Longitud exacta
+      if (phoneInput.value.trim() === '') {
+        phoneContainer.classList.add('is-invalid');
+        msgTelefono.textContent = "El teléfono es obligatorio.";
+        isValid = false;
+      } else if (phoneInput.value.length < 9) {
+        phoneContainer.classList.add('is-invalid');
+        msgTelefono.textContent = "El teléfono debe tener 9 dígitos exactos.";
+        isValid = false;
+      }
+
+      // Email: Obligatorio Y Formato
+      if (emailInput.value.trim() === '') {
+        emailInput.classList.add('is-invalid');
+        msgEmail.textContent = "El correo es obligatorio.";
+        isValid = false;
+      } else {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(emailInput.value)) {
+          emailInput.classList.add('is-invalid');
+          msgEmail.textContent = "Formato inválido (ej: usuario@dominio.com).";
+          isValid = false;
+        }
+      }
+
+      // Si hay CUALQUIER error, detenemos el envío
+      if (!isValid) {
+        e.preventDefault();
+      }
     });
   </script>
 </body>
